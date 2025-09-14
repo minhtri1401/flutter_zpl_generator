@@ -1,6 +1,53 @@
 /// Enum for horizontal alignment of elements within a layout container.
 enum ZplAlignment { left, center, right }
 
+/// Enum for print density (resolution).
+/// Corresponds to the `^JM` command for setting print density.
+enum ZplPrintDensity {
+  /// 6 dots per mm (152 DPI) - Standard resolution
+  dpi152('A'),
+
+  /// 8 dots per mm (203 DPI) - Most common resolution
+  dpi203('B'),
+
+  /// 12 dots per mm (300 DPI) - High resolution
+  dpi300('C'),
+
+  /// 24 dots per mm (600 DPI) - Very high resolution
+  dpi600('D');
+
+  const ZplPrintDensity(this.value);
+  final String value;
+
+  /// Get the DPI value for this density
+  int get dpi {
+    switch (this) {
+      case ZplPrintDensity.dpi152:
+        return 152;
+      case ZplPrintDensity.dpi203:
+        return 203;
+      case ZplPrintDensity.dpi300:
+        return 300;
+      case ZplPrintDensity.dpi600:
+        return 600;
+    }
+  }
+
+  /// Get the dots per mm value for this density
+  int get dotsPerMm {
+    switch (this) {
+      case ZplPrintDensity.dpi152:
+        return 6;
+      case ZplPrintDensity.dpi203:
+        return 8;
+      case ZplPrintDensity.dpi300:
+        return 12;
+      case ZplPrintDensity.dpi600:
+        return 24;
+    }
+  }
+}
+
 /// Enum for ZPL fonts. Corresponds to the `^A` command.
 /// zero is the scalable font.
 enum ZplFont { a, b, c, d, e, f, g, h, zero }

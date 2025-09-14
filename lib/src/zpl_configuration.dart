@@ -41,6 +41,15 @@ class ZplConfiguration extends ZplCommand {
   /// Corresponds to the `^PO` command.
   final ZplPrintOrientation? printOrientation;
 
+  /// The print density (resolution). This affects how content fits on the physical label.
+  /// Higher DPI means smaller physical output (more dots per inch).
+  /// Corresponds to the `^JM` command.
+  /// - 152 DPI (6dpmm): Standard resolution
+  /// - 203 DPI (8dpmm): Most common resolution
+  /// - 300 DPI (12dpmm): High resolution
+  /// - 600 DPI (24dpmm): Very high resolution
+  final ZplPrintDensity? printDensity;
+
   /// The international character set for encoding. A value between 0 and 27.
   /// Corresponds to the `^CI` command.
   final int? internationalEncoding;
@@ -56,6 +65,7 @@ class ZplConfiguration extends ZplCommand {
     this.mediaType,
     this.printOrientation,
     this.internationalEncoding,
+    this.printDensity,
   });
 
   @override
@@ -89,6 +99,11 @@ class ZplConfiguration extends ZplCommand {
       final orientation = printOrientation!.name.substring(0, 1).toUpperCase();
       sb.writeln('^PO$orientation');
     }
+
+    if (printDensity != null) {
+      sb.writeln('^JM${printDensity!.value}');
+    }
+
     if (internationalEncoding != null) {
       sb.writeln('^CI$internationalEncoding');
     }

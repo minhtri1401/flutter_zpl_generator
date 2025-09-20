@@ -2,50 +2,18 @@
 enum ZplAlignment { left, center, right }
 
 /// Enum for print density (resolution).
-/// Corresponds to the `^JM` command for setting print density.
+/// Corresponds to the `^JM` command.
 enum ZplPrintDensity {
-  /// 6 dots per mm (152 DPI) - Standard resolution
-  dpi152('A'),
+  normal('A', 203), // Defaulting normal to 203 DPI
+  half('B', 101),
+  d6('A', 152),
+  d8('A', 203),
+  d12('A', 300),
+  d24('A', 600);
 
-  /// 8 dots per mm (203 DPI) - Most common resolution
-  dpi203('B'),
-
-  /// 12 dots per mm (300 DPI) - High resolution
-  dpi300('C'),
-
-  /// 24 dots per mm (600 DPI) - Very high resolution
-  dpi600('D');
-
-  const ZplPrintDensity(this.value);
+  const ZplPrintDensity(this.value, this.dpi);
   final String value;
-
-  /// Get the DPI value for this density
-  int get dpi {
-    switch (this) {
-      case ZplPrintDensity.dpi152:
-        return 152;
-      case ZplPrintDensity.dpi203:
-        return 203;
-      case ZplPrintDensity.dpi300:
-        return 300;
-      case ZplPrintDensity.dpi600:
-        return 600;
-    }
-  }
-
-  /// Get the dots per mm value for this density
-  int get dotsPerMm {
-    switch (this) {
-      case ZplPrintDensity.dpi152:
-        return 6;
-      case ZplPrintDensity.dpi203:
-        return 8;
-      case ZplPrintDensity.dpi300:
-        return 12;
-      case ZplPrintDensity.dpi600:
-        return 24;
-    }
-  }
+  final int dpi;
 }
 
 /// Enum for ZPL fonts. Corresponds to the `^A` command.
@@ -90,4 +58,94 @@ enum ZplStorage {
 
   const ZplStorage(this.path);
   final String path;
+}
+
+/// Enum for print density options supported by the Labelary API.
+enum LabelaryPrintDensity {
+  d6('6dpmm'),
+  d8('8dpmm'),
+  d12('12dpmm'),
+  d24('24dpmm');
+
+  const LabelaryPrintDensity(this.value);
+  final String value;
+}
+
+/// Enum for output formats supported by the Labelary API.
+enum LabelaryOutputFormat {
+  png('image/png'),
+  pdf('application/pdf'),
+  ipl('application/ipl'),
+  epl('application/epl'),
+  dpl('application/dpl'),
+  zpl('application/zpl'),
+  sbpl('application/sbpl'),
+  pcl5('application/pcl5'),
+  pcl6('application/pcl6'),
+  json('application/json');
+
+  const LabelaryOutputFormat(this.acceptHeader);
+  final String acceptHeader;
+}
+
+/// Label rotation degrees supported by the Labelary API.
+enum LabelaryRotation {
+  rotate0(0),
+  rotate90(90),
+  rotate180(180),
+  rotate270(270);
+
+  const LabelaryRotation(this.degrees);
+  final int degrees;
+}
+
+/// PDF page sizes supported by the Labelary API.
+enum LabelaryPageSize {
+  letter('Letter'),
+  legal('Legal'),
+  a4('A4'),
+  a5('A5'),
+  a6('A6');
+
+  const LabelaryPageSize(this.value);
+  final String value;
+}
+
+/// PDF page orientation supported by the Labelary API.
+enum LabelaryPageOrientation {
+  portrait('Portrait'),
+  landscape('Landscape');
+
+  const LabelaryPageOrientation(this.value);
+  final String value;
+}
+
+/// PDF page alignment supported by the Labelary API.
+enum LabelaryPageAlign {
+  left('Left'),
+  right('Right'),
+  center('Center'),
+  justify('Justify');
+
+  const LabelaryPageAlign(this.value);
+  final String value;
+}
+
+/// PDF label border styles supported by the Labelary API.
+enum LabelaryLabelBorder {
+  dashed('Dashed'),
+  solid('Solid'),
+  none('None');
+
+  const LabelaryLabelBorder(this.value);
+  final String value;
+}
+
+/// PNG image quality supported by the Labelary API.
+enum LabelaryPrintQuality {
+  grayscale('Grayscale'),
+  bitonal('Bitonal');
+
+  const LabelaryPrintQuality(this.value);
+  final String value;
 }

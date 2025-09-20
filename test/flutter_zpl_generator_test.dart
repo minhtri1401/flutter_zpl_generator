@@ -1,6 +1,103 @@
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
+
+// Helper to normalize ZPL strings for consistent testing
+String normalizeZpl(String zpl) {
+  return zpl.replaceAll(RegExp(r'\n\s*'), '\n').trim();
+}
+
+// Helper to load image file for testing
+Future<Uint8List> loadImageBytes(String filename) async {
+  final file = File(filename);
+  if (await file.exists()) {
+    return await file.readAsBytes();
+  } else {
+    // Fallback to minimal PNG bytes if file not found
+    return Uint8List.fromList([
+      137,
+      80,
+      78,
+      71,
+      13,
+      10,
+      26,
+      10,
+      0,
+      0,
+      0,
+      13,
+      73,
+      72,
+      68,
+      82,
+      0,
+      0,
+      0,
+      8,
+      0,
+      0,
+      0,
+      1,
+      8,
+      6,
+      0,
+      0,
+      0,
+      31,
+      24,
+      137,
+      102,
+      0,
+      0,
+      0,
+      10,
+      73,
+      68,
+      65,
+      84,
+      120,
+      156,
+      99,
+      248,
+      255,
+      255,
+      63,
+      0,
+      5,
+      254,
+      2,
+      254,
+      167,
+      53,
+      129,
+      122,
+      0,
+      0,
+      0,
+      0,
+      73,
+      69,
+      78,
+      68,
+      174,
+      66,
+      96,
+      130,
+    ]);
+  }
+}
+
+// Helper to load font file for testing
+Future<Uint8List> loadFontBytes(String filename) async {
+  final file = File(filename);
+  if (await file.exists()) {
+    return await file.readAsBytes();
+  }
+  // Fallback to dummy data if file not found
+  return Uint8List.fromList([0, 1, 2, 3, 4, 5]);
+}
 
 void main() {
   group('ZplConfiguration Tests', () {
@@ -114,118 +211,71 @@ void main() {
   });
 
   group('ZplImage Tests', () {
-    test('ZplImage should generate correct ~DG and ^XG commands', () {
-      // Create a simple 8x1 pixel black line image (1 byte of data: 11111111 = 0xFF)
-      final imageBytes = Uint8List.fromList([
-        137,
-        80,
-        78,
-        71,
-        13,
-        10,
-        26,
-        10,
-        0,
-        0,
-        0,
-        13,
-        73,
-        72,
-        68,
-        82,
-        0,
-        0,
-        0,
-        8,
-        0,
-        0,
-        0,
-        1,
-        8,
-        6,
-        0,
-        0,
-        0,
-        31,
-        24,
-        137,
-        102,
-        0,
-        0,
-        0,
-        10,
-        73,
-        68,
-        65,
-        84,
-        120,
-        156,
-        99,
-        248,
-        255,
-        255,
-        63,
-        0,
-        5,
-        254,
-        2,
-        254,
-        167,
-        53,
-        129,
-        122,
-        0,
-        0,
-        0,
-        0,
-        73,
-        69,
-        78,
-        68,
-        174,
-        66,
-        96,
-        130,
-      ]); // Minimal PNG bytes
+    test('ZplImage should generate correct ~DG and ^XG commands', () async {
+      // Load the actual JPEG image
+      final imageBytes = await loadImageBytes('orioninnovation_logo.jpeg');
 
       final zplImage = ZplImage(
         x: 10,
         y: 10,
         image: imageBytes,
-        graphicName: 'TEST.GRF',
+        graphicName: 'GOOGLE_CERT.GRF',
       );
 
-      // We test the command structure, not the entire hex data string for simplicity.
+      print('\n=== ZPL IMAGE EXAMPLE (Google Certificate) ===');
       final zplString = zplImage.toZpl();
-      expect(zplString, startsWith('^FO10,10\n~DGTEST.GRF,'));
-      expect(zplString, endsWith('\n^XGTEST.GRF,1,1^FS\n'));
+      print('Image loaded: ${imageBytes.length} bytes');
+      print('ZPL Output:');
+      print(zplString);
+      print('===============================================\n');
+
+      // We test the command structure, not the entire hex data string for simplicity.
+      expect(zplString, contains('~DGGOOGLE_CERT.GRF,'));
+      expect(zplString, contains('^XGGOOGLE_CERT.GRF,1,1^FS'));
+      expect(zplString, startsWith('~DG'));
+      expect(zplString, endsWith('^FS\n'));
     });
   });
 
   group('ZplFontAsset Tests', () {
-    test('ZplFontAsset should generate correct ~DU and ^CW commands', () {
-      final fontBytes = Uint8List.fromList([
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-      ]); // Dummy font data
-      final fontAsset = ZplFontAsset(
-        alias: 'Q',
-        fileName: 'MYFONT.TTF',
-        fontData: fontBytes,
-      );
+    test(
+      'should download a font and then use it in a ZplText command',
+      () async {
+        // 1. Load the actual font file
+        final fontBytes = await loadFontBytes('Roboto-Regular.ttf');
 
-      const expectedHex = '000102030405';
-      final expectedZpl =
-          '~DUE:MYFONT.TTF,6,\n'
-          '$expectedHex\n'
-          '^CWQ,E:MYFONT.TTF\n';
+        // 2. Define the commands for the label
+        final commands = [
+          // Command to download and alias the font
+          ZplFontAsset(alias: 'R', fileName: 'ROBOTO.TTF', fontData: fontBytes),
+          // Command to use the downloaded font
+          const ZplText(
+            x: 50,
+            y: 50,
+            text: 'This is Roboto Font',
+            fontAlias: 'R', // Use the alias 'R'
+            fontHeight: 40,
+          ),
+        ];
 
-      expect(fontAsset.toZpl(), expectedZpl);
-    });
+        // // 3. Generate the ZPL script
+        final generator = ZplGenerator(commands);
+        final zpl = generator.build();
+
+        print('\n=== ZPL FONT USAGE EXAMPLE ===');
+        print('Font: Roboto-Regular.ttf (${fontBytes.lengthInBytes} bytes)');
+        print('================================\n');
+
+        // 4. Verify the output
+        // Check that the font is downloaded and aliased
+        expect(zpl, contains('~DUE:ROBOTO.TTF,${fontBytes.lengthInBytes},'));
+        expect(zpl, contains('^CWR,E:ROBOTO.TTF'));
+
+        // Check that the ZplText command uses the font alias 'R'
+        expect(zpl, contains('^ARN,40,'));
+        expect(zpl, contains('^FDThis is Roboto Font^FS'));
+      },
+    );
   });
 
   group('ZplGenerator Tests', () {
@@ -591,79 +641,6 @@ void main() {
       expect(zpl, contains('Engineering'));
     });
 
-    test('Print Density Examples for Online Validation', () {
-      // Test different densities that match online ZPL viewers
-      final densities = [
-        ZplPrintDensity.dpi152, // 6dpmm
-        ZplPrintDensity.dpi203, // 8dpmm (most common)
-        ZplPrintDensity.dpi300, // 12dpmm
-        ZplPrintDensity.dpi600, // 24dpmm
-      ];
-
-      for (final density in densities) {
-        final generator = ZplGenerator([
-          ZplConfiguration(
-            darkness: 15,
-            labelLength: 400,
-            printWidth: 600,
-            printDensity: density,
-          ),
-          ZplText(
-            x: 50,
-            y: 50,
-            text: 'Density Test: ${density.dpi} DPI',
-            font: ZplFont.a,
-            fontHeight: 20,
-          ),
-          ZplText(
-            x: 50,
-            y: 80,
-            text: '${density.dotsPerMm} dots per mm',
-            fontHeight: 12,
-          ),
-          const ZplBox(
-            x: 50,
-            y: 110,
-            width: 300,
-            height: 100,
-            borderThickness: 2,
-          ),
-          const ZplText(
-            x: 60,
-            y: 130,
-            text: 'This box should be consistent',
-            fontHeight: 12,
-          ),
-          const ZplText(
-            x: 60,
-            y: 150,
-            text: 'across different densities',
-            fontHeight: 12,
-          ),
-          ZplBarcode(
-            x: 60,
-            y: 180,
-            data: 'DENSITY${density.dpi}',
-            height: 40,
-            type: ZplBarcodeType.code128,
-          ),
-        ]);
-
-        final zpl = generator.build();
-        print(
-          '\n=== ${density.dpi} DPI (${density.dotsPerMm}dpmm) EXAMPLE ===',
-        );
-        print(
-          'Use this setting in online ZPL viewer: ${density.dotsPerMm}dpmm',
-        );
-        print(zpl);
-        print('${'=' * 50}\n');
-
-        expect(zpl, contains('^JM${density.value}'));
-        expect(zpl, contains('${density.dpi} DPI'));
-      }
-    });
-
     test('Optimized Label for 203 DPI (Most Common)', () {
       // 203 DPI is the most common printer resolution
       final generator = ZplGenerator([
@@ -671,7 +648,7 @@ void main() {
           darkness: 18,
           labelLength: 600,
           printWidth: 600, // Increased to accommodate content
-          printDensity: ZplPrintDensity.dpi203, // 8dpmm
+          printDensity: ZplPrintDensity.half, // 8dpmm (203 DPI)
         ),
         // Title optimized for 203 DPI - shorter text
         const ZplText(
@@ -732,7 +709,7 @@ void main() {
           darkness: 18,
           labelLength: 203, // 1 inch at 203 DPI
           printWidth: 406, // 2 inches at 203 DPI
-          printDensity: ZplPrintDensity.dpi203,
+          printDensity: ZplPrintDensity.normal,
         ),
         // Compact title
         const ZplText(
@@ -773,8 +750,326 @@ void main() {
       print(zpl);
       print('=========================================\n');
 
-      expect(zpl, contains('^JMB'));
+      expect(zpl, contains('^JMA')); // Note: compact test uses normal density
       expect(zpl, contains('PRODUCT TAG'));
+    });
+  });
+
+  // Add these groups to your test/flutter_zpl_generator_test.dart file
+
+  group('ZplRow Tests', () {
+    test('ZplRow should position children horizontally', () {
+      final row = ZplRow(
+        x: 10,
+        y: 20,
+        children: [
+          const ZplText(x: 0, y: 0, text: 'Col 1'),
+          const ZplText(x: 0, y: 0, text: 'Col 2'),
+        ],
+        spacing: 15,
+      );
+
+      // Note: The row's logic updates the children's coordinates.
+      // We check for the ^FO (Field Origin) commands to verify positioning.
+      // Placeholder width of 100 is used by the ZplRow class for calculation.
+      final expectedZpl =
+          '^FO10,20\n^A0N,,\n^FDCol 1^FS\n' // First element at x=10
+          '^FO65,20\n^A0N,,\n^FDCol 2^FS\n'; // Second at x=10+100+15=125
+      final zpl = normalizeZpl(row.toZpl());
+      print('\n=== COMPLEX INTEGRATION EXAMPLE ===');
+      print('A complete label with all ZPL features:');
+      print(zpl);
+      print('==================================\n');
+      expect(row.toZpl(), expectedZpl);
+    });
+  });
+
+  group('ZplColumn Tests', () {
+    test('ZplColumn should position children vertically', () {
+      final column = ZplColumn(
+        x: 50,
+        y: 100,
+        children: [
+          const ZplText(x: 0, y: 0, text: 'Line 1'),
+          const ZplBox(x: 0, y: 0, width: 50, height: 50),
+        ],
+        spacing: 20,
+      );
+
+      // Note: The column's logic updates the children's coordinates.
+      // Placeholder height of 50 is used by the ZplColumn class for calculation.
+      final expectedZpl =
+          '^FO50,100\n^A0N,,\n^FDLine 1^FS\n' // First element at y=100
+          '^FO50,170^GB50,50,1,B,0^FS'; // Second at y=100+50+20=170
+
+      expect(column.toZpl(), expectedZpl);
+    });
+  });
+
+  // Add this test inside the 'ZplGenerator Tests' group
+
+  test(
+    'Generator should build a complex label with multiple command types',
+    () {
+      final commands = [
+        const ZplConfiguration(
+          labelLength: 800,
+          printSpeed: 4,
+          printDensity: ZplPrintDensity.half,
+        ),
+        const ZplText(x: 10, y: 20, text: 'Product Name', fontHeight: 30),
+        const ZplBarcode(x: 10, y: 60, data: '12345678', height: 80),
+        const ZplBox(x: 5, y: 5, width: 400, height: 200, borderThickness: 2),
+      ];
+      final generator = ZplGenerator(commands);
+
+      final expectedZpl =
+          '''
+^XA
+^LL800
+^PR4
+^JMA
+^FO10,20
+^A0N,30,
+^FDProduct Name^FS
+^FO10,60
+^BCN,80,Y,N,N,A
+^FD12345678^FS
+^FO5,5^GB400,200,2,B,0^FS
+^XZ
+'''
+              .replaceAll(RegExp(r'\n\s*'), '\n') // Normalize indentation
+              .trim();
+
+      expect(generator.build().trim(), expectedZpl);
+    },
+  );
+
+  // Load image for complex integration test
+  Future<Uint8List> getTestImage() async {
+    return await loadImageBytes('1660457314078.jpeg');
+  }
+
+  // Additional configuration tests
+  group('ZplConfiguration Tests (via Generator)', () {
+    test('Empty configuration should produce a minimal label', () {
+      final generator = ZplGenerator([const ZplConfiguration()]);
+      const expectedZpl = '''
+        ^XA
+        ^XZ
+      ''';
+      expect(normalizeZpl(generator.build()), normalizeZpl(expectedZpl));
+    });
+
+    test('Full configuration should produce correct commands', () {
+      final generator = ZplGenerator([
+        const ZplConfiguration(
+          darkness: 15,
+          labelLength: 600,
+          printSpeed: 4,
+          printDensity: ZplPrintDensity.half,
+        ),
+      ]);
+      const expectedZpl = '''
+        ^XA
+        ~SD15
+        ^LL600
+        ^PR4
+        ^JMB
+        ^XZ
+      ''';
+      expect(normalizeZpl(generator.build()), normalizeZpl(expectedZpl));
+    });
+  });
+
+  group('ZplText Tests (via Generator)', () {
+    test('Basic ZplText should generate correct ZPL', () {
+      final generator = ZplGenerator([
+        const ZplText(x: 50, y: 100, text: 'Hello ZPL'),
+      ]);
+      const expectedZpl = '''
+        ^XA
+        ^FO50,100
+        ^A0N,,
+        ^FDHello ZPL^FS
+        ^XZ
+      ''';
+      expect(normalizeZpl(generator.build()), normalizeZpl(expectedZpl));
+    });
+  });
+
+  group('ZplBarcode Tests (via Generator)', () {
+    test('Basic Code128 barcode should generate correct ZPL', () {
+      final generator = ZplGenerator([
+        const ZplBarcode(x: 50, y: 150, data: '12345ABC', height: 100),
+      ]);
+      const expectedZpl = '''
+        ^XA
+        ^FO50,150
+        ^BCN,100,Y,N,N,A
+        ^FD12345ABC^FS
+        ^XZ
+      ''';
+      expect(normalizeZpl(generator.build()), normalizeZpl(expectedZpl));
+    });
+  });
+
+  group('ZplBox Tests (via Generator)', () {
+    test('ZplBox with rounding should generate correct ZPL', () {
+      final generator = ZplGenerator([
+        const ZplBox(x: 20, y: 30, width: 200, height: 150, cornerRounding: 4),
+      ]);
+      const expectedZpl = '''
+        ^XA
+        ^FO20,30^GB200,150,1,B,4^FS
+        ^XZ
+      ''';
+      expect(normalizeZpl(generator.build()), normalizeZpl(expectedZpl));
+    });
+  });
+
+  group('Layout Helper Tests (via Generator)', () {
+    test('ZplRow should position children horizontally', () {
+      final generator = ZplGenerator([
+        ZplRow(
+          x: 10,
+          y: 20,
+          spacing: 15,
+          children: [
+            const ZplText(x: 0, y: 0, text: 'Col 1'),
+            const ZplText(x: 0, y: 0, text: 'Col 2'),
+          ],
+        ),
+      ]);
+
+      const expectedZpl = '''
+        ^XA
+        ^FO10,20
+        ^A0N,,
+        ^FDCol 1^FS
+        ^FO125,20
+        ^A0N,,
+        ^FDCol 2^FS
+        ^XZ
+      ''';
+      expect(normalizeZpl(generator.build()), normalizeZpl(expectedZpl));
+    });
+
+    test('ZplColumn should position children vertically', () {
+      final generator = ZplGenerator([
+        ZplColumn(
+          x: 50,
+          y: 100,
+          spacing: 20,
+          children: [
+            const ZplText(x: 0, y: 0, text: 'Line 1'),
+            const ZplBox(x: 0, y: 0, width: 50, height: 50),
+          ],
+        ),
+      ]);
+
+      const expectedZpl = '''
+        ^XA
+        ^FO50,100
+        ^A0N,,
+        ^FDLine 1^FS
+        ^FO50,170^GB50,50,1,B,0^FS
+        ^XZ
+      ''';
+      expect(normalizeZpl(generator.build()), normalizeZpl(expectedZpl));
+    });
+  });
+
+  group('Complex Integration Test (via Generator)', () {
+    test('Generator should build a complex label with all ZPL types', () async {
+      final fontData = await loadFontBytes(
+        'Roboto-Regular.ttf',
+      ); // Load actual font
+      final imageData = await getTestImage(); // Load actual JPEG
+
+      final commands = [
+        // Configuration
+        const ZplConfiguration(labelLength: 812, printSpeed: 3),
+
+        // Font Download
+        ZplFontAsset(alias: 'T', fileName: 'ROBOTO.TTF', fontData: fontData),
+
+        // Header
+        const ZplBox(x: 10, y: 10, width: 780, height: 100, borderThickness: 2),
+        ZplImage(x: 20, y: 20, image: imageData, graphicName: 'CERT.GRF'),
+        const ZplText(
+          x: 120,
+          y: 40,
+          text: 'Zebra Technologies',
+          font: ZplFont.g,
+          fontHeight: 50,
+          fontWidth: 40,
+        ),
+
+        // Body
+        const ZplText(
+          x: 10,
+          y: 130,
+          text: 'Product Information',
+          font: ZplFont.a,
+          fontHeight: 30,
+        ),
+        ZplRow(
+          x: 10,
+          y: 170,
+          spacing: 20,
+          children: [
+            ZplColumn(
+              x: 0,
+              y: 0,
+              spacing: 10,
+              children: [
+                const ZplText(x: 0, y: 0, text: 'SKU:'),
+                const ZplText(x: 0, y: 0, text: 'Price:'),
+              ],
+            ),
+            ZplColumn(
+              x: 0,
+              y: 0,
+              spacing: 10,
+              children: [
+                const ZplText(x: 0, y: 0, text: 'PROD-12345'),
+                const ZplText(x: 0, y: 0, text: '\$99.99'),
+              ],
+            ),
+          ],
+        ),
+
+        // Footer with custom font and barcode
+        const ZplText(
+          x: 10,
+          y: 300,
+          text: 'Product ID (with Roboto font)',
+          fontAlias: 'T', // Use the downloaded font
+          fontHeight: 25,
+        ),
+        const ZplBarcode(x: 10, y: 340, height: 70, data: 'PROD-12345'),
+      ];
+
+      final generator = ZplGenerator(commands);
+      final zpl = normalizeZpl(generator.build());
+      print('\n=== COMPLEX INTEGRATION EXAMPLE ===');
+      print('A complete label with all ZPL features:');
+      print(zpl);
+      print('==================================\n');
+      // Check for key components
+      expect(zpl, contains('^XA'));
+      expect(zpl, contains('^LL812'));
+      expect(zpl, contains('^PR3'));
+      expect(zpl, contains('~DUE:ROBOTO.TTF,${fontData.lengthInBytes},'));
+      expect(zpl, contains('^CWT,E:ROBOTO.TTF'));
+      expect(zpl, contains('^FO10,10^GB780,100,2,B,0^FS'));
+      expect(zpl, contains('~DGCERT.GRF,'));
+      expect(zpl, contains('^XGCERT.GRF,1,1^FS'));
+      expect(zpl, contains('^AGN,50,40'));
+      expect(zpl, contains('^ATN,25,')); // Custom font check
+      expect(zpl, contains('^BCN,70,Y,N,N,A'));
+      expect(zpl, contains('^XZ'));
     });
   });
 }

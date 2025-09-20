@@ -1,0 +1,6 @@
+include: ../analysis_options.yaml
+
+linter:
+  rules:
+    # Allow print statements in test files for debugging
+    avoid_print: false

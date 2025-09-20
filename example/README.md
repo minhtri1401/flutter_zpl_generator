@@ -1,16 +1,46 @@
-# flutter_zpl_generator_example
+# Flutter ZPL Generator Example
 
-Demonstrates how to use the flutter_zpl_generator plugin.
+This example demonstrates the basic usage of the Flutter ZPL Generator package.
 
-## Getting Started
+## Features Demonstrated
 
-This project is a starting point for a Flutter application.
+- Basic label creation with text and barcodes
+- Live preview using the `ZplPreview` widget
+- Clean, modern UI with Material Design
 
-A few resources to get you started if this is your first Flutter project:
+## Running the Example
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+1. Ensure you have Flutter installed
+2. Clone this repository
+3. Navigate to the example directory:
+   ```bash
+   cd example
+   ```
+4. Get dependencies:
+   ```bash
+   flutter pub get
+   ```
+5. Run the example:
+   ```bash
+   flutter run
+   ```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## What You'll See
+
+The example creates a simple product label with:
+- A title "This is a preview!"
+- A Code 128 barcode with data "12345"
+- Live preview rendered using the Labelary API
+
+## Additional Examples
+
+Check out these files for more advanced usage:
+- `zpl_generation_demo.dart` - Command-line ZPL generation examples
+- `postman_api_examples.dart` - Direct API usage examples
+
+## Learn More
+
+For comprehensive documentation, visit:
+- [Package Documentation](https://pub.dev/packages/flutter_zpl_generator)
+- [ZPL Programming Guide](https://www.zebra.com/us/en/support-downloads/knowledge-articles/ait/zpl-programming-guide.html)
+- [Labelary API Documentation](https://labelary.com/service.html)

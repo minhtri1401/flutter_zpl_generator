@@ -13,7 +13,11 @@ class ZplText extends ZplCommand {
   final String text;
 
   /// The font to be used.
-  final ZplFont font;
+  final ZplFont? font;
+
+  /// A single character alias (A-Z, 0-9) for a downloaded font.
+  /// If provided, this will be used instead of [font].
+  final String? fontAlias;
 
   /// The height of the font in dots.
   final int? fontHeight;
@@ -29,6 +33,7 @@ class ZplText extends ZplCommand {
     required this.y,
     required this.text,
     this.font = ZplFont.zero,
+    this.fontAlias,
     this.fontHeight,
     this.fontWidth,
     this.orientation = ZplOrientation.normal,
@@ -39,7 +44,13 @@ class ZplText extends ZplCommand {
     final sb = StringBuffer();
     sb.writeln('^FO$x,$y');
 
-    final fontName = font == ZplFont.zero ? '0' : font.name.toUpperCase();
+    final String fontName;
+    if (fontAlias != null) {
+      fontName = fontAlias!;
+    } else {
+      fontName = font == ZplFont.zero ? '0' : font!.name.toUpperCase();
+    }
+
     final orientationCode = _getOrientationCode();
     sb.writeln(
       '^A$fontName$orientationCode,${fontHeight ?? ''},${fontWidth ?? ''}',

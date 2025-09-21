@@ -17,12 +17,14 @@ class ZplImage extends ZplCommand {
   final String graphicName;
 
   const ZplImage({
-    required this.x,
-    required this.y,
+    this.x = 0,
+    this.y = 0,
     required this.image,
     this.graphicName = 'IMG',
   });
 
+  int get width => img.decodeImage(image)!.width;
+  int get height => img.decodeImage(image)!.height;
   @override
   String toZpl() {
     final decodedImage = img.decodeImage(image);

@@ -159,7 +159,7 @@ class LabelaryService {
       }
 
       final response = await httpClient.post(url, headers: headers, body: zpl);
-
+      print(zpl);
       if (response.statusCode == 200) {
         // Parse response headers
         final totalCount = response.headers['x-total-count'] != null

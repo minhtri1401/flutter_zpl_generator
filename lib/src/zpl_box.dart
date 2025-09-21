@@ -21,8 +21,8 @@ class ZplBox extends ZplCommand {
   final int cornerRounding;
 
   const ZplBox({
-    required this.x,
-    required this.y,
+    this.x = 0,
+    this.y = 0,
     required this.width,
     required this.height,
     this.borderThickness = 1,

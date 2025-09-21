@@ -26,13 +26,19 @@ class MyLabelScreen extends StatelessWidget {
     // 1. Define the label commands just like before
     final commands = [
       const ZplConfiguration(
-        printWidth: 406, // 2 inches at 203 dpi
-        labelLength: 203, // 1 inch at 203 dpi
+        printWidth: 576, // 2.25 inches at 203 dpi
+        labelLength: 1200,
         printDensity: ZplPrintDensity.d8,
       ),
-      const ZplText(x: 20, y: 20, text: 'This is a preview!'),
-      const ZplBarcode(x: 20, y: 60, height: 50, data: '12345'),
+
+      ZplText(
+        text: 'THANK YOU!',
+        fontHeight: 30,
+        fontWidth: 25,
+        alignment: ZplAlignment.center,
+      ),
     ];
+
     final generator = ZplGenerator(commands);
 
     // 2. Use the ZplPreview widget to display the rendered label

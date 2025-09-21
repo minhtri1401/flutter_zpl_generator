@@ -16,7 +16,7 @@ void main() {
         labelLength: 609,
         printDensity: ZplPrintDensity.d8,
       ),
-      const ZplText(x: 50, y: 50, text: 'Hello World'),
+      ZplText(x: 50, y: 50, text: 'Hello World'),
     ],
     density: '8dpmm',
     width: '2.0',
@@ -35,7 +35,7 @@ void main() {
         labelLength: 1218,
         printDensity: ZplPrintDensity.d8,
       ),
-      const ZplText(x: 100, y: 100, text: 'Product Label'),
+      ZplText(x: 100, y: 100, text: 'Product Label'),
       const ZplBarcode(
         x: 100,
         y: 200,
@@ -62,7 +62,7 @@ void main() {
         labelLength: 900,
         printDensity: ZplPrintDensity.d24,
       ),
-      const ZplText(x: 20, y: 20, text: 'High Resolution'),
+      ZplText(x: 20, y: 20, text: 'High Resolution'),
       const ZplBarcode(
         x: 20,
         y: 60,
@@ -92,7 +92,7 @@ void main() {
         labelLength: 406,
         printDensity: ZplPrintDensity.d8,
       ),
-      const ZplText(x: 50, y: 30, text: 'Scan QR Code:'),
+      ZplText(x: 50, y: 30, text: 'Scan QR Code:'),
       const ZplBarcode(
         x: 100,
         y: 80,
@@ -100,7 +100,7 @@ void main() {
         type: ZplBarcodeType.qrCode,
         height: 100,
       ),
-      const ZplText(x: 30, y: 200, text: 'Product ID: 12345'),
+      ZplText(x: 30, y: 200, text: 'Product ID: 12345'),
     ],
     density: '8dpmm',
     width: '2.0',
@@ -119,8 +119,8 @@ void main() {
         labelLength: 609,
         printDensity: ZplPrintDensity.d8,
       ),
-      const ZplText(x: 50, y: 50, text: 'Product: ABC123'),
-      const ZplText(x: 50, y: 100, text: 'Price: \$19.99'),
+      ZplText(x: 50, y: 50, text: 'Product: ABC123'),
+      ZplText(x: 50, y: 100, text: 'Price: \$19.99'),
       const ZplBarcode(
         x: 50,
         y: 150,
@@ -202,7 +202,6 @@ void _printMultiLabelExample() {
       labelLength: 406,
       printDensity: ZplPrintDensity.d8,
     ),
-    const ZplText(x: 50, y: 50, text: 'Label 1'),
   ];
   final label2Commands = [
     const ZplConfiguration(
@@ -210,7 +209,7 @@ void _printMultiLabelExample() {
       labelLength: 406,
       printDensity: ZplPrintDensity.d8,
     ),
-    const ZplText(x: 50, y: 50, text: 'Label 2'),
+    ZplText(x: 50, y: 50, text: 'Label 2'),
   ];
   final label3Commands = [
     const ZplConfiguration(
@@ -218,7 +217,7 @@ void _printMultiLabelExample() {
       labelLength: 406,
       printDensity: ZplPrintDensity.d8,
     ),
-    const ZplText(x: 50, y: 50, text: 'Label 3'),
+    ZplText(x: 50, y: 50, text: 'Label 3'),
   ];
 
   final generator1 = ZplGenerator(label1Commands);

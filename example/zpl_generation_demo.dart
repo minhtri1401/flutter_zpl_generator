@@ -15,7 +15,7 @@ void main() {
       labelLength: 609,
       printDensity: ZplPrintDensity.d8,
     ),
-    const ZplText(x: 50, y: 50, text: 'Hello World'),
+    ZplText(x: 50, y: 50, text: 'Hello World'),
   ];
   final basicGenerator = ZplGenerator(basicCommands);
   final basicZpl = basicGenerator.build();
@@ -32,7 +32,7 @@ void main() {
       labelLength: 1218, // 6 inches * 203 DPI
       printDensity: ZplPrintDensity.d8,
     ),
-    const ZplText(x: 100, y: 100, text: 'Product Label'),
+    ZplText(x: 100, y: 100, text: 'Product Label'),
     const ZplBarcode(
       x: 100,
       y: 200,
@@ -57,7 +57,7 @@ void main() {
       labelLength: 900, // 1.5 inches * 600 DPI
       printDensity: ZplPrintDensity.d24,
     ),
-    const ZplText(x: 20, y: 20, text: 'High Resolution'),
+    ZplText(x: 20, y: 20, text: 'High Resolution'),
     const ZplBarcode(
       x: 20,
       y: 60,
@@ -84,13 +84,13 @@ void main() {
       darkness: 15,
       printSpeed: 4,
     ),
-    const ZplText(x: 50, y: 50, text: 'SHIPPING LABEL'),
-    const ZplText(x: 50, y: 100, text: 'FROM: Company ABC'),
-    const ZplText(x: 50, y: 130, text: '123 Business St.'),
-    const ZplText(x: 50, y: 160, text: 'City, ST 12345'),
-    const ZplText(x: 50, y: 220, text: 'TO: Customer XYZ'),
-    const ZplText(x: 50, y: 250, text: '456 Home Ave.'),
-    const ZplText(x: 50, y: 280, text: 'Town, ST 67890'),
+    ZplText(x: 50, y: 50, text: 'SHIPPING LABEL'),
+    ZplText(x: 50, y: 100, text: 'FROM: Company ABC'),
+    ZplText(x: 50, y: 130, text: '123 Business St.'),
+    ZplText(x: 50, y: 160, text: 'City, ST 12345'),
+    ZplText(x: 50, y: 220, text: 'TO: Customer XYZ'),
+    ZplText(x: 50, y: 250, text: '456 Home Ave.'),
+    ZplText(x: 50, y: 280, text: 'Town, ST 67890'),
     const ZplBarcode(
       x: 50,
       y: 350,
@@ -99,7 +99,7 @@ void main() {
       height: 120,
       moduleWidth: 3,
     ),
-    const ZplText(x: 50, y: 500, text: 'Tracking: TRK123456789'),
+    ZplText(x: 50, y: 500, text: 'Tracking: TRK123456789'),
   ];
   final complexGenerator = ZplGenerator(complexCommands);
   final complexZpl = complexGenerator.build();
@@ -116,7 +116,7 @@ void main() {
       labelLength: 406,
       printDensity: ZplPrintDensity.d8,
     ),
-    const ZplText(x: 50, y: 50, text: 'Label 1'),
+    ZplText(x: 50, y: 50, text: 'Label 1'),
   ];
   final label2Commands = [
     const ZplConfiguration(
@@ -124,7 +124,7 @@ void main() {
       labelLength: 406,
       printDensity: ZplPrintDensity.d8,
     ),
-    const ZplText(x: 50, y: 50, text: 'Label 2'),
+    ZplText(x: 50, y: 50, text: 'Label 2'),
   ];
   final label3Commands = [
     const ZplConfiguration(
@@ -132,7 +132,7 @@ void main() {
       labelLength: 406,
       printDensity: ZplPrintDensity.d8,
     ),
-    const ZplText(x: 50, y: 50, text: 'Label 3'),
+    ZplText(x: 50, y: 50, text: 'Label 3'),
   ];
 
   final generator1 = ZplGenerator(label1Commands);
@@ -162,7 +162,7 @@ void main() {
       labelLength: 406, // Square label
       printDensity: ZplPrintDensity.d8,
     ),
-    const ZplText(x: 50, y: 30, text: 'Scan QR Code:'),
+    ZplText(x: 50, y: 30, text: 'Scan QR Code:'),
     const ZplBarcode(
       x: 100,
       y: 80,
@@ -170,7 +170,7 @@ void main() {
       type: ZplBarcodeType.qrCode,
       height: 100, // QR codes are square, so height = width
     ),
-    const ZplText(x: 30, y: 200, text: 'Product ID: 12345'),
+    ZplText(x: 30, y: 200, text: 'Product ID: 12345'),
   ];
   final qrGenerator = ZplGenerator(qrCommands);
   final qrZpl = qrGenerator.build();

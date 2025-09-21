@@ -34,8 +34,8 @@ class ZplBarcode extends ZplCommand {
   final double? wideBarToNarrowBarRatio;
 
   const ZplBarcode({
-    required this.x,
-    required this.y,
+    this.x = 0,
+    this.y = 0,
     required this.data,
     this.type = ZplBarcodeType.code128,
     required this.height,
@@ -45,6 +45,45 @@ class ZplBarcode extends ZplCommand {
     this.moduleWidth,
     this.wideBarToNarrowBarRatio,
   });
+
+  /// Calculate the approximate width of the barcode in dots.
+  /// This is an estimation based on barcode type and data length.
+  int get width {
+    final baseModuleWidth = moduleWidth ?? 2; // Default module width
+
+    switch (type) {
+      case ZplBarcodeType.code128:
+        // Code 128: Each character is 11 modules wide
+        // Plus start code (11), stop code (13), and check digit (11)
+        // Total: (data_length * 11) + 35 modules
+        return ((data.length * 11) + 35) * baseModuleWidth;
+
+      case ZplBarcodeType.code39:
+        // Code 39: Each character is 5 bars + 4 spaces = 9 modules
+        // Wide bars/spaces are typically 3x narrow (using wideBarToNarrowBarRatio)
+        // Plus start/stop characters (* = 15 modules each)
+        // Approximate: (data_length * 15) + 30 modules (for start/stop)
+        final ratio = wideBarToNarrowBarRatio ?? 2.5;
+        return ((data.length * (9 * ratio).round()) + 30) * baseModuleWidth;
+
+      case ZplBarcodeType.qrCode:
+        // QR Code size depends on data length and error correction level
+        // Estimate based on data length (very rough approximation)
+        if (data.length <= 25) {
+          return 84; // Version 1: 21x21 modules * 4 = 84 dots
+        }
+        if (data.length <= 47) {
+          return 100; // Version 2: 25x25 modules * 4 = 100 dots
+        }
+        if (data.length <= 77) {
+          return 116; // Version 3: 29x29 modules * 4 = 116 dots
+        }
+        if (data.length <= 114) {
+          return 132; // Version 4: 33x33 modules * 4 = 132 dots
+        }
+        return 148; // Version 5+: 37x37 modules * 4 = 148 dots (default)
+    }
+  }
 
   @override
   String toZpl() {

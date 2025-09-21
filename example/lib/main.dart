@@ -30,12 +30,34 @@ class MyLabelScreen extends StatelessWidget {
         labelLength: 1200,
         printDensity: ZplPrintDensity.d8,
       ),
-
-      ZplText(
-        text: 'THANK YOU!',
-        fontHeight: 30,
-        fontWidth: 25,
-        alignment: ZplAlignment.center,
+      ZplColumn(
+        x: 0,
+        y: 30,
+        children: [
+          ZplText(
+            text: 'SHOP NAME',
+            fontHeight: 40,
+            fontWidth: 30,
+            alignment: ZplAlignment.center,
+          ),
+          ZplText(
+            text: 'Address: Lorem Ipsum, 23-10',
+            fontHeight: 20,
+            fontWidth: 15,
+          ),
+          ZplText(text: 'Telp. 11223344', fontHeight: 20, fontWidth: 15),
+          ZplText(
+            text: '*********************************',
+            fontHeight: 20,
+            fontWidth: 15,
+          ),
+          ZplText(text: 'CASH RECEIPT', fontHeight: 25, fontWidth: 20),
+          ZplText(
+            text: '*********************************',
+            fontHeight: 20,
+            fontWidth: 15,
+          ),
+        ],
       ),
     ];
 

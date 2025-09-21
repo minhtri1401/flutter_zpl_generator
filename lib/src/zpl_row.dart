@@ -105,42 +105,7 @@ class ZplRow extends ZplCommand {
   /// Note: This is a rough estimation. For precise positioning,
   /// you would need to measure actual rendered dimensions.
   int _calculateElementWidth(ZplCommand element) {
-    if (element is ZplText) {
-      // Calculate text width using proper ZPL font scaling
-      final baseHeight = element.fontHeight ?? 12;
-      final widthScale = (element.fontWidth ?? 10) / 10.0;
-      // Use conservative estimate for proportional fonts (40% of height)
-      final estimatedCharWidth = (baseHeight * 0.4 * widthScale).round();
-      return element.text.length * estimatedCharWidth;
-    }
-    if (element is ZplBarcode) {
-      // Use the calculated width from the barcode
-      return element.width;
-    }
-    if (element is ZplBox) {
-      return element.width;
-    }
-    if (element is ZplImage) {
-      // Use the actual image width from the decoded image
-      try {
-        return element.width;
-      } catch (e) {
-        // Fallback if image decoding fails
-        return 80;
-      }
-    }
-    if (element is ZplColumn) {
-      // For a column, calculate the maximum width of its children
-      int maxWidth = 0;
-      for (final child in element.children) {
-        final childWidth = _calculateElementWidth(child);
-        if (childWidth > maxWidth) {
-          maxWidth = childWidth;
-        }
-      }
-      return maxWidth > 0 ? maxWidth : 50;
-    }
-    return 50; // Default fallback
+    return element.calculateWidth(_configuration);
   }
 
   ZplCommand _updateChildPosition(ZplCommand child, int newX, int newY) {
@@ -197,5 +162,11 @@ class ZplRow extends ZplCommand {
       );
     }
     return child; // Return unchanged if type is not recognized
+  }
+
+  @override
+  int calculateWidth(ZplConfiguration? config) {
+    // For rows, return the total width of all children plus spacing
+    return _calculateTotalRowWidth();
   }
 }

@@ -56,22 +56,49 @@ class ZplText extends ZplCommand {
   String toZpl() {
     final sb = StringBuffer();
 
-    // Calculate aligned X position if alignment is specified
-    final alignedX = _calculateAlignedX();
-    sb.writeln('^FO$alignedX,$y');
+    // Use ^FB (Field Block) for alignment when configuration is available and alignment is specified
+    if (_configuration != null &&
+        alignment != null &&
+        alignment != ZplAlignment.left &&
+        x == 0) {
+      // Use Field Block for precise ZPL alignment
+      final labelWidth = _configuration!.printWidth ?? 406;
+      sb.writeln('^FO0,$y');
 
-    final String fontName;
-    if (fontAlias != null) {
-      fontName = fontAlias!;
+      final String fontName;
+      if (fontAlias != null) {
+        fontName = fontAlias!;
+      } else {
+        fontName = font == ZplFont.zero ? '0' : font!.name.toUpperCase();
+      }
+
+      final orientationCode = _getOrientationCode();
+      sb.writeln(
+        '^A$fontName$orientationCode,${fontHeight ?? ''},${fontWidth ?? ''}',
+      );
+
+      // ^FB command: width, max_lines, line_spacing, justification, hanging_indent
+      final justification = _getJustificationCode();
+      sb.writeln('^FB$labelWidth,1,0,$justification,0');
+      sb.writeln('^FD$text^FS');
     } else {
-      fontName = font == ZplFont.zero ? '0' : font!.name.toUpperCase();
-    }
+      // Fall back to manual positioning for specific coordinates or left alignment
+      final alignedX = x == 0 ? _calculateAlignedX() : x;
+      sb.writeln('^FO$alignedX,$y');
 
-    final orientationCode = _getOrientationCode();
-    sb.writeln(
-      '^A$fontName$orientationCode,${fontHeight ?? ''},${fontWidth ?? ''}',
-    );
-    sb.writeln('^FD$text^FS');
+      final String fontName;
+      if (fontAlias != null) {
+        fontName = fontAlias!;
+      } else {
+        fontName = font == ZplFont.zero ? '0' : font!.name.toUpperCase();
+      }
+
+      final orientationCode = _getOrientationCode();
+      sb.writeln(
+        '^A$fontName$orientationCode,${fontHeight ?? ''},${fontWidth ?? ''}',
+      );
+      sb.writeln('^FD$text^FS');
+    }
     return sb.toString();
   }
 
@@ -130,5 +157,22 @@ class ZplText extends ZplCommand {
       case ZplOrientation.readFromBottomUp270:
         return 'B';
     }
+  }
+
+  /// Get the justification code for ^FB command
+  String _getJustificationCode() {
+    switch (alignment!) {
+      case ZplAlignment.left:
+        return 'L';
+      case ZplAlignment.center:
+        return 'C';
+      case ZplAlignment.right:
+        return 'R';
+    }
+  }
+
+  @override
+  int calculateWidth(ZplConfiguration? config) {
+    return _calculateTextWidth();
   }
 }

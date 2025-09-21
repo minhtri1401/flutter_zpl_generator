@@ -1,3 +1,5 @@
+import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
+
 import 'zpl_command_base.dart';
 import 'enums.dart';
 
@@ -140,5 +142,10 @@ class ZplBarcode extends ZplCommand {
       case ZplOrientation.readFromBottomUp270:
         return 'B';
     }
+  }
+
+  @override
+  int calculateWidth(ZplConfiguration? config) {
+    return width; // Use the calculated width property
   }
 }

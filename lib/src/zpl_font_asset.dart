@@ -1,4 +1,6 @@
 import 'dart:typed_data';
+import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
+
 import 'zpl_command_base.dart';
 import 'enums.dart';
 
@@ -60,5 +62,10 @@ class ZplFontAsset extends ZplCommand {
     sb.writeln('^CW$alias,${storage.path}$fileName');
 
     return sb.toString();
+  }
+
+  @override
+  int calculateWidth(ZplConfiguration? config) {
+    return 0; // Font asset commands don't occupy visual space
   }
 }

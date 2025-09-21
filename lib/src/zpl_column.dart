@@ -91,38 +91,7 @@ class ZplColumn extends ZplCommand {
 
   /// Calculate the width of an element for alignment purposes
   int _calculateElementWidth(ZplCommand element) {
-    if (element is ZplText) {
-      final baseHeight = element.fontHeight ?? 12;
-      final widthScale = (element.fontWidth ?? 10) / 10.0;
-      // Use conservative estimate for proportional fonts (40% of height)
-      final estimatedCharWidth = (baseHeight * 0.4 * widthScale).round();
-      return element.text.length * estimatedCharWidth;
-    }
-    if (element is ZplBarcode) {
-      return element.width;
-    }
-    if (element is ZplBox) {
-      return element.width;
-    }
-    if (element is ZplImage) {
-      try {
-        return element.width;
-      } catch (e) {
-        return 80;
-      }
-    }
-    if (element is ZplRow) {
-      // Calculate total width of row children
-      int totalWidth = 0;
-      for (int i = 0; i < element.children.length; i++) {
-        totalWidth += _calculateElementWidth(element.children[i]);
-        if (i < element.children.length - 1) {
-          totalWidth += element.spacing;
-        }
-      }
-      return totalWidth;
-    }
-    return 50; // Default fallback
+    return element.calculateWidth(_configuration);
   }
 
   /// Calculate estimated height of an element
@@ -215,5 +184,18 @@ class ZplColumn extends ZplCommand {
       );
     }
     return child; // Return unchanged if type is not recognized
+  }
+
+  @override
+  int calculateWidth(ZplConfiguration? config) {
+    // For columns, return the maximum width of any child
+    int maxWidth = 0;
+    for (final child in children) {
+      final childWidth = child.calculateWidth(config);
+      if (childWidth > maxWidth) {
+        maxWidth = childWidth;
+      }
+    }
+    return maxWidth;
   }
 }

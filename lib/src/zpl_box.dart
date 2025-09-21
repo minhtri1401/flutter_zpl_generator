@@ -1,3 +1,5 @@
+import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
+
 import 'zpl_command_base.dart';
 
 /// A class to handle the Graphic Box command (^GB).
@@ -35,5 +37,10 @@ class ZplBox extends ZplCommand {
     sb.writeln('^FO$x,$y');
     sb.writeln('^GB$width,$height,$borderThickness,B,$cornerRounding^FS');
     return sb.toString();
+  }
+
+  @override
+  int calculateWidth(ZplConfiguration? config) {
+    return width;
   }
 }

@@ -1,6 +1,6 @@
 import 'dart:typed_data';
+import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 import 'package:image/image.dart' as img;
-import 'zpl_command_base.dart';
 
 /// A class to handle image-related commands, primarily for downloading graphics (~DG).
 class ZplImage extends ZplCommand {
@@ -85,5 +85,10 @@ class ZplImage extends ZplCommand {
     }
 
     return sb.toString();
+  }
+
+  @override
+  int calculateWidth(ZplConfiguration? config) {
+    return width;
   }
 }

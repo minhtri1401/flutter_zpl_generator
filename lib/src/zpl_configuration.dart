@@ -110,4 +110,9 @@ class ZplConfiguration extends ZplCommand {
 
     return sb.toString();
   }
+
+  @override
+  int calculateWidth(ZplConfiguration? config) {
+    return 0; // Configuration commands don't occupy visual space
+  }
 }

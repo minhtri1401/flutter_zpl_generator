@@ -137,8 +137,8 @@ void main() {
 
   group('ZplText Tests', () {
     test('Basic ZplText should generate correct ZPL', () {
-      const text = ZplText(x: 50, y: 100, text: 'Hello ZPL');
-      const expectedZpl =
+      final text = ZplText(x: 50, y: 100, text: 'Hello ZPL');
+      final expectedZpl =
           '^FO50,100\n'
           '^A0N,,\n'
           '^FDHello ZPL^FS\n';
@@ -146,7 +146,7 @@ void main() {
     });
 
     test('ZplText with all properties should generate correct ZPL', () {
-      const text = ZplText(
+      final text = ZplText(
         x: 30,
         y: 60,
         text: 'Rotated Text',
@@ -165,7 +165,7 @@ void main() {
 
   group('ZplBarcode Tests', () {
     test('Basic Code128 barcode should generate correct ZPL', () {
-      const barcode = ZplBarcode(x: 50, y: 150, data: '12345ABC', height: 100);
+      final barcode = ZplBarcode(x: 50, y: 150, data: '12345ABC', height: 100);
       const expectedZpl =
           '^FO50,150\n'
           '^BCN,100,Y,N,N,A\n'
@@ -174,7 +174,7 @@ void main() {
     });
 
     test('Barcode with custom module width and ratio should include ^BY', () {
-      const barcode = ZplBarcode(
+      final barcode = ZplBarcode(
         x: 50,
         y: 150,
         data: '12345ABC',
@@ -249,7 +249,7 @@ void main() {
           // Command to download and alias the font
           ZplFontAsset(alias: 'R', fileName: 'ROBOTO.TTF', fontData: fontBytes),
           // Command to use the downloaded font
-          const ZplText(
+          ZplText(
             x: 50,
             y: 50,
             text: 'This is Roboto Font',
@@ -281,8 +281,8 @@ void main() {
   group('ZplGenerator Tests', () {
     test('Generator should wrap commands with ^XA and ^XZ', () {
       final generator = ZplGenerator([
-        const ZplText(x: 10, y: 10, text: 'Test'),
-        const ZplBarcode(x: 10, y: 40, data: '123', height: 50),
+        ZplText(x: 10, y: 10, text: 'Test'),
+        ZplBarcode(x: 10, y: 40, data: '123', height: 50),
       ]);
 
       const expectedZpl =
@@ -304,7 +304,7 @@ void main() {
         // Title box
         const ZplBox(x: 30, y: 30, width: 340, height: 40, borderThickness: 2),
         // Title text
-        const ZplText(
+        ZplText(
           x: 50,
           y: 45,
           text: 'PRODUCT LABEL',
@@ -313,10 +313,10 @@ void main() {
           fontWidth: 15,
         ),
         // Product info
-        const ZplText(x: 40, y: 85, text: 'SKU: ABC-12345', fontHeight: 12),
-        const ZplText(x: 40, y: 105, text: 'Price: \$29.99', fontHeight: 12),
-        const ZplText(x: 250, y: 85, text: 'Qty: 100', fontHeight: 12),
-        const ZplText(x: 250, y: 105, text: 'Exp: 12/2024', fontHeight: 12),
+        ZplText(x: 40, y: 85, text: 'SKU: ABC-12345', fontHeight: 12),
+        ZplText(x: 40, y: 105, text: 'Price: \$29.99', fontHeight: 12),
+        ZplText(x: 250, y: 85, text: 'Qty: 100', fontHeight: 12),
+        ZplText(x: 250, y: 105, text: 'Exp: 12/2024', fontHeight: 12),
       ]);
 
       final zpl = generator.build();
@@ -333,7 +333,7 @@ void main() {
       final generator = ZplGenerator([
         const ZplConfiguration(darkness: 15, labelLength: 600, printWidth: 400),
         // Header
-        const ZplText(
+        ZplText(
           x: 50,
           y: 30,
           text: 'SHIPPING LABEL',
@@ -345,43 +345,21 @@ void main() {
         const ZplBox(x: 20, y: 70, width: 360, height: 500, borderThickness: 2),
 
         // From section
-        const ZplText(
-          x: 30,
-          y: 85,
-          text: 'FROM:',
-          fontHeight: 14,
-          font: ZplFont.b,
-        ),
+        ZplText(x: 30, y: 85, text: 'FROM:', fontHeight: 14, font: ZplFont.b),
         const ZplBox(x: 30, y: 105, width: 340, height: 80, borderThickness: 1),
-        const ZplText(x: 40, y: 115, text: 'Acme Corp', fontHeight: 12),
-        const ZplText(x: 40, y: 135, text: '123 Business St', fontHeight: 12),
-        const ZplText(
-          x: 40,
-          y: 155,
-          text: 'New York, NY 10001',
-          fontHeight: 12,
-        ),
+        ZplText(x: 40, y: 115, text: 'Acme Corp', fontHeight: 12),
+        ZplText(x: 40, y: 135, text: '123 Business St', fontHeight: 12),
+        ZplText(x: 40, y: 155, text: 'New York, NY 10001', fontHeight: 12),
 
         // To section
-        const ZplText(
-          x: 30,
-          y: 200,
-          text: 'TO:',
-          fontHeight: 14,
-          font: ZplFont.b,
-        ),
+        ZplText(x: 30, y: 200, text: 'TO:', fontHeight: 14, font: ZplFont.b),
         const ZplBox(x: 30, y: 220, width: 340, height: 80, borderThickness: 1),
-        const ZplText(x: 40, y: 230, text: 'John Smith', fontHeight: 12),
-        const ZplText(x: 40, y: 250, text: '456 Customer Ave', fontHeight: 12),
-        const ZplText(
-          x: 40,
-          y: 270,
-          text: 'Los Angeles, CA 90210',
-          fontHeight: 12,
-        ),
+        ZplText(x: 40, y: 230, text: 'John Smith', fontHeight: 12),
+        ZplText(x: 40, y: 250, text: '456 Customer Ave', fontHeight: 12),
+        ZplText(x: 40, y: 270, text: 'Los Angeles, CA 90210', fontHeight: 12),
 
         // Tracking section
-        const ZplText(
+        ZplText(
           x: 30,
           y: 320,
           text: 'TRACKING:',
@@ -389,7 +367,7 @@ void main() {
           font: ZplFont.b,
         ),
         const ZplBox(x: 30, y: 340, width: 340, height: 40, borderThickness: 1),
-        const ZplText(
+        ZplText(
           x: 40,
           y: 355,
           text: '1Z999AA1234567890',
@@ -398,7 +376,7 @@ void main() {
         ),
 
         // Barcode
-        const ZplBarcode(
+        ZplBarcode(
           x: 50,
           y: 400,
           data: '1Z999AA1234567890',
@@ -408,8 +386,8 @@ void main() {
 
         // Weight and service
         const ZplBox(x: 30, y: 500, width: 170, height: 50, borderThickness: 1),
-        const ZplText(x: 40, y: 515, text: 'Weight: 2.5 lbs', fontHeight: 12),
-        const ZplText(x: 40, y: 535, text: 'Service: Ground', fontHeight: 12),
+        ZplText(x: 40, y: 515, text: 'Weight: 2.5 lbs', fontHeight: 12),
+        ZplText(x: 40, y: 535, text: 'Service: Ground', fontHeight: 12),
 
         const ZplBox(
           x: 200,
@@ -418,8 +396,8 @@ void main() {
           height: 50,
           borderThickness: 1,
         ),
-        const ZplText(x: 210, y: 515, text: 'Date: 03/15/2024', fontHeight: 12),
-        const ZplText(x: 210, y: 535, text: 'Zone: 5', fontHeight: 12),
+        ZplText(x: 210, y: 515, text: 'Date: 03/15/2024', fontHeight: 12),
+        ZplText(x: 210, y: 535, text: 'Zone: 5', fontHeight: 12),
       ]);
 
       final zpl = generator.build();
@@ -435,7 +413,7 @@ void main() {
       final generator = ZplGenerator([
         const ZplConfiguration(darkness: 18, labelLength: 800, printWidth: 300),
         // Store header
-        const ZplText(
+        ZplText(
           x: 75,
           y: 30,
           text: 'ACME STORE',
@@ -443,20 +421,15 @@ void main() {
           fontHeight: 20,
           fontWidth: 15,
         ),
-        const ZplText(x: 85, y: 55, text: '123 Main St', fontHeight: 10),
-        const ZplText(x: 75, y: 70, text: 'City, ST 12345', fontHeight: 10),
+        ZplText(x: 85, y: 55, text: '123 Main St', fontHeight: 10),
+        ZplText(x: 75, y: 70, text: 'City, ST 12345', fontHeight: 10),
 
         // Separator line
         const ZplBox(x: 20, y: 90, width: 260, height: 2, borderThickness: 2),
 
         // Receipt header
-        const ZplText(x: 20, y: 110, text: 'Receipt #: 001234', fontHeight: 12),
-        const ZplText(
-          x: 20,
-          y: 130,
-          text: 'Date: 03/15/2024 14:30',
-          fontHeight: 12,
-        ),
+        ZplText(x: 20, y: 110, text: 'Receipt #: 001234', fontHeight: 12),
+        ZplText(x: 20, y: 130, text: 'Date: 03/15/2024 14:30', fontHeight: 12),
 
         // Items header
         const ZplBox(x: 20, y: 150, width: 260, height: 2, borderThickness: 1),
@@ -466,7 +439,7 @@ void main() {
           x: 20,
           y: 170,
           spacing: 10,
-          children: const [
+          children: [
             ZplText(text: 'Item', fontHeight: 12, font: ZplFont.b, x: 0, y: 0),
             ZplText(text: 'Qty', fontHeight: 12, font: ZplFont.b, x: 0, y: 0),
             ZplText(text: 'Price', fontHeight: 12, font: ZplFont.b, x: 0, y: 0),
@@ -478,7 +451,7 @@ void main() {
           x: 20,
           y: 190,
           spacing: 10,
-          children: const [
+          children: [
             ZplText(text: 'Coffee', fontHeight: 10, x: 0, y: 0),
             ZplText(text: '2', fontHeight: 10, x: 0, y: 0),
             ZplText(text: '\$8.00', fontHeight: 10, x: 0, y: 0),
@@ -490,7 +463,7 @@ void main() {
           x: 20,
           y: 210,
           spacing: 10,
-          children: const [
+          children: [
             ZplText(text: 'Sandwich', fontHeight: 10, x: 0, y: 0),
             ZplText(text: '1', fontHeight: 10, x: 0, y: 0),
             ZplText(text: '\$12.50', fontHeight: 10, x: 0, y: 0),
@@ -501,7 +474,7 @@ void main() {
         const ZplBox(x: 20, y: 230, width: 260, height: 1, borderThickness: 1),
 
         // Total
-        const ZplText(
+        ZplText(
           x: 180,
           y: 250,
           text: 'Total: \$20.50',
@@ -510,13 +483,13 @@ void main() {
         ),
 
         // QR Code for digital receipt
-        const ZplText(
+        ZplText(
           x: 20,
           y: 280,
           text: 'Scan for digital receipt:',
           fontHeight: 10,
         ),
-        const ZplBarcode(
+        ZplBarcode(
           x: 20,
           y: 300,
           data: 'https://store.com/receipt/001234',
@@ -525,7 +498,7 @@ void main() {
         ),
 
         // Footer
-        const ZplText(x: 70, y: 380, text: 'Thank you!', fontHeight: 12),
+        ZplText(x: 70, y: 380, text: 'Thank you!', fontHeight: 12),
       ]);
 
       final zpl = generator.build();
@@ -551,7 +524,7 @@ void main() {
 
         // Header section
         const ZplBox(x: 60, y: 60, width: 480, height: 60, borderThickness: 2),
-        const ZplText(
+        ZplText(
           x: 250,
           y: 80,
           text: 'EMPLOYEE BADGE',
@@ -568,57 +541,39 @@ void main() {
           height: 120,
           borderThickness: 2,
         ),
-        const ZplText(x: 115, y: 190, text: 'PHOTO', fontHeight: 12),
+        ZplText(x: 115, y: 190, text: 'PHOTO', fontHeight: 12),
 
         // Employee info
-        const ZplText(
-          x: 200,
-          y: 150,
-          text: 'Name:',
-          fontHeight: 12,
-          font: ZplFont.b,
-        ),
-        const ZplText(x: 250, y: 150, text: 'John Doe', fontHeight: 12),
+        ZplText(x: 200, y: 150, text: 'Name:', fontHeight: 12, font: ZplFont.b),
+        ZplText(x: 250, y: 150, text: 'John Doe', fontHeight: 12),
 
-        const ZplText(
-          x: 200,
-          y: 170,
-          text: 'ID:',
-          fontHeight: 12,
-          font: ZplFont.b,
-        ),
-        const ZplText(x: 250, y: 170, text: 'EMP001', fontHeight: 12),
+        ZplText(x: 200, y: 170, text: 'ID:', fontHeight: 12, font: ZplFont.b),
+        ZplText(x: 250, y: 170, text: 'EMP001', fontHeight: 12),
 
-        const ZplText(
-          x: 200,
-          y: 190,
-          text: 'Dept:',
-          fontHeight: 12,
-          font: ZplFont.b,
-        ),
-        const ZplText(x: 250, y: 190, text: 'Engineering', fontHeight: 12),
+        ZplText(x: 200, y: 190, text: 'Dept:', fontHeight: 12, font: ZplFont.b),
+        ZplText(x: 250, y: 190, text: 'Engineering', fontHeight: 12),
 
-        const ZplText(
+        ZplText(
           x: 200,
           y: 210,
           text: 'Level:',
           fontHeight: 12,
           font: ZplFont.b,
         ),
-        const ZplText(x: 250, y: 210, text: 'Senior', fontHeight: 12),
+        ZplText(x: 250, y: 210, text: 'Senior', fontHeight: 12),
 
-        const ZplText(
+        ZplText(
           x: 200,
           y: 230,
           text: 'Valid:',
           fontHeight: 12,
           font: ZplFont.b,
         ),
-        const ZplText(x: 250, y: 230, text: '12/31/2024', fontHeight: 12),
+        ZplText(x: 250, y: 230, text: '12/31/2024', fontHeight: 12),
 
         // Access code barcode
-        const ZplText(x: 80, y: 280, text: 'Access Code:', fontHeight: 10),
-        const ZplBarcode(
+        ZplText(x: 80, y: 280, text: 'Access Code:', fontHeight: 10),
+        ZplBarcode(
           x: 200,
           y: 275,
           data: 'EMP001',
@@ -628,7 +583,7 @@ void main() {
         ),
 
         // Footer
-        const ZplText(x: 200, y: 330, text: 'Acme Corporation', fontHeight: 10),
+        ZplText(x: 200, y: 330, text: 'Acme Corporation', fontHeight: 10),
       ]);
 
       final zpl = generator.build();
@@ -651,7 +606,7 @@ void main() {
           printDensity: ZplPrintDensity.half, // 8dpmm (203 DPI)
         ),
         // Title optimized for 203 DPI - shorter text
-        const ZplText(
+        ZplText(
           x: 50,
           y: 30,
           text: '203 DPI PRODUCT LABEL',
@@ -663,17 +618,12 @@ void main() {
         const ZplBox(x: 20, y: 70, width: 560, height: 255, borderThickness: 3),
 
         // Product info section
-        const ZplText(
-          x: 40,
-          y: 100,
-          text: 'Product: Sample Item',
-          fontHeight: 14,
-        ),
-        const ZplText(x: 40, y: 125, text: 'SKU: PRD-2024-001', fontHeight: 14),
-        const ZplText(x: 40, y: 150, text: 'Price: \$45.99', fontHeight: 14),
+        ZplText(x: 40, y: 100, text: 'Product: Sample Item', fontHeight: 14),
+        ZplText(x: 40, y: 125, text: 'SKU: PRD-2024-001', fontHeight: 14),
+        ZplText(x: 40, y: 150, text: 'Price: \$45.99', fontHeight: 14),
 
         // Barcode optimized for 203 DPI
-        const ZplBarcode(
+        ZplBarcode(
           x: 40,
           y: 190,
           data: 'PRD2024001',
@@ -683,12 +633,7 @@ void main() {
         ),
 
         // Footer
-        const ZplText(
-          x: 40,
-          y: 280,
-          text: 'Scan above for details',
-          fontHeight: 10,
-        ),
+        ZplText(x: 40, y: 280, text: 'Scan above for details', fontHeight: 10),
       ]);
 
       final zpl = generator.build();
@@ -712,7 +657,7 @@ void main() {
           printDensity: ZplPrintDensity.normal,
         ),
         // Compact title
-        const ZplText(
+        ZplText(
           x: 10,
           y: 10,
           text: 'PRODUCT TAG',
@@ -723,11 +668,11 @@ void main() {
         const ZplBox(x: 5, y: 35, width: 396, height: 160, borderThickness: 2),
 
         // Product info in two columns
-        const ZplText(x: 15, y: 50, text: 'SKU: ABC123', fontHeight: 12),
-        const ZplText(x: 15, y: 70, text: 'Price: \$19.99', fontHeight: 12),
+        ZplText(x: 15, y: 50, text: 'SKU: ABC123', fontHeight: 12),
+        ZplText(x: 15, y: 70, text: 'Price: \$19.99', fontHeight: 12),
 
         // Compact barcode
-        const ZplBarcode(
+        ZplBarcode(
           x: 200,
           y: 45,
           data: 'ABC123',
@@ -738,8 +683,8 @@ void main() {
         ),
 
         // Bottom info
-        const ZplText(x: 15, y: 170, text: 'Qty: 50', fontHeight: 10),
-        const ZplText(x: 300, y: 170, text: 'LOT: 2024A', fontHeight: 10),
+        ZplText(x: 15, y: 170, text: 'Qty: 50', fontHeight: 10),
+        ZplText(x: 300, y: 170, text: 'LOT: 2024A', fontHeight: 10),
       ]);
 
       final zpl = generator.build();
@@ -763,8 +708,8 @@ void main() {
         x: 10,
         y: 20,
         children: [
-          const ZplText(x: 0, y: 0, text: 'Col 1'),
-          const ZplText(x: 0, y: 0, text: 'Col 2'),
+          ZplText(x: 0, y: 0, text: 'Col 1'),
+          ZplText(x: 0, y: 0, text: 'Col 2'),
         ],
         spacing: 15,
       );
@@ -790,7 +735,7 @@ void main() {
         x: 50,
         y: 100,
         children: [
-          const ZplText(x: 0, y: 0, text: 'Line 1'),
+          ZplText(x: 0, y: 0, text: 'Line 1'),
           const ZplBox(x: 0, y: 0, width: 50, height: 50),
         ],
         spacing: 20,
@@ -817,8 +762,8 @@ void main() {
           printSpeed: 4,
           printDensity: ZplPrintDensity.half,
         ),
-        const ZplText(x: 10, y: 20, text: 'Product Name', fontHeight: 30),
-        const ZplBarcode(x: 10, y: 60, data: '12345678', height: 80),
+        ZplText(x: 10, y: 20, text: 'Product Name', fontHeight: 30),
+        ZplBarcode(x: 10, y: 60, data: '12345678', height: 80),
         const ZplBox(x: 5, y: 5, width: 400, height: 200, borderThickness: 2),
       ];
       final generator = ZplGenerator(commands);
@@ -885,7 +830,7 @@ void main() {
   group('ZplText Tests (via Generator)', () {
     test('Basic ZplText should generate correct ZPL', () {
       final generator = ZplGenerator([
-        const ZplText(x: 50, y: 100, text: 'Hello ZPL'),
+        ZplText(x: 50, y: 100, text: 'Hello ZPL'),
       ]);
       const expectedZpl = '''
         ^XA
@@ -901,7 +846,7 @@ void main() {
   group('ZplBarcode Tests (via Generator)', () {
     test('Basic Code128 barcode should generate correct ZPL', () {
       final generator = ZplGenerator([
-        const ZplBarcode(x: 50, y: 150, data: '12345ABC', height: 100),
+        ZplBarcode(x: 50, y: 150, data: '12345ABC', height: 100),
       ]);
       const expectedZpl = '''
         ^XA
@@ -936,8 +881,8 @@ void main() {
           y: 20,
           spacing: 15,
           children: [
-            const ZplText(x: 0, y: 0, text: 'Col 1'),
-            const ZplText(x: 0, y: 0, text: 'Col 2'),
+            ZplText(x: 0, y: 0, text: 'Col 1'),
+            ZplText(x: 0, y: 0, text: 'Col 2'),
           ],
         ),
       ]);
@@ -962,7 +907,7 @@ void main() {
           y: 100,
           spacing: 20,
           children: [
-            const ZplText(x: 0, y: 0, text: 'Line 1'),
+            ZplText(x: 0, y: 0, text: 'Line 1'),
             const ZplBox(x: 0, y: 0, width: 50, height: 50),
           ],
         ),
@@ -997,7 +942,7 @@ void main() {
         // Header
         const ZplBox(x: 10, y: 10, width: 780, height: 100, borderThickness: 2),
         ZplImage(x: 20, y: 20, image: imageData, graphicName: 'CERT.GRF'),
-        const ZplText(
+        ZplText(
           x: 120,
           y: 40,
           text: 'Zebra Technologies',
@@ -1007,7 +952,7 @@ void main() {
         ),
 
         // Body
-        const ZplText(
+        ZplText(
           x: 10,
           y: 130,
           text: 'Product Information',
@@ -1024,8 +969,8 @@ void main() {
               y: 0,
               spacing: 10,
               children: [
-                const ZplText(x: 0, y: 0, text: 'SKU:'),
-                const ZplText(x: 0, y: 0, text: 'Price:'),
+                ZplText(x: 0, y: 0, text: 'SKU:'),
+                ZplText(x: 0, y: 0, text: 'Price:'),
               ],
             ),
             ZplColumn(
@@ -1033,22 +978,22 @@ void main() {
               y: 0,
               spacing: 10,
               children: [
-                const ZplText(x: 0, y: 0, text: 'PROD-12345'),
-                const ZplText(x: 0, y: 0, text: '\$99.99'),
+                ZplText(x: 0, y: 0, text: 'PROD-12345'),
+                ZplText(x: 0, y: 0, text: '\$99.99'),
               ],
             ),
           ],
         ),
 
         // Footer with custom font and barcode
-        const ZplText(
+        ZplText(
           x: 10,
           y: 300,
           text: 'Product ID (with Roboto font)',
           fontAlias: 'T', // Use the downloaded font
           fontHeight: 25,
         ),
-        const ZplBarcode(x: 10, y: 340, height: 70, data: 'PROD-12345'),
+        ZplBarcode(x: 10, y: 340, height: 70, data: 'PROD-12345'),
       ];
 
       final generator = ZplGenerator(commands);

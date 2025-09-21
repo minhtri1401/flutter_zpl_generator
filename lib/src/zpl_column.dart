@@ -4,6 +4,7 @@ import 'zpl_barcode.dart';
 import 'zpl_image.dart';
 import 'zpl_box.dart';
 import 'zpl_row.dart';
+import 'zpl_separator.dart';
 import 'zpl_configuration.dart';
 import 'enums.dart';
 
@@ -48,11 +49,12 @@ class ZplColumn extends ZplCommand {
     var currentY = y;
 
     for (var child in children) {
-      // Calculate aligned X position based on alignment and configuration
-      final alignedX = _calculateAlignedX(child);
+      // For column alignment, all children should inherit the column's alignment
+      // Don't calculate individual alignments - use the column's x position
+      final childX = x; // All children use the same x position
 
       // Create a new instance of the child with updated coordinates
-      final updatedChild = _updateChildPosition(child, alignedX, currentY);
+      final updatedChild = _updateChildPosition(child, childX, currentY);
       sb.write(updatedChild.toZpl());
 
       // Calculate height based on element type
@@ -99,7 +101,7 @@ class ZplColumn extends ZplCommand {
   /// you would need to measure actual rendered dimensions.
   int _calculateElementHeight(ZplCommand element) {
     if (element is ZplText) {
-      return element.fontHeight ?? 12;
+      return element.calculateHeight();
     }
     if (element is ZplBarcode) {
       return element.height;
@@ -127,24 +129,44 @@ class ZplColumn extends ZplCommand {
       }
       return maxHeight > 0 ? maxHeight : 20;
     }
+    if (element is ZplSeparator) {
+      return element.calculateHeight(_configuration);
+    }
     return 20; // Default fallback
   }
 
   ZplCommand _updateChildPosition(ZplCommand child, int newX, int newY) {
     if (child is ZplText) {
-      return ZplText(
-        x: newX,
+      // Inherit column's alignment if child doesn't have its own alignment
+      final childAlignment = child.alignment ?? alignment;
+
+      final newText = ZplText(
+        x: 0, // Always use x: 0 to allow ^FB alignment to work
         y: newY,
         text: child.text,
         font: child.font,
+        fontAlias: child.fontAlias,
         fontHeight: child.fontHeight,
         fontWidth: child.fontWidth,
         orientation: child.orientation,
+        alignment: childAlignment, // Use inherited or child's alignment
+        paddingLeft: child.paddingLeft, // Preserve padding
+        paddingRight: child.paddingRight, // Preserve padding
       );
+
+      // Pass configuration to the new text instance
+      if (_configuration != null) {
+        newText.setConfiguration(_configuration!);
+      }
+
+      return newText;
     }
     if (child is ZplBarcode) {
-      return ZplBarcode(
-        x: newX,
+      // Inherit column's alignment if child doesn't have its own alignment
+      final childAlignment = child.alignment ?? alignment;
+
+      final newBarcode = ZplBarcode(
+        x: 0, // Always use x: 0 to allow alignment logic to work
         y: newY,
         data: child.data,
         type: child.type,
@@ -154,7 +176,39 @@ class ZplColumn extends ZplCommand {
         printInterpretationLineAbove: child.printInterpretationLineAbove,
         moduleWidth: child.moduleWidth,
         wideBarToNarrowBarRatio: child.wideBarToNarrowBarRatio,
+        alignment: childAlignment, // Use inherited or child's alignment
       );
+
+      // Pass configuration to the new barcode instance
+      if (_configuration != null) {
+        newBarcode.setConfiguration(_configuration!);
+      }
+
+      return newBarcode;
+    }
+    if (child is ZplSeparator) {
+      final newSeparator = ZplSeparator(
+        x: 0, // Always use x: 0 for layout consistency
+        y: newY,
+        type: child.type,
+        character: child.character,
+        thickness: child.thickness,
+        orientation: child.orientation,
+        paddingLeft: child.paddingLeft,
+        paddingRight: child.paddingRight,
+        paddingTop: child.paddingTop,
+        paddingBottom: child.paddingBottom,
+        length: child.length,
+        fontHeight: child.fontHeight,
+        fontWidth: child.fontWidth,
+      );
+
+      // Pass configuration to the new separator instance
+      if (_configuration != null) {
+        newSeparator.setConfiguration(_configuration!);
+      }
+
+      return newSeparator;
     }
     if (child is ZplImage) {
       return ZplImage(

@@ -26,7 +26,7 @@ void main() {
             labelLength: 609,
             printDensity: ZplPrintDensity.d8,
           ),
-          const ZplText(x: 50, y: 50, text: 'Hello World'),
+          ZplText(x: 50, y: 50, text: 'Hello World'),
         ];
         final generator = ZplGenerator(commands);
         final zpl = generator.build();
@@ -80,7 +80,7 @@ void main() {
             labelLength: 600,
             printDensity: ZplPrintDensity.d12,
           ),
-          const ZplText(x: 100, y: 100, text: 'Test Label'),
+          ZplText(x: 100, y: 100, text: 'Test Label'),
         ];
         final generator = ZplGenerator(commands);
         final zpl = generator.build();
@@ -139,7 +139,7 @@ void main() {
             labelLength: 609,
             printDensity: ZplPrintDensity.d8,
           ),
-          const ZplText(x: 50, y: 50, text: 'Label 1'),
+          ZplText(x: 50, y: 50, text: 'Label 1'),
         ];
         final label2Commands = [
           const ZplConfiguration(
@@ -147,7 +147,7 @@ void main() {
             labelLength: 609,
             printDensity: ZplPrintDensity.d8,
           ),
-          const ZplText(x: 50, y: 50, text: 'Label 2'),
+          ZplText(x: 50, y: 50, text: 'Label 2'),
         ];
 
         final generator1 = ZplGenerator(label1Commands);
@@ -235,7 +235,7 @@ void main() {
             labelLength: 203,
             printDensity: ZplPrintDensity.d8,
           ),
-          const ZplText(x: 10, y: 10, text: 'Generator Test'),
+          ZplText(x: 10, y: 10, text: 'Generator Test'),
         ];
         final generator = ZplGenerator(commands);
         final expectedZpl = generator.build();
@@ -274,7 +274,7 @@ void main() {
 
       test('throws exception when ZplConfiguration is missing', () async {
         // Arrange
-        final commands = [const ZplText(x: 10, y: 10, text: 'No Config')];
+        final commands = [ZplText(x: 10, y: 10, text: 'No Config')];
         final generator = ZplGenerator(commands);
 
         // Act & Assert
@@ -301,7 +301,7 @@ void main() {
             labelLength: 304,
             printDensity: ZplPrintDensity.d12,
           ),
-          const ZplText(x: 20, y: 20, text: 'High Density'),
+          ZplText(x: 20, y: 20, text: 'High Density'),
         ];
         final generator = ZplGenerator(commands);
         final expectedZpl = generator.build();

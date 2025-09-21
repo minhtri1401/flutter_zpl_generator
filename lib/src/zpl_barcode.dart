@@ -35,7 +35,13 @@ class ZplBarcode extends ZplCommand {
   /// The wide bar to narrow bar width ratio. A value between 2.0 and 3.0.
   final double? wideBarToNarrowBarRatio;
 
-  const ZplBarcode({
+  /// The horizontal alignment of the barcode. If null, uses manual positioning.
+  final ZplAlignment? alignment;
+
+  /// Optional configuration context for alignment features
+  ZplConfiguration? _configuration;
+
+  ZplBarcode({
     this.x = 0,
     this.y = 0,
     required this.data,
@@ -46,7 +52,13 @@ class ZplBarcode extends ZplCommand {
     this.printInterpretationLineAbove = false,
     this.moduleWidth,
     this.wideBarToNarrowBarRatio,
+    this.alignment,
   });
+
+  /// Set configuration context for alignment features
+  void setConfiguration(ZplConfiguration config) {
+    _configuration = config;
+  }
 
   /// Calculate the approximate width of the barcode in dots.
   /// This is an estimation based on barcode type and data length.
@@ -57,20 +69,25 @@ class ZplBarcode extends ZplCommand {
       case ZplBarcodeType.code128:
         // Code 128: Each character is 11 modules wide
         // Plus start code (11), stop code (13), and check digit (11)
-        // Total: (data_length * 11) + 35 modules
-        return ((data.length * 11) + 35) * baseModuleWidth;
+        // Base calculation: (data_length * 11) + 35 modules
+        // Add quiet zones (10 modules each side) and interpretation line considerations
+        final baseWidth = ((data.length * 11) + 35) * baseModuleWidth;
+        final quietZones = 20 * baseModuleWidth; // 10 modules each side
+        return baseWidth + quietZones;
 
       case ZplBarcodeType.code39:
         // Code 39: Each character is 5 bars + 4 spaces = 9 modules
         // Wide bars/spaces are typically 3x narrow (using wideBarToNarrowBarRatio)
         // Plus start/stop characters (* = 15 modules each)
-        // Approximate: (data_length * 15) + 30 modules (for start/stop)
         final ratio = wideBarToNarrowBarRatio ?? 2.5;
-        return ((data.length * (9 * ratio).round()) + 30) * baseModuleWidth;
+        final baseWidth =
+            ((data.length * (9 * ratio).round()) + 30) * baseModuleWidth;
+        final quietZones = 20 * baseModuleWidth; // Quiet zones
+        return baseWidth + quietZones;
 
       case ZplBarcodeType.qrCode:
         // QR Code size depends on data length and error correction level
-        // Estimate based on data length (very rough approximation)
+        // These already include quiet zones in the estimation
         if (data.length <= 25) {
           return 84; // Version 1: 21x21 modules * 4 = 84 dots
         }
@@ -90,7 +107,12 @@ class ZplBarcode extends ZplCommand {
   @override
   String toZpl() {
     final sb = StringBuffer();
-    sb.writeln('^FO$x,$y');
+
+    // Calculate aligned X position if alignment is specified
+    // Note: Unlike text, barcodes cannot use ^FB, so we use manual positioning
+    // to achieve the same alignment behavior as ^FB does for text
+    final alignedX = _calculateAlignedX();
+    sb.writeln('^FO$alignedX,$y');
 
     if (moduleWidth != null || wideBarToNarrowBarRatio != null) {
       final w = moduleWidth ?? '';
@@ -147,5 +169,33 @@ class ZplBarcode extends ZplCommand {
   @override
   int calculateWidth(ZplConfiguration? config) {
     return width; // Use the calculated width property
+  }
+
+  /// Calculate the X position based on alignment and available width
+  /// This mimics the ^FB behavior for barcodes using manual positioning
+  int _calculateAlignedX() {
+    // If no alignment or configuration, use specified x position
+    if (alignment == null || _configuration == null) {
+      return x;
+    }
+
+    // Use x=0 when alignment is specified (like ^FB does for text)
+    // This allows the alignment to work from the full label width
+    if (x == 0) {
+      final labelWidth = _configuration!.printWidth ?? 406;
+      final barcodeWidth = width;
+
+      switch (alignment!) {
+        case ZplAlignment.center:
+          return ((labelWidth - barcodeWidth) ~/ 2).clamp(0, labelWidth - 1);
+        case ZplAlignment.right:
+          return (labelWidth - barcodeWidth).clamp(0, labelWidth - 1);
+        case ZplAlignment.left:
+          return 0;
+      }
+    }
+
+    // If x is explicitly set (non-zero), use manual positioning like text does
+    return x;
   }
 }

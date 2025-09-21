@@ -22,14 +22,21 @@ class ZplBox extends ZplCommand {
   /// The degree of corner rounding (0 for sharp, 8 for max rounding).
   final int cornerRounding;
 
-  const ZplBox({
+  ZplBox({
     this.x = 0,
     this.y = 0,
     required this.width,
     required this.height,
     this.borderThickness = 1,
     this.cornerRounding = 0,
-  });
+  }) : assert(
+         borderThickness >= 1 && borderThickness <= 32000,
+         'Border thickness must be between 1 and 32,000 dots',
+       ),
+       assert(
+         cornerRounding >= 0 && cornerRounding <= 8,
+         'Corner rounding must be between 0 (no rounding) and 8 (maximum rounding)',
+       );
 
   @override
   String toZpl() {

@@ -149,3 +149,12 @@ enum LabelaryPrintQuality {
   const LabelaryPrintQuality(this.value);
   final String value;
 }
+
+/// Enum for different types of separators
+enum ZplSeparatorType {
+  /// Use ZPL box drawing for solid lines
+  box,
+
+  /// Use repeated characters for decorative lines
+  character,
+}

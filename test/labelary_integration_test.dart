@@ -26,7 +26,7 @@ void main() {
             labelLength: 1218, // 6 inches * 203 DPI
             printDensity: ZplPrintDensity.d8,
           ),
-          const ZplText(x: 50, y: 50, text: 'Hello World'),
+          ZplText(x: 50, y: 50, text: 'Hello World'),
         ];
         final generator = ZplGenerator(commands);
         final zpl = generator.build();
@@ -62,8 +62,8 @@ void main() {
             labelLength: 1218, // 6 inches * 203 DPI
             printDensity: ZplPrintDensity.d8,
           ),
-          const ZplText(x: 100, y: 100, text: 'Product Label'),
-          const ZplBarcode(
+          ZplText(x: 100, y: 100, text: 'Product Label'),
+          ZplBarcode(
             x: 100,
             y: 200,
             data: '123456789012',
@@ -106,7 +106,7 @@ void main() {
             labelLength: 406, // 2 inches * 203 DPI
             printDensity: ZplPrintDensity.d8,
           ),
-          const ZplText(x: 50, y: 50, text: 'Label 1'),
+          ZplText(x: 50, y: 50, text: 'Label 1'),
         ];
         final label2Commands = [
           const ZplConfiguration(
@@ -114,7 +114,7 @@ void main() {
             labelLength: 406,
             printDensity: ZplPrintDensity.d8,
           ),
-          const ZplText(x: 50, y: 50, text: 'Label 2'),
+          ZplText(x: 50, y: 50, text: 'Label 2'),
         ];
         final label3Commands = [
           const ZplConfiguration(
@@ -122,7 +122,7 @@ void main() {
             labelLength: 406,
             printDensity: ZplPrintDensity.d8,
           ),
-          const ZplText(x: 50, y: 50, text: 'Label 3'),
+          ZplText(x: 50, y: 50, text: 'Label 3'),
         ];
 
         final generator1 = ZplGenerator(label1Commands);
@@ -161,8 +161,8 @@ void main() {
             labelLength: 900, // 1.5 inches * 600 DPI
             printDensity: ZplPrintDensity.d24,
           ),
-          const ZplText(x: 20, y: 20, text: 'High Resolution'),
-          const ZplBarcode(
+          ZplText(x: 20, y: 20, text: 'High Resolution'),
+          ZplBarcode(
             x: 20,
             y: 60,
             data: '987654321',
@@ -201,8 +201,8 @@ void main() {
             labelLength: 203,
             printDensity: ZplPrintDensity.d8,
           ),
-          const ZplText(x: 50, y: 50, text: 'Generated Label'),
-          const ZplText(x: 50, y: 100, text: 'Using ZplGenerator'),
+          ZplText(x: 50, y: 50, text: 'Generated Label'),
+          ZplText(x: 50, y: 100, text: 'Using ZplGenerator'),
         ];
         final generator = ZplGenerator(commands);
 

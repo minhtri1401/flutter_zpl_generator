@@ -36,7 +36,7 @@ void main() {
         printDensity: ZplPrintDensity.d8,
       ),
       ZplText(x: 100, y: 100, text: 'Product Label'),
-      const ZplBarcode(
+      ZplBarcode(
         x: 100,
         y: 200,
         data: '123456789012',
@@ -63,7 +63,7 @@ void main() {
         printDensity: ZplPrintDensity.d24,
       ),
       ZplText(x: 20, y: 20, text: 'High Resolution'),
-      const ZplBarcode(
+      ZplBarcode(
         x: 20,
         y: 60,
         data: '987654321',
@@ -93,7 +93,7 @@ void main() {
         printDensity: ZplPrintDensity.d8,
       ),
       ZplText(x: 50, y: 30, text: 'Scan QR Code:'),
-      const ZplBarcode(
+      ZplBarcode(
         x: 100,
         y: 80,
         data: 'https://example.com/product/12345',
@@ -121,7 +121,7 @@ void main() {
       ),
       ZplText(x: 50, y: 50, text: 'Product: ABC123'),
       ZplText(x: 50, y: 100, text: 'Price: \$19.99'),
-      const ZplBarcode(
+      ZplBarcode(
         x: 50,
         y: 150,
         data: '123456789',
@@ -192,7 +192,7 @@ void _printPostmanExample({
   print('\n${'-' * 80}\n');
 }
 
-void _printMultiLabelExample() {
+void _printMultiLabelExample() async {
   print('4. MULTIPLE LABELS (GET 2ND LABEL)');
   print('=' * 35);
 
@@ -225,7 +225,9 @@ void _printMultiLabelExample() {
   final generator3 = ZplGenerator(label3Commands);
 
   final multipleZpl =
-      generator1.build() + generator2.build() + generator3.build();
+      (await generator1.build()) +
+      (await generator2.build()) +
+      (await generator3.build());
 
   print('HTTP Method: POST');
   print(

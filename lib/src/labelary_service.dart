@@ -460,7 +460,7 @@ class LabelaryService {
     final widthInches = (config.printWidth ?? 406) / densityDpi;
     final heightInches = (config.labelLength ?? 203) / densityDpi;
     final density = _mapZplDensityToLabelaryDensity(config.printDensity);
-    final zpl = generator.build();
+    final zpl = await generator.build();
 
     return renderZpl(
       zpl,

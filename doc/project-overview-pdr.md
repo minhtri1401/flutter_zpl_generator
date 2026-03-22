@@ -22,7 +22,7 @@ A comprehensive Dart/Flutter package for generating ZPL (Zebra Programming Langu
 - IoT and embedded systems developers
 
 ### Current Version
-**v2.0.0** (March 2026) — Architecture refactor with configuration decoupling, extended features, and improved layout system
+**v1.1.0.0** (March 2026) — Architecture refactor with configuration decoupling, extended features, and improved layout system
 
 ### Repository
 - **URL**: https://github.com/orioninnovation/flutter_zpl_generator
@@ -55,7 +55,7 @@ A comprehensive Dart/Flutter package for generating ZPL (Zebra Programming Langu
 | Support print density settings | ✓ Complete | 6 preset densities (101-600 DPI) |
 | Support darkness/contrast adjustment | ✓ Complete | 0-30 scale |
 | Support character encoding options | ✓ Complete | UTF-8, ASCII, custom encodings |
-| Decouple configuration from command list | ✓ Complete | v2.0 architecture |
+| Decouple configuration from command list | ✓ Complete | v1.1.0 architecture |
 
 #### 1.3 Layout System
 
@@ -94,7 +94,7 @@ A comprehensive Dart/Flutter package for generating ZPL (Zebra Programming Langu
 | Flutter `ZplPreview` widget | ✓ Complete | Renders labels via Labelary API |
 | Loading state handling | ✓ Complete | `CircularProgressIndicator` shown |
 | Error state handling | ✓ Complete | Error messages displayed |
-| Reactive re-rendering | ✓ Complete | v2.0 `didUpdateWidget()` implementation |
+| Reactive re-rendering | ✓ Complete | v1.1.0 `didUpdateWidget()` implementation |
 
 ### 2. Non-Functional Requirements
 
@@ -158,7 +158,7 @@ A comprehensive Dart/Flutter package for generating ZPL (Zebra Programming Langu
 | Project Changelog | `docs/project-changelog.md` | ✓ Complete |
 | API Documentation | Inline + `docs/` | ✓ Complete |
 | README | `README.md` | ✓ Complete |
-| CLAUDE.md | `CLAUDE.md` | ✓ Updated v2.0 |
+| CLAUDE.md | `CLAUDE.md` | ✓ Updated v1.1.0 |
 | Example App | `example/` | ✓ Complete |
 
 ### 5. Testing Requirements
@@ -176,14 +176,14 @@ A comprehensive Dart/Flutter package for generating ZPL (Zebra Programming Langu
 
 ## Success Criteria
 
-### v2.0 Release Criteria (March 2026)
+### v1.1.0 Release Criteria (March 2026)
 - [x] Architecture refactored with configuration decoupling
 - [x] All breaking changes documented
 - [x] Migration guide provided
 - [x] New features implemented (graphics, barcode types, reversePrint)
 - [x] Test coverage maintained > 85%
-- [x] Documentation updated for v2.0
-- [x] No regressions from v1.0
+- [x] Documentation updated for v1.1.0
+- [x] No regressions from v1.0.0
 - [x] Published to pub.dev
 
 ### Ongoing Success Metrics
@@ -235,8 +235,8 @@ A comprehensive Dart/Flutter package for generating ZPL (Zebra Programming Langu
 
 | Version | Date | Status | Key Features |
 |---|---|---|---|
-| v1.0.0 | Sep 2025 | Archived | Command pattern, basic layout, Labelary API |
-| v2.0.0 | Mar 2026 | Current | Refactored architecture, graphics, extended barcodes |
+| v1.0.0.0 | Sep 2025 | Archived | Command pattern, basic layout, Labelary API |
+| v1.1.0.0 | Mar 2026 | Current | Refactored architecture, graphics, extended barcodes |
 | v2.1.0 | Q2 2026 | Planned | Bug fixes, stability improvements |
 | v3.0.0 | 2027+ | Planned | Advanced features, visual designer integration |
 

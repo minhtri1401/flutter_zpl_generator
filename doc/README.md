@@ -1,6 +1,6 @@
 # Documentation Index
 
-Complete documentation for the `flutter_zpl_generator` package v2.0.0.
+Complete documentation for the `flutter_zpl_generator` package v1.1.0.0.
 
 ## Quick Navigation
 
@@ -19,7 +19,7 @@ Complete documentation for the `flutter_zpl_generator` package v2.0.0.
 2. Reference [Project Changelog](./project-changelog.md) for version history
 3. Review [Project Overview & PDR](./project-overview-pdr.md) for requirements tracking
 
-### For Migration from v1.0
+### For Migration from v1.0.0
 1. Read [Project Changelog](./project-changelog.md) "Upgrade Guide" section
 2. Follow the step-by-step migration instructions
 3. Use the migration checklist to ensure nothing is missed
@@ -53,7 +53,7 @@ Complete documentation for the `flutter_zpl_generator` package v2.0.0.
 - Error handling guidelines
 - Testing patterns with examples
 - Configuration and layout patterns
-- v2.0 breaking changes checklist
+- v1.1.0 breaking changes checklist
 
 **Best for**: Writing code in the library, contributing features, following project conventions.
 
@@ -64,7 +64,7 @@ Complete documentation for the `flutter_zpl_generator` package v2.0.0.
 
 - Overview of command pattern and design
 - ZplCommand base class explanation
-- Configuration context passing (v2.0)
+- Configuration context passing (v1.1.0)
 - Layout system containers
 - Leaf command types (text, barcode, graphics)
 - Service layer (Labelary API, asset conversion)
@@ -80,7 +80,7 @@ Complete documentation for the `flutter_zpl_generator` package v2.0.0.
 **Feature roadmap and project timeline**
 
 - Project vision statement
-- Release history (v1.0, v2.0)
+- Release history (v1.0.0, v1.1.0)
 - Current phase status
 - Planned phases (Q2-Q4 2026, 2027+)
 - Proposed advanced features
@@ -96,19 +96,19 @@ Complete documentation for the `flutter_zpl_generator` package v2.0.0.
 ### [Project Changelog](./project-changelog.md)
 **Detailed change history and upgrade guide**
 
-- v2.0.0 release notes
+- v1.1.0.0 release notes
   - Breaking changes with impact assessment
   - New features and enhancements
   - Bug fixes and improvements
-- v1.0.0 archive
-- **Upgrade Guide (v1.0 → v2.0)**
+- v1.0.0.0 archive
+- **Upgrade Guide (v1.0.0 → v1.1.0)**
   - Step-by-step migration instructions
   - Code examples for each change
   - Complete migration checklist
 - Future roadmap reference
 - Version numbering scheme
 
-**Best for**: Understanding what changed, migrating from v1.0, version history.
+**Best for**: Understanding what changed, migrating from v1.0.0, version history.
 
 ---
 
@@ -155,7 +155,7 @@ Complete documentation for the `flutter_zpl_generator` package v2.0.0.
 
 ---
 
-## v2.0 Key Changes
+## v1.1.0 Key Changes
 
 ### Major Breaking Changes
 
@@ -180,7 +180,7 @@ Complete documentation for the `flutter_zpl_generator` package v2.0.0.
 ## Related Files
 
 ### Project Root
-- [CLAUDE.md](../CLAUDE.md) — Development guidance (updated for v2.0)
+- [CLAUDE.md](../CLAUDE.md) — Development guidance (updated for v1.1.0)
 - [README.md](../README.md) — User guide and quick start
 - [CHANGELOG.md](../CHANGELOG.md) — Version history
 - [pubspec.yaml](../pubspec.yaml) — Package metadata
@@ -214,7 +214,7 @@ Complete documentation for the `flutter_zpl_generator` package v2.0.0.
 | First-time learning | project-overview-pdr.md | system-architecture.md |
 | Writing code | code-standards.md | codebase-summary.md |
 | Contributing | project-overview-pdr.md | code-standards.md |
-| Migrating from v1.0 | project-changelog.md | code-standards.md |
+| Migrating from v1.0.0 | project-changelog.md | code-standards.md |
 | Maintaining project | development-roadmap.md | project-overview-pdr.md |
 | Understanding architecture | system-architecture.md | codebase-summary.md |
 | Planning features | development-roadmap.md | project-overview-pdr.md |
@@ -227,7 +227,7 @@ Complete documentation for the `flutter_zpl_generator` package v2.0.0.
 All ZPL elements extend `ZplCommand` base class. See [System Architecture](./system-architecture.md) for details.
 
 ### Configuration Context
-v2.0 passes `ZplConfiguration` to all commands via `toZpl(context)` parameter. See [System Architecture](./system-architecture.md#configuration-decoupling) and [Code Standards](./code-standards.md#configuration-pattern).
+v1.1.0 passes `ZplConfiguration` to all commands via `toZpl(context)` parameter. See [System Architecture](./system-architecture.md#configuration-decoupling) and [Code Standards](./code-standards.md#configuration-pattern).
 
 ### Layout System
 Containers (`ZplGridRow`, `ZplColumn`) manage child positioning and set `maxWidth` constraints. See [System Architecture](./system-architecture.md#layout-system) and [Code Standards](./code-standards.md#layout-container-pattern).
@@ -262,7 +262,7 @@ final generator = ZplGenerator(
 final zpl = await generator.build();
 ```
 
-### Command Implementation (v2.0)
+### Command Implementation (v1.1.0)
 ```dart
 @override
 String toZpl(ZplConfiguration context) {
@@ -292,10 +292,10 @@ See [Code Standards](./code-standards.md) for complete examples and patterns.
 **Q: Where do I start if I'm new to this library?**
 A: Read [Project Overview & PDR](./project-overview-pdr.md) first, then [System Architecture](./system-architecture.md).
 
-**Q: How do I migrate from v1.0 to v2.0?**
+**Q: How do I migrate from v1.0.0 to v1.1.0?**
 A: Follow the 5-step guide in [Project Changelog](./project-changelog.md#upgrade-guide).
 
-**Q: What are the breaking changes in v2.0?**
+**Q: What are the breaking changes in v1.1.0?**
 A: See the "Breaking Changes" section in [Project Changelog](./project-changelog.md).
 
 **Q: How do I implement a custom command?**
@@ -330,8 +330,8 @@ A: See [Project Overview & PDR](./project-overview-pdr.md#5-testing-requirements
 
 ## Version Information
 
-- **Current Version**: 2.0.0 (March 2026)
-- **Documentation Version**: 2.0.0
+- **Current Version**: 1.1.0 (March 2026)
+- **Documentation Version**: 1.1.0
 - **Last Updated**: March 22, 2026
 - **Status**: Complete and verified
 

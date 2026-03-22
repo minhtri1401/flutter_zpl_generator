@@ -23,7 +23,7 @@ abstract class ZplCommand {
 }
 ```
 
-**Key Change (v2.0):** The `toZpl()` method now accepts `ZplConfiguration context` as a parameter. Previously, configuration was set via a separate `setConfiguration()` call. This change decouples configuration from command state and makes the command signature explicit.
+**Key Change (v1.1.0):** The `toZpl()` method now accepts `ZplConfiguration context` as a parameter. Previously, configuration was set via a separate `setConfiguration()` call. This change decouples configuration from command state and makes the command signature explicit.
 
 ### ZplConfiguration
 
@@ -59,7 +59,7 @@ Configuration flows to commands during generation via the `build()` method's `co
 
 **File:** `lib/src/zpl_generator.dart`
 
-Central class that aggregates commands and produces the final ZPL script. Uses named parameters in v2.0:
+Central class that aggregates commands and produces the final ZPL script. Uses named parameters in v1.1.0:
 
 ```dart
 ZplGenerator({
@@ -89,7 +89,7 @@ Layout commands are containers that automatically position their children using 
 
 **File:** `lib/src/zpl_grid_row.dart`
 
-Primary horizontal layout container (replaces `ZplRow` from v1.0):
+Primary horizontal layout container (replaces `ZplRow` from v1.0.0):
 
 ```dart
 class ZplGridRow extends ZplCommand {
@@ -151,11 +151,11 @@ class ZplText extends ZplCommand {
   final int lineSpacing;
   final ZplFontAsset? customFont;
   final int? maxWidth;               // Set by layout containers
-  final bool reversePrint;           // v2.0: white on black
+  final bool reversePrint;           // v1.1.0: white on black
 }
 ```
 
-**v2.0 Changes:**
+**v1.1.0 Changes:**
 - `maxWidth` property: allows layout containers to constrain width
 - `reversePrint` property: inverts print colors
 
@@ -177,8 +177,8 @@ class ZplBarcode extends ZplCommand {
 }
 ```
 
-**v2.0 Barcode Types:**
-- `code128`, `code39`, `qrCode` (v1.0)
+**v1.1.0 Barcode Types:**
+- `code128`, `code39`, `qrCode` (v1.0.0)
 - `dataMatrix` (2D, `^BX` command)
 - `ean13` (`^BE` command)
 - `upcA` (`^BU` command)
@@ -191,7 +191,7 @@ class ZplBox extends ZplCommand {
   final int width, height;
   final int lineThickness;
   final int? cornerRadius;
-  final bool reversePrint;           // v2.0
+  final bool reversePrint;           // v1.1.0
 }
 ```
 
@@ -203,7 +203,7 @@ Renders raster images as ZPL hex-encoded graphics.
 
 Horizontal or vertical separator lines with customizable style (box or character-based).
 
-### New Graphics Components (v2.0)
+### New Graphics Components (v1.1.0)
 
 #### ZplRaw
 
@@ -278,7 +278,7 @@ static Future<String> convertFontToZpl(File fontFile, String fontId)
 static Future<Uint8List> renderFromGeneratorSimple(ZplGenerator generator)
 ```
 
-**v2.0 Changes:**
+**v1.1.0 Changes:**
 - `renderFromGeneratorSimple()` uses `generator.config` directly (config no longer in command list)
 - API calls respect config properties for density, page size, etc.
 
@@ -369,7 +369,7 @@ class ZplPreview extends StatefulWidget {
 - Renders label via `LabelaryService.renderFromGeneratorSimple()`
 - Displays loading state while rendering
 - Shows error message if rendering fails
-- **v2.0 Change:** Implements `didUpdateWidget()` for reactive re-rendering when generator changes
+- **v1.1.0 Change:** Implements `didUpdateWidget()` for reactive re-rendering when generator changes
   - Detects when `generator` property changes
   - Automatically triggers re-render with new generator
 
@@ -392,11 +392,11 @@ lib/
 │   ├── zpl_box.dart                 # Box drawing
 │   ├── zpl_image.dart               # Image rendering
 │   ├── zpl_separator.dart           # Separator lines
-│   ├── zpl_raw.dart                 # Raw ZPL injection (v2.0)
+│   ├── zpl_raw.dart                 # Raw ZPL injection (v1.1.0)
 │   │
-│   ├── zpl_graphic_circle.dart      # Circle drawing (v2.0)
-│   ├── zpl_graphic_ellipse.dart     # Ellipse drawing (v2.0)
-│   ├── zpl_graphic_diagonal_line.dart # Diagonal line (v2.0)
+│   ├── zpl_graphic_circle.dart      # Circle drawing (v1.1.0)
+│   ├── zpl_graphic_ellipse.dart     # Ellipse drawing (v1.1.0)
+│   ├── zpl_graphic_diagonal_line.dart # Diagonal line (v1.1.0)
 │   │
 │   ├── zpl_column.dart              # Vertical layout
 │   ├── zpl_grid_row.dart            # Horizontal layout (replaces ZplRow)
@@ -417,7 +417,7 @@ lib/
 
 ## Version History
 
-**v2.0 (Current)**
+**v1.1.0 (Current)**
 - `toZpl()` signature changed to accept `ZplConfiguration context`
 - `ZplGenerator` uses named parameters with config decoupling
 - `ZplRow` removed; `ZplGridRow` is sole horizontal layout
@@ -427,7 +427,7 @@ lib/
 - New graphics: `ZplRaw`, `ZplGraphicCircle`, `ZplGraphicEllipse`, `ZplGraphicDiagonalLine`
 - `ZplPreview` implements reactive `didUpdateWidget()`
 
-**v1.0**
+**v1.0.0**
 - Initial command-based architecture
 - Configuration as command in list
 - `ZplRow` for horizontal layout

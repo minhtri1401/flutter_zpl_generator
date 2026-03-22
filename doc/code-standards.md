@@ -269,7 +269,7 @@ expect(normalizeZpl(zpl), contains('^FO10,20^FDHello^FS'));
 `ZplConfiguration` is passed as context to all commands:
 
 ```dart
-// v2.0: Configuration is decoupled from command list
+// v1.1.0: Configuration is decoupled from command list
 final config = ZplConfiguration(
   printWidth: 812,
   printHeight: 1218,
@@ -388,7 +388,7 @@ class ZplText extends ZplCommand {
 - **Flutter:** Minimum 3.0
 - **Platform:** All Flutter platforms (iOS, Android, Web, Desktop)
 
-## v2.0 Breaking Changes
+## v1.1.0 Breaking Changes
 
 These changes affect how code is structured:
 
@@ -410,7 +410,7 @@ These changes affect how code is structured:
 
 ## Migration Checklist
 
-When updating code for v2.0:
+When updating code for v1.1.0:
 
 - [ ] Change `toZpl()` calls to pass `ZplConfiguration context`
 - [ ] Update `ZplGenerator` instantiation to use named parameters

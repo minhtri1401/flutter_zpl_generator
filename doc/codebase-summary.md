@@ -6,7 +6,7 @@ A comprehensive overview of the `flutter_zpl_generator` package structure, modul
 
 - **Language**: Dart/Flutter
 - **Package**: flutter_zpl_generator
-- **Version**: 2.0.0 (March 2026)
+- **Version**: 1.1.0 (March 2026)
 - **License**: MIT
 - **Main Files**: 22 Dart modules
 - **Test Coverage**: > 85%
@@ -84,7 +84,7 @@ abstract class ZplCommand {
 - `calculateWidth()` returns width in dots for layout calculations
 
 ### 2. zpl_configuration.dart
-**Purpose**: Label-level configuration (decoupled from commands in v2.0)
+**Purpose**: Label-level configuration (decoupled from commands in v1.1.0)
 
 **Properties**:
 - `printWidth`, `printHeight` — Label dimensions in dots
@@ -96,12 +96,12 @@ abstract class ZplCommand {
 **Key Points**:
 - Immutable value class
 - Passed as context to all commands
-- Not a command itself (v2.0 change)
+- Not a command itself (v1.1.0 change)
 
 ### 3. zpl_generator.dart
 **Purpose**: Main orchestrator that aggregates commands and generates ZPL script
 
-**Constructor** (v2.0):
+**Constructor** (v1.1.0):
 ```dart
 ZplGenerator({
   this.config = const ZplConfiguration(),
@@ -158,7 +158,7 @@ ZplGenerator({
 - `maxLines`, `lineSpacing` — Multi-line support
 - `customFont` — TTF font asset reference
 - `maxWidth` — Width constraint from layout container
-- `reversePrint` — White on black (v2.0)
+- `reversePrint` — White on black (v1.1.0)
 
 **Key Methods**:
 - `toZpl(ZplConfiguration context)` — Generates `^FO`, `^A`, `^FB`, `^FD`, `^FS` commands
@@ -167,11 +167,11 @@ ZplGenerator({
 ### 6. zpl_barcode.dart
 **Purpose**: Barcode rendering (6 types)
 
-**Supported Types** (v2.0):
+**Supported Types** (v1.1.0):
 - `code128` — Linear barcode, high density
 - `code39` — Linear barcode, alphanumeric
 - `qrCode` — 2D barcode, large capacity
-- `dataMatrix` — 2D barcode (v2.0), compact
+- `dataMatrix` — 2D barcode (v1.1.0), compact
 - `ean13` — Linear barcode, 13-digit retail
 - `upcA` — Linear barcode, 12-digit North American retail
 
@@ -199,7 +199,7 @@ ZplGenerator({
 - `width`, `height` — Box dimensions
 - `lineThickness` — Border width
 - `cornerRadius` — Optional rounded corners
-- `reversePrint` — Inverted colors (v2.0)
+- `reversePrint` — Inverted colors (v1.1.0)
 
 **Key Methods**:
 - `toZpl(ZplConfiguration context)` — Generates `^GB` command
@@ -232,7 +232,7 @@ ZplGenerator({
 - `toZpl(ZplConfiguration context)` — Generates `^GB` or character repetition
 - `calculateWidth()` — Returns separator width
 
-### 10. Graphics Components (v2.0)
+### 10. Graphics Components (v1.1.0)
 
 #### zpl_raw.dart
 Direct ZPL injection for unsupported features.
@@ -265,7 +265,7 @@ Diagonal line drawing using `^GD` command.
 - Stacks children vertically
 - Distributes available width equally
 
-#### zpl_grid_row.dart (Replaces v1.0 ZplRow)
+#### zpl_grid_row.dart (Replaces v1.0.0 ZplRow)
 **Purpose**: Horizontal layout container
 
 **Key Properties**:
@@ -312,7 +312,7 @@ Diagonal line drawing using `^GD` command.
 - `renderZplFile(File file)` — Render from file (multipart)
 - `convertImageToGraphic(File imageFile)` — Image to ZPL graphic
 - `convertFontToZpl(File fontFile, String fontId)` — Font to ZPL format
-- `renderFromGeneratorSimple(ZplGenerator)` — Convenience method (v2.0)
+- `renderFromGeneratorSimple(ZplGenerator)` — Convenience method (v1.1.0)
 
 **Error Handling**:
 - Returns `LabelaryResponse` with data and warnings
@@ -345,7 +345,7 @@ class ZplPreview extends StatefulWidget {
 - Renders label via Labelary API
 - Displays loading indicator
 - Shows error messages
-- **v2.0**: Implements `didUpdateWidget()` for reactive re-rendering
+- **v1.1.0**: Implements `didUpdateWidget()` for reactive re-rendering
   - Detects generator property changes
   - Automatically triggers re-render
 
@@ -400,7 +400,7 @@ All ZPL elements are commands that extend `ZplCommand`, enabling:
 - Type-safe collections
 
 ### 2. Configuration Context
-v2.0 passes configuration as context parameter:
+v1.1.0 passes configuration as context parameter:
 - Eliminates implicit state
 - Makes requirements explicit
 - Enables testability

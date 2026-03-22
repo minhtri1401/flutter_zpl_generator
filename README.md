@@ -33,7 +33,7 @@ The library boasts an unparalleled set of components, beautifully simulated insi
 - **Reverse Print Support (^FR)**: Easily achieve stunning white-on-black UI elements utilizing `reversePrint: true`.
 - Native Support for **DataMatrix (^BX)**, EAN-13 (^BE), UPC-A (^BU), Code 128 (^BC), Code 39 (^B3), and QR Codes (^BQ).
 - **`ZplRaw` Support**: An escape hatch that lets you cleanly inject highly specific/legacy raw strings (e.g., `^MD` darkness or RFID triggers).
-- **ZplInlineImage**: Support for parsing PNG/JPEGs into inline `^GF` (Graphics Fields), avoiding printer-memory leak issues.
+
 
 ### 🖼️ **Live Flutter Preview**
 - The `ZplPreview` widget hooks up directly to Labelary endpoints recursively respecting the `generator` state for immediate real-time feedback visually in Flutter while you code.

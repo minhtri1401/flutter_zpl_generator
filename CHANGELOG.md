@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v1.1.0.0.html).
 
 ## [1.1.0] - 2026-03-22
 
@@ -15,7 +15,6 @@ The "Library Finalization & Layout Redux" Release.
 - **Raw Escape Hatch**: Added `ZplRaw` command allowing developers to inject arbitrary raw ZPL string segments cleanly into the hierarchy.
 - **Advanced Barcode Formats**: Upgraded `ZplBarcodeType` with native support for `DataMatrix` (`^BX`), European Article Number `ean13` (`^BE`), and Universal Product Code `upcA` (`^BU`).
 - **Reverse Colors**: Added `reversePrint` parameter to display standard white-on-black inverse patterns (`^FR`) in `ZplText` and `ZplBox`.
-- **Inline Graphics**: Added `ZplInlineImage` to embed pure Graphic Fields (`^GF`) straight into the label to prevent printer memory saturation.
 
 ### Changed
 - **BREAKING**: `ZplConfiguration` is no longer passed as a fake object inside the `commands` array. It is now passed directly as a root parameter to the generator: `ZplGenerator(config: ..., commands: [...])`. 

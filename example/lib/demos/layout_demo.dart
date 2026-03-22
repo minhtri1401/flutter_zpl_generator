@@ -14,10 +14,7 @@ class LayoutDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final generator = ZplGenerator(
-      config: _config,
-      commands: _buildCommands(),
-    );
+    final generator = ZplGenerator(config: _config, commands: _buildCommands());
 
     return DemoScaffold(
       title: 'Layout Containers',
@@ -38,17 +35,26 @@ class LayoutDemo extends StatelessWidget {
     return [
       // Title
       ZplText(
-        x: 0, y: 20,
+        x: 0,
+        y: 20,
         text: 'LAYOUT CONTAINERS',
-        fontHeight: 40, fontWidth: 36,
+        fontHeight: 40,
+        fontWidth: 36,
         alignment: ZplAlignment.center,
       ),
       ZplSeparator(y: 75, thickness: 2),
 
       // === ZplColumn ===
-      ZplText(x: 20, y: 100, text: 'ZplColumn (vertical stack):', fontHeight: 20, fontWidth: 16),
+      ZplText(
+        x: 20,
+        y: 100,
+        text: 'ZplColumn (vertical stack):',
+        fontHeight: 20,
+        fontWidth: 16,
+      ),
       ZplColumn(
-        x: 20, y: 130,
+        x: 20,
+        y: 130,
         spacing: 5,
         children: [
           ZplText(text: 'Line 1 - auto Y', fontHeight: 20, fontWidth: 16),
@@ -63,9 +69,11 @@ class LayoutDemo extends StatelessWidget {
 
       // === ZplGridRow - 2 columns (6+6) ===
       ZplText(
-        x: 20, y: 325,
+        x: 20,
+        y: 325,
         text: 'ZplGridRow - 2 columns (6 + 6):',
-        fontHeight: 20, fontWidth: 16,
+        fontHeight: 20,
+        fontWidth: 16,
       ),
       ZplGridRow(
         y: 355,
@@ -75,7 +83,11 @@ class LayoutDemo extends StatelessWidget {
             child: ZplColumn(
               children: [
                 ZplText(text: 'LEFT COLUMN', fontHeight: 22, fontWidth: 18),
-                ZplText(text: 'Width: 6/12 = 50%', fontHeight: 18, fontWidth: 14),
+                ZplText(
+                  text: 'Width: 6/12 = 50%',
+                  fontHeight: 18,
+                  fontWidth: 14,
+                ),
                 ZplText(text: 'Auto-positioned', fontHeight: 18, fontWidth: 14),
               ],
             ),
@@ -85,7 +97,11 @@ class LayoutDemo extends StatelessWidget {
             child: ZplColumn(
               children: [
                 ZplText(text: 'RIGHT COLUMN', fontHeight: 22, fontWidth: 18),
-                ZplText(text: 'Width: 6/12 = 50%', fontHeight: 18, fontWidth: 14),
+                ZplText(
+                  text: 'Width: 6/12 = 50%',
+                  fontHeight: 18,
+                  fontWidth: 14,
+                ),
                 ZplText(text: 'Auto-positioned', fontHeight: 18, fontWidth: 14),
               ],
             ),
@@ -97,9 +113,11 @@ class LayoutDemo extends StatelessWidget {
 
       // === ZplGridRow - 3 columns (4+4+4) ===
       ZplText(
-        x: 20, y: 505,
+        x: 20,
+        y: 505,
         text: 'ZplGridRow - 3 columns (4 + 4 + 4):',
-        fontHeight: 20, fontWidth: 16,
+        fontHeight: 20,
+        fontWidth: 16,
       ),
       ZplGridRow(
         y: 535,
@@ -138,9 +156,11 @@ class LayoutDemo extends StatelessWidget {
 
       // === ZplGridRow with offset ===
       ZplText(
-        x: 20, y: 645,
+        x: 20,
+        y: 645,
         text: 'ZplGridCol with offset:',
-        fontHeight: 20, fontWidth: 16,
+        fontHeight: 20,
+        fontWidth: 16,
       ),
       ZplGridRow(
         y: 675,
@@ -161,9 +181,11 @@ class LayoutDemo extends StatelessWidget {
 
       // === ZplTable ===
       ZplText(
-        x: 20, y: 745,
+        x: 20,
+        y: 745,
         text: 'ZplTable (with borders):',
-        fontHeight: 20, fontWidth: 16,
+        fontHeight: 20,
+        fontWidth: 16,
       ),
       ZplTable(
         y: 780,
@@ -171,14 +193,30 @@ class LayoutDemo extends StatelessWidget {
         borderThickness: 2,
         cellPadding: 6,
         headers: [
-          ZplTableHeader('Product', alignment: ZplAlignment.left,
-              fontHeight: 20, fontWidth: 18),
-          ZplTableHeader('Qty', alignment: ZplAlignment.center,
-              fontHeight: 20, fontWidth: 18),
-          ZplTableHeader('Price', alignment: ZplAlignment.right,
-              fontHeight: 20, fontWidth: 18),
-          ZplTableHeader('Total', alignment: ZplAlignment.right,
-              fontHeight: 20, fontWidth: 18),
+          ZplTableHeader(
+            'Product',
+            alignment: ZplAlignment.left,
+            fontHeight: 20,
+            fontWidth: 18,
+          ),
+          ZplTableHeader(
+            'Qty',
+            alignment: ZplAlignment.center,
+            fontHeight: 20,
+            fontWidth: 18,
+          ),
+          ZplTableHeader(
+            'Price',
+            alignment: ZplAlignment.right,
+            fontHeight: 20,
+            fontWidth: 18,
+          ),
+          ZplTableHeader(
+            'Total',
+            alignment: ZplAlignment.right,
+            fontHeight: 20,
+            fontWidth: 18,
+          ),
         ],
         data: [
           ['Widget Pro', '2', '\$15.00', '\$30.00'],
@@ -191,9 +229,11 @@ class LayoutDemo extends StatelessWidget {
 
       // Borderless table
       ZplText(
-        x: 20, y: 1050,
+        x: 20,
+        y: 1050,
         text: 'ZplTable (borderless):',
-        fontHeight: 20, fontWidth: 16,
+        fontHeight: 20,
+        fontWidth: 16,
       ),
       ZplTable(
         y: 1085,
@@ -207,7 +247,7 @@ class LayoutDemo extends StatelessWidget {
         data: [
           ['Model', 'ZPL-2000'],
           ['Serial', 'SN-9876543'],
-          ['Firmware', 'v2.0.0'],
+          ['Firmware', 'v1.1.0'],
         ],
         dataFontHeight: 18,
         dataFontWidth: 16,

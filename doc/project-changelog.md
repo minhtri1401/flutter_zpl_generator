@@ -2,9 +2,9 @@
 
 All notable changes to the `flutter_zpl_generator` package are documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v1.1.0.0.html).
 
-## [2.0.0] - 2026-03-22
+## [1.1.0] - 2026-03-22
 
 ### Breaking Changes
 
@@ -148,7 +148,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 - Complete rewrite of architecture documentation
 - Added code standards and patterns guide
-- Updated all code examples to v2.0 API
+- Updated all code examples to v1.1.0 API
 - Created comprehensive migration guide
 
 ### Known Issues
@@ -222,16 +222,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 
 ## Upgrade Guide
 
-### From v1.0 to v2.0
+### From v1.0.0 to v1.1.0
 
 #### Step 1: Update Command Signatures
 All `toZpl()` calls must now include configuration context:
 
 ```dart
-// v1.0
+// v1.0.0
 final zpl = text.toZpl();
 
-// v2.0
+// v1.1.0
 final zpl = text.toZpl(config);
 ```
 
@@ -239,7 +239,7 @@ final zpl = text.toZpl(config);
 Configuration moves from command list to generator:
 
 ```dart
-// v1.0
+// v1.0.0
 final generator = ZplGenerator(
   [
     ZplConfiguration(...),
@@ -247,7 +247,7 @@ final generator = ZplGenerator(
   ],
 );
 
-// v2.0
+// v1.1.0
 final generator = ZplGenerator(
   config: ZplConfiguration(...),
   commands: [
@@ -260,13 +260,13 @@ final generator = ZplGenerator(
 Horizontal layouts now use `ZplGridRow`:
 
 ```dart
-// v1.0
+// v1.0.0
 final row = ZplRow(children: [
   ZplText(text: 'Col1'),
   ZplText(text: 'Col2'),
 ]);
 
-// v2.0
+// v1.1.0
 final row = ZplGridRow(
   columnWidths: [200, 300],
   children: [
@@ -280,13 +280,13 @@ final row = ZplGridRow(
 Test assertions must account for new ZPL format:
 
 ```dart
-// v1.0
+// v1.0.0
 test('renders text', () {
   final zpl = ZplText(text: 'Hello').toZpl();
   expect(zpl, contains('^FDHello^FS'));
 });
 
-// v2.0
+// v1.1.0
 test('renders text', () {
   final config = const ZplConfiguration();
   final zpl = ZplText(text: 'Hello').toZpl(config);
@@ -298,10 +298,10 @@ test('renders text', () {
 Use named parameters:
 
 ```dart
-// v1.0 (positional)
+// v1.0.0 (positional)
 final generator = ZplGenerator(config, [text, barcode]);
 
-// v2.0 (named)
+// v1.1.0 (named)
 final generator = ZplGenerator(
   config: config,
   commands: [text, barcode],

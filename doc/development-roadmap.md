@@ -6,7 +6,7 @@ Create a comprehensive, production-ready Dart/Flutter package for ZPL (Zebra Pro
 
 ## Release History
 
-### v2.0 (March 2026) - Architecture Refactor
+### v1.1.0 (March 2026) - Architecture Refactor
 **Status:** Complete
 
 #### Key Improvements
@@ -39,11 +39,11 @@ Create a comprehensive, production-ready Dart/Flutter package for ZPL (Zebra Pro
 - Internal `_PositionWrapper` class removed
 
 #### Testing
-- All v1.0 tests updated to use v2.0 signatures
+- All v1.0.0 tests updated to use v1.1.0 signatures
 - New tests for graphics components and barcode types
 - Test coverage maintained at >85%
 
-### v1.0 (September 2025) - Production Release
+### v1.0.0 (September 2025) - Production Release
 **Status:** Archived
 
 #### Features
@@ -71,7 +71,7 @@ Create a comprehensive, production-ready Dart/Flutter package for ZPL (Zebra Pro
 - [ ] Review and address GitHub issues
 - [ ] Performance profiling for large labels
 - [ ] Test on all Flutter platforms (iOS, Android, Web, Desktop)
-- [ ] Update README with v2.0 migration guide
+- [ ] Update README with v1.1.0 migration guide
 
 #### Success Metrics
 - Zero critical bugs
@@ -193,10 +193,10 @@ Create a comprehensive, production-ready Dart/Flutter package for ZPL (Zebra Pro
 
 ## Backward Compatibility
 
-### v2.0 Compatibility
-- **Not backward compatible** with v1.0 (breaking API changes)
+### v1.1.0 Compatibility
+- **Not backward compatible** with v1.0.0 (breaking API changes)
 - Migration guide available in documentation
-- v1.0 code requires updates to work with v2.0
+- v1.0.0 code requires updates to work with v1.1.0
 
 ### Future Versions
 - Target: Maintain API stability in v2.x releases
@@ -240,11 +240,11 @@ Create a comprehensive, production-ready Dart/Flutter package for ZPL (Zebra Pro
 ## Timeline Summary
 
 ```
-2025 Q3  │ v1.0 Release
+2025 Q3  │ v1.0.0 Release
          │
-2026 Q1  │ Planning for v2.0
+2026 Q1  │ Planning for v1.1.0
          │
-2026 Q2  │ v2.0 Architecture Refactor ✓
+2026 Q2  │ v1.1.0 Architecture Refactor ✓
          │ Phase 1: Bug Fixes & Stability (Current)
          │
 2026 Q3  │ Phase 2: Advanced Features (Planned)

@@ -1,5 +1,6 @@
 import 'dart:typed_data';
-import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
+import 'zpl_command_base.dart';
+import 'zpl_configuration.dart';
 import 'package:image/image.dart' as img;
 
 /// A class to handle image-related commands, primarily for downloading graphics (~DG).
@@ -25,17 +26,18 @@ class ZplImage extends ZplCommand {
 
   int get width => img.decodeImage(image)!.width;
   int get height => img.decodeImage(image)!.height;
+
   @override
-  String toZpl() {
+  String toZpl(ZplConfiguration context) {
     final decodedImage = img.decodeImage(image);
     if (decodedImage == null) {
       return ''; // Return empty string if image can't be decoded
     }
 
-    final width = decodedImage.width;
-    final height = decodedImage.height;
-    final widthBytes = (width / 8).ceil();
-    final totalBytes = widthBytes * height;
+    final imgWidth = decodedImage.width;
+    final imgHeight = decodedImage.height;
+    final widthBytes = (imgWidth / 8).ceil();
+    final totalBytes = widthBytes * imgHeight;
 
     final sb = StringBuffer();
 
@@ -54,13 +56,13 @@ class ZplImage extends ZplCommand {
   /// Converts an image to a ZPL-compatible monochrome hexadecimal string.
   String _toMonochromeHex(img.Image src) {
     final sb = StringBuffer();
-    final width = src.width;
-    final height = src.height;
+    final srcWidth = src.width;
+    final srcHeight = src.height;
 
-    for (int h = 0; h < height; h++) {
+    for (int h = 0; h < srcHeight; h++) {
       var byte = 0;
       var bit = 0;
-      for (int w = 0; w < width; w++) {
+      for (int w = 0; w < srcWidth; w++) {
         final pixel = src.getPixel(w, h);
         // A simple threshold for monochrome conversion
         final isBlack = img.getLuminance(pixel) < 128;
@@ -88,7 +90,7 @@ class ZplImage extends ZplCommand {
   }
 
   @override
-  int calculateWidth(ZplConfiguration? config) {
+  int calculateWidth(ZplConfiguration config) {
     return width;
   }
 }

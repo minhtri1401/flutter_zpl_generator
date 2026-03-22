@@ -48,8 +48,8 @@ class ZplSeparator extends ZplCommand {
   /// Font width for character-based separators.
   final int fontWidth;
 
-  /// Optional configuration context for automatic sizing
-  ZplConfiguration? _configuration;
+  /// Maximum width constraint (set by layout containers like ZplGridRow).
+  final int? maxWidth;
 
   ZplSeparator({
     this.x = 0,
@@ -65,60 +65,52 @@ class ZplSeparator extends ZplCommand {
     this.length,
     this.fontHeight = 12,
     this.fontWidth = 10,
+    this.maxWidth,
   });
 
-  /// Set configuration context for automatic sizing
-  void setConfiguration(ZplConfiguration config) {
-    _configuration = config;
-  }
-
   @override
-  String toZpl() {
+  String toZpl(ZplConfiguration context) {
     final isHorizontal =
         orientation == ZplOrientation.normal ||
         orientation == ZplOrientation.inverted180;
 
     if (type == ZplSeparatorType.box) {
-      return _generateBoxSeparator(isHorizontal);
+      return _generateBoxSeparator(isHorizontal, context);
     } else {
-      return _generateCharacterSeparator(isHorizontal);
+      return _generateCharacterSeparator(isHorizontal, context);
     }
   }
 
-  /// Generate a separator using ZPL box drawing
-  String _generateBoxSeparator(bool isHorizontal) {
-    final calculatedLength = _calculateLength(isHorizontal);
+  /// Generate a separator using ZPL box drawing.
+  String _generateBoxSeparator(bool isHorizontal, ZplConfiguration context) {
+    final calculatedLength = _calculateLength(isHorizontal, context);
 
     if (isHorizontal) {
-      // Horizontal line
       final startX = x + paddingLeft;
       return ZplBox(
         x: startX,
         y: y,
         width: calculatedLength,
         height: thickness,
-      ).toZpl();
+      ).toZpl(context);
     } else {
-      // Vertical line
       final startY = y + paddingTop;
       return ZplBox(
         x: x,
         y: startY,
         width: thickness,
         height: calculatedLength,
-      ).toZpl();
+      ).toZpl(context);
     }
   }
 
-  /// Generate a separator using repeated characters
-  String _generateCharacterSeparator(bool isHorizontal) {
+  /// Generate a separator using repeated characters.
+  String _generateCharacterSeparator(
+    bool isHorizontal,
+    ZplConfiguration context,
+  ) {
     if (isHorizontal) {
-      // For horizontal character separators, we need to calculate how many characters
-      // fit in the available space (total width minus padding)
-      final availableWidth = _getAvailableWidth();
-
-      // Use a more accurate character width calculation
-      // For ZPL fonts, the actual character width is closer to fontWidth dots
+      final availableWidth = _getAvailableWidth(context);
       final actualCharWidth = fontWidth.toDouble();
       final charCount = (availableWidth / actualCharWidth).floor();
       final separatorText = character * charCount;
@@ -130,16 +122,14 @@ class ZplSeparator extends ZplCommand {
         fontHeight: fontHeight,
         fontWidth: fontWidth,
         orientation: orientation,
-      ).toZpl();
+      ).toZpl(context);
     } else {
-      // For vertical character separators, we create multiple single characters
       final sb = StringBuffer();
-      final availableHeight = _getAvailableHeight();
-      final charHeight = fontHeight;
-      final charCount = (availableHeight / charHeight).floor();
+      final availableHeight = _getAvailableHeight(context);
+      final charCount = (availableHeight / fontHeight).floor();
 
       for (int i = 0; i < charCount; i++) {
-        final charY = y + paddingTop + (i * charHeight);
+        final charY = y + paddingTop + (i * fontHeight);
         sb.write(
           ZplText(
             x: x,
@@ -148,7 +138,7 @@ class ZplSeparator extends ZplCommand {
             fontHeight: fontHeight,
             fontWidth: fontWidth,
             orientation: orientation,
-          ).toZpl(),
+          ).toZpl(context),
         );
       }
 
@@ -156,42 +146,27 @@ class ZplSeparator extends ZplCommand {
     }
   }
 
-  /// Get available width for horizontal separators (accounting for padding)
-  int _getAvailableWidth() {
+  /// Get available width for horizontal separators (accounting for padding).
+  int _getAvailableWidth(ZplConfiguration context) {
     if (length != null) {
       return (length! - paddingLeft - paddingRight).clamp(1, length!);
     }
-
-    // Calculate based on available space from configuration
-    if (_configuration != null) {
-      final labelWidth = _configuration!.printWidth ?? 406;
-      return (labelWidth - paddingLeft - paddingRight).clamp(1, labelWidth);
-    }
-
-    // Default fallback
-    return (406 - paddingLeft - paddingRight).clamp(1, 406);
+    final labelWidth = maxWidth ?? context.printWidth ?? 406;
+    return (labelWidth - paddingLeft - paddingRight).clamp(1, labelWidth);
   }
 
-  /// Get available height for vertical separators (accounting for padding)
-  int _getAvailableHeight() {
+  /// Get available height for vertical separators (accounting for padding).
+  int _getAvailableHeight(ZplConfiguration context) {
     if (length != null) {
       return (length! - paddingTop - paddingBottom).clamp(1, length!);
     }
-
-    // Calculate based on available space from configuration
-    if (_configuration != null) {
-      final labelHeight = _configuration!.labelLength ?? 200;
-      return (labelHeight - paddingTop - paddingBottom).clamp(1, labelHeight);
-    }
-
-    // Default fallback
-    return (200 - paddingTop - paddingBottom).clamp(1, 200);
+    final labelHeight = context.labelLength ?? 200;
+    return (labelHeight - paddingTop - paddingBottom).clamp(1, labelHeight);
   }
 
-  /// Calculate the length of the separator based on orientation and padding
-  int _calculateLength(bool isHorizontal) {
+  /// Calculate the length of the separator based on orientation and padding.
+  int _calculateLength(bool isHorizontal, ZplConfiguration context) {
     if (length != null) {
-      // Use fixed length minus appropriate padding
       if (isHorizontal) {
         return (length! - paddingLeft - paddingRight).clamp(1, length!);
       } else {
@@ -199,49 +174,38 @@ class ZplSeparator extends ZplCommand {
       }
     }
 
-    // Calculate based on available space from configuration
-    if (_configuration != null) {
-      if (isHorizontal) {
-        final labelWidth = _configuration!.printWidth ?? 406;
-        return (labelWidth - paddingLeft - paddingRight).clamp(1, labelWidth);
-      } else {
-        final labelHeight = _configuration!.labelLength ?? 200;
-        return (labelHeight - paddingTop - paddingBottom).clamp(1, labelHeight);
-      }
-    }
-
-    // Default fallback
     if (isHorizontal) {
-      return (406 - paddingLeft - paddingRight).clamp(1, 406);
+      final labelWidth = maxWidth ?? context.printWidth ?? 406;
+      return (labelWidth - paddingLeft - paddingRight).clamp(1, labelWidth);
     } else {
-      return (200 - paddingTop - paddingBottom).clamp(1, 200);
+      final labelHeight = context.labelLength ?? 200;
+      return (labelHeight - paddingTop - paddingBottom).clamp(1, labelHeight);
     }
   }
 
   @override
-  int calculateWidth(ZplConfiguration? config) {
+  int calculateWidth(ZplConfiguration config) {
     final isHorizontal =
         orientation == ZplOrientation.normal ||
         orientation == ZplOrientation.inverted180;
 
     if (isHorizontal) {
-      // For horizontal separators, return the total width including padding
-      return _getAvailableWidth() + paddingLeft + paddingRight;
+      return _getAvailableWidth(config) + paddingLeft + paddingRight;
     } else {
-      return thickness; // Vertical separators are thin
+      return thickness;
     }
   }
 
-  /// Calculate the height of the separator
-  int calculateHeight(ZplConfiguration? config) {
+  /// Calculate the height of the separator.
+  int calculateHeight(ZplConfiguration config) {
     final isHorizontal =
         orientation == ZplOrientation.normal ||
         orientation == ZplOrientation.inverted180;
 
     if (isHorizontal) {
-      return thickness; // Horizontal separators are thin
+      return thickness;
     } else {
-      return _getAvailableHeight() + paddingTop + paddingBottom;
+      return _getAvailableHeight(config) + paddingTop + paddingBottom;
     }
   }
 }

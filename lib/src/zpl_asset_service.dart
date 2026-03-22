@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:hex/hex.dart';
 import 'zpl_font_asset.dart';
@@ -125,7 +124,7 @@ class ZplAssetService {
   /// - [assetPath]: The asset path to validate
   ///
   /// Returns:
-  /// A Future<bool> indicating whether the asset exists and can be loaded.
+  /// A `Future<bool>` indicating whether the asset exists and can be loaded.
   Future<bool> validateAssetPath(String assetPath) async {
     try {
       await rootBundle.load(assetPath);

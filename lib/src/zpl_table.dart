@@ -30,27 +30,6 @@ class ZplTableHeader {
 
 /// A highly configurable widget that generates a table with headers,
 /// data rows, and borders using ZPL commands.
-///
-/// This widget provides a high-level abstraction for creating structured
-/// tables with automatic border drawing, cell padding, and alignment.
-///
-/// Example usage:
-/// ```dart
-/// ZplTable(
-///   y: 100,
-///   columnWidths: [6, 2, 2, 2], // 12-column grid widths
-///   headers: [
-///     ZplTableHeader('Item', alignment: ZplAlignment.left),
-///     ZplTableHeader('Qty', alignment: ZplAlignment.center),
-///     ZplTableHeader('Price', alignment: ZplAlignment.right),
-///     ZplTableHeader('Total', alignment: ZplAlignment.right),
-///   ],
-///   data: [
-///     ['V-Neck T-Shirt', '1', '10.00', '10.00'],
-///     ['Polo Shirt', '2', '25.50', '51.00'],
-///   ],
-/// )
-/// ```
 class ZplTable extends ZplCommand {
   /// The x-axis position of the table.
   final int x;
@@ -61,12 +40,10 @@ class ZplTable extends ZplCommand {
   /// The list of headers for the table.
   final List<ZplTableHeader> headers;
 
-  /// The table data, represented as a list of rows, where each row is a
-  /// list of strings that will be converted to ZplText commands.
+  /// The table data as a list of rows, each row is a list of strings.
   final List<List<String>> data;
 
-  /// The width of each column in grid units (1-12). The length of this list
-  /// must match the number of columns.
+  /// The width of each column in grid units (1-12).
   final List<int> columnWidths;
 
   /// The thickness of the border lines in dots. Set to 0 for no border.
@@ -75,17 +52,14 @@ class ZplTable extends ZplCommand {
   /// The padding inside each cell in dots.
   final int cellPadding;
 
-  /// Font height for data cells (headers use their own fontHeight).
+  /// Font height for data cells.
   final int dataFontHeight;
 
-  /// Font width for data cells (headers use their own fontWidth).
+  /// Font width for data cells.
   final int dataFontWidth;
 
-  /// Alignment for data cells (headers use their own alignment).
+  /// Alignment for data cells.
   final ZplAlignment dataAlignment;
-
-  /// Optional configuration context for automatic sizing
-  ZplConfiguration? _configuration;
 
   ZplTable({
     this.x = 0,
@@ -109,91 +83,80 @@ class ZplTable extends ZplCommand {
         'Number of cells in each data row must match number of column widths.',
       );
     }
-
-    // Validate column widths sum to 12 or less
-    final totalWidth = columnWidths.fold(0, (sum, width) => sum + width);
+    final totalWidth = columnWidths.fold(0, (sum, w) => sum + w);
     assert(totalWidth <= 12, 'Total column widths cannot exceed 12 units.');
   }
 
-  /// Set configuration context for automatic sizing
-  void setConfiguration(ZplConfiguration config) {
-    _configuration = config;
-  }
-
   @override
-  String toZpl() {
-    if (_configuration == null) {
-      throw StateError(
-        'ZplTable requires ZplConfiguration context. '
-        'Ensure it\'s included in your ZplGenerator commands.',
-      );
-    }
-
+  String toZpl(ZplConfiguration context) {
     final sb = StringBuffer();
-    final labelWidth = _configuration!.printWidth ?? 406;
-
-    // Calculate table dimensions
+    final labelWidth = context.printWidth ?? 406;
     final tableWidth = labelWidth;
     final rowHeight = _calculateRowHeight();
     final headerHeight = rowHeight;
     final totalDataHeight = data.length * rowHeight;
 
-    // Account for border thickness in total height
     final borderSpacing = borderThickness > 0
-        ? (data.length + 1) *
-              borderThickness // +1 for header separator
+        ? (data.length + 1) * borderThickness
         : 0;
     final totalTableHeight = headerHeight + totalDataHeight + borderSpacing;
 
-    // Draw outer border
     if (borderThickness > 0) {
-      sb.write(_drawTableBorders(tableWidth, totalTableHeight, rowHeight));
+      sb.write(_drawTableBorders(tableWidth, totalTableHeight, rowHeight, context));
     }
 
-    // Generate header row
-    final headerRow = _createHeaderRow();
-    sb.write(headerRow.toZpl());
+    final adjustedConfig = _buildAdjustedConfig(context);
+    final headerRow = _createHeaderRow(adjustedConfig);
+    sb.write(headerRow.toZpl(adjustedConfig));
 
-    // Generate data rows (account for borders between rows)
     for (int i = 0; i < data.length; i++) {
-      // Calculate row Y position accounting for:
-      // - Initial Y position
-      // - Header height
-      // - Previous rows
-      // - Border lines between rows
       final rowY =
           y +
           headerHeight +
           (i * rowHeight) +
           (borderThickness > 0 ? (i + 1) * borderThickness : 0);
 
-      final dataRow = _createDataRow(data[i], rowY);
-      sb.write(dataRow.toZpl());
+      final dataRow = _createDataRow(data[i], rowY, adjustedConfig);
+      sb.write(dataRow.toZpl(adjustedConfig));
     }
 
     return sb.toString();
   }
 
-  /// Calculate the height of a single row based on font sizes and padding
+  /// Build a config with width adjusted for borders.
+  ZplConfiguration _buildAdjustedConfig(ZplConfiguration context) {
+    final adjustedWidth =
+        (context.printWidth ?? 406) -
+        (borderThickness > 0 ? 2 * borderThickness : 0);
+    return ZplConfiguration(
+      darkness: context.darkness,
+      labelLength: context.labelLength,
+      labelHomeX: context.labelHomeX,
+      labelHomeY: context.labelHomeY,
+      printWidth: adjustedWidth,
+      printSpeed: context.printSpeed,
+      printMode: context.printMode,
+      mediaType: context.mediaType,
+      printOrientation: context.printOrientation,
+      internationalEncoding: context.internationalEncoding,
+      printDensity: context.printDensity,
+    );
+  }
+
+  /// Calculate the height of a single row based on font sizes and padding.
   int _calculateRowHeight() {
-    // Use the maximum font height from headers and data, plus padding
     int maxHeaderFontHeight = 0;
     for (final header in headers) {
-      final headerFontHeight = header.fontHeight ?? 20;
-      if (headerFontHeight > maxHeaderFontHeight) {
-        maxHeaderFontHeight = headerFontHeight;
-      }
+      final h = header.fontHeight ?? 20;
+      if (h > maxHeaderFontHeight) maxHeaderFontHeight = h;
     }
-
-    final maxFontHeight = [
-      maxHeaderFontHeight,
-      dataFontHeight,
-    ].reduce((a, b) => a > b ? a : b);
+    final maxFontHeight = [maxHeaderFontHeight, dataFontHeight]
+        .reduce((a, b) => a > b ? a : b);
     return maxFontHeight + (2 * cellPadding);
   }
 
-  /// Create the header row using ZplGridRow and ZplGridCol
-  ZplGridRow _createHeaderRow() {
+  /// Create the header row.
+  ZplGridRow _createHeaderRow(ZplConfiguration context) {
     final headerChildren = <ZplGridCol>[];
 
     for (int i = 0; i < headers.length; i++) {
@@ -213,35 +176,19 @@ class ZplTable extends ZplCommand {
       );
     }
 
-    // Adjust position for border thickness
     final contentX = x + (borderThickness > 0 ? borderThickness : 0);
     final contentY =
         y + (borderThickness > 0 ? borderThickness : 0) + cellPadding;
 
-    final headerRow = ZplGridRow(
-      x: contentX,
-      y: contentY,
-      children: headerChildren,
-    );
-
-    // Set configuration for the header row with adjusted width for borders
-    if (_configuration != null) {
-      final adjustedWidth =
-          (_configuration!.printWidth ?? 406) -
-          (borderThickness > 0 ? 2 * borderThickness : 0);
-      final adjustedConfig = ZplConfiguration(
-        printWidth: adjustedWidth,
-        labelLength: _configuration!.labelLength,
-        printDensity: _configuration!.printDensity,
-      );
-      headerRow.setConfiguration(adjustedConfig);
-    }
-
-    return headerRow;
+    return ZplGridRow(x: contentX, y: contentY, children: headerChildren);
   }
 
-  /// Create a data row using ZplGridRow and ZplGridCol
-  ZplGridRow _createDataRow(List<String> rowData, int rowY) {
+  /// Create a data row.
+  ZplGridRow _createDataRow(
+    List<String> rowData,
+    int rowY,
+    ZplConfiguration context,
+  ) {
     final dataChildren = <ZplGridCol>[];
 
     for (int i = 0; i < rowData.length; i++) {
@@ -260,34 +207,13 @@ class ZplTable extends ZplCommand {
       );
     }
 
-    // Adjust position for border thickness
-    // Note: rowY is already relative to table position, just need to add border offset
     final contentX = x + (borderThickness > 0 ? borderThickness : 0);
     final contentY = rowY + cellPadding;
 
-    final dataRow = ZplGridRow(
-      x: contentX,
-      y: contentY,
-      children: dataChildren,
-    );
-
-    // Set configuration for the data row with adjusted width for borders
-    if (_configuration != null) {
-      final adjustedWidth =
-          (_configuration!.printWidth ?? 406) -
-          (borderThickness > 0 ? 2 * borderThickness : 0);
-      final adjustedConfig = ZplConfiguration(
-        printWidth: adjustedWidth,
-        labelLength: _configuration!.labelLength,
-        printDensity: _configuration!.printDensity,
-      );
-      dataRow.setConfiguration(adjustedConfig);
-    }
-
-    return dataRow;
+    return ZplGridRow(x: contentX, y: contentY, children: dataChildren);
   }
 
-  /// Get the alignment for a specific column (uses header alignment if available)
+  /// Get the alignment for a specific column.
   ZplAlignment _getColumnAlignment(int columnIndex) {
     if (columnIndex < headers.length) {
       return headers[columnIndex].alignment;
@@ -295,15 +221,15 @@ class ZplTable extends ZplCommand {
     return dataAlignment;
   }
 
-  /// Draw all table borders (outer border, horizontal lines, vertical lines)
+  /// Draw all table borders (outer border, horizontal lines, vertical lines).
   String _drawTableBorders(
     int tableWidth,
     int totalTableHeight,
     int rowHeight,
+    ZplConfiguration context,
   ) {
     final sb = StringBuffer();
 
-    // Outer border
     sb.write(
       ZplBox(
         x: x,
@@ -311,10 +237,9 @@ class ZplTable extends ZplCommand {
         width: tableWidth,
         height: totalTableHeight,
         borderThickness: borderThickness,
-      ).toZpl(),
+      ).toZpl(context),
     );
 
-    // Horizontal line after header
     sb.write(
       ZplBox(
         x: x,
@@ -322,12 +247,10 @@ class ZplTable extends ZplCommand {
         width: tableWidth,
         height: borderThickness,
         borderThickness: borderThickness,
-      ).toZpl(),
+      ).toZpl(context),
     );
 
-    // Horizontal lines between data rows
     for (int i = 1; i < data.length; i++) {
-      // Match the row positioning logic: account for border thickness
       final lineY = y + rowHeight + (i * rowHeight) + (i * borderThickness);
       sb.write(
         ZplBox(
@@ -336,11 +259,10 @@ class ZplTable extends ZplCommand {
           width: tableWidth,
           height: borderThickness,
           borderThickness: borderThickness,
-        ).toZpl(),
+        ).toZpl(context),
       );
     }
 
-    // Vertical lines between columns
     if (columnWidths.length > 1) {
       final unitWidth = tableWidth / 12.0;
       int currentGridPosition = 0;
@@ -356,7 +278,7 @@ class ZplTable extends ZplCommand {
             width: borderThickness,
             height: totalTableHeight,
             borderThickness: borderThickness,
-          ).toZpl(),
+          ).toZpl(context),
         );
       }
     }
@@ -365,13 +287,13 @@ class ZplTable extends ZplCommand {
   }
 
   @override
-  int calculateWidth(ZplConfiguration? config) {
-    return config?.printWidth ?? 406;
+  int calculateWidth(ZplConfiguration config) {
+    return config.printWidth ?? 406;
   }
 
-  /// Calculate the total height of the table
-  int calculateHeight(ZplConfiguration? config) {
+  /// Calculate the total height of the table.
+  int calculateHeight(ZplConfiguration config) {
     final rowHeight = _calculateRowHeight();
-    return rowHeight * (data.length + 1); // +1 for header
+    return rowHeight * (data.length + 1);
   }
 }

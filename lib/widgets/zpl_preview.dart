@@ -26,6 +26,16 @@ class _ZplPreviewState extends State<ZplPreview> {
   }
 
   @override
+  void didUpdateWidget(covariant ZplPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.generator != oldWidget.generator) {
+      setState(() {
+        _renderFuture = LabelaryService.renderFromGeneratorSimple(widget.generator);
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return FutureBuilder<Uint8List>(
       future: _renderFuture,

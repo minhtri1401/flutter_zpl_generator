@@ -5,6 +5,21 @@ void main() {
   runApp(const MyApp());
 }
 
+/// A simple data class to represent an item on the receipt.
+class ReceiptItem {
+  final int quantity;
+  final String name;
+  final double unitPrice;
+
+  ReceiptItem({
+    required this.quantity,
+    required this.name,
+    required this.unitPrice,
+  });
+
+  double get totalPrice => quantity * unitPrice;
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -13,340 +28,290 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'ZPL Generator Example',
       theme: ThemeData(primarySwatch: Colors.blue),
-      home: const MyLabelScreen(),
+      home: const ReceiptPreviewScreen(),
     );
   }
 }
 
-class MyLabelScreen extends StatelessWidget {
-  const MyLabelScreen({super.key});
+class ReceiptPreviewScreen extends StatefulWidget {
+  const ReceiptPreviewScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // 1. Define the label commands just like before
-    final commands = [
-      const ZplConfiguration(
-        printWidth: 576, // 2.25 inches at 203 dpi
-        labelLength: 1200,
-        printDensity: ZplPrintDensity.d8,
-      ),
-      // ZplColumn(
-      //   x: 0,
-      //   y: 30,
+  State<ReceiptPreviewScreen> createState() => _ReceiptPreviewScreenState();
+}
 
-      //   alignment: ZplAlignment.center,
-      //   children: [
-      //     ZplText(text: 'SHOP NAME', fontHeight: 40, fontWidth: 30),
-      //     ZplText(
-      //       text: 'Address: Lorem Ipsum, 23-10',
-      //       fontHeight: 20,
-      //       fontWidth: 15,
-      //     ),
-      //     ZplText(text: 'Telp. 11223344', fontHeight: 20, fontWidth: 15),
-      //     ZplText(
-      //       text: '*********************************',
-      //       fontHeight: 20,
-      //       fontWidth: 15,
-      //     ),
-      //     ZplText(text: 'CASH RECEIPT', fontHeight: 25, fontWidth: 20),
-      //     ZplText(
-      //       text: '*********************************',
-      //       fontHeight: 20,
-      //       fontWidth: 15,
-      //     ),
-      //   ],
-      // ),
+class _ReceiptPreviewScreenState extends State<ReceiptPreviewScreen> {
+  // Receipt data matching the image
+  final List<ReceiptItem> _items = [
+    ReceiptItem(
+      quantity: 1,
+      name: 'Fuel Plastic Jug (10 gallons)',
+      unitPrice: 34.00,
+    ),
+    ReceiptItem(quantity: 1, name: 'Gas Hose (5 feet)', unitPrice: 15.00),
+    ReceiptItem(
+      quantity: 100,
+      name: 'Aluminum Screw (4 inches)',
+      unitPrice: 0.87,
+    ),
+  ];
 
-      // // Add a decorative separator
-      // ZplSeparator(
-      //   y: 250,
-      //   type: ZplSeparatorType.character,
-      //   character: '*',
-      //   paddingLeft: 20,
-      //   paddingRight: 20,
-      //   fontHeight: 15,
-      //   fontWidth: 12,
-      // ),
+  final String _receiptNumber = '117 - 44332';
+  final String _purchaseDate = 'December 8, 2023';
+  final String _companyName = 'Big Machinery, LLC';
+  final String _companyAddress = '3345, Diamond St, Orange City, ST 9987';
+  final String _companyEmail = 'machinery@big.com';
+  final String _customerName = 'Doe John';
+  final String _customerAddress =
+      'Address: 1111, Flemming St, Yellow City, AT 1121';
 
-      // ZplText(
-      //   x: 30,
-      //   y: 280,
-      //   text: 'Description',
-      //   fontHeight: 25,
-      //   fontWidth: 20,
-      // ),
-      // ZplText(
-      //   y: 280,
-      //   text: 'Price',
-      //   fontHeight: 25,
-      //   fontWidth: 20,
-      //   paddingRight: 20,
-      //   alignment: ZplAlignment.right,
-      // ),
-      // // Item rows with left-aligned descriptions and right-aligned prices
-      // ZplText(x: 30, y: 320, text: 'Lorem', fontHeight: 25, fontWidth: 20),
-      // ZplText(
-      //   y: 320,
-      //   text: '1.1',
-      //   fontHeight: 25,
-      //   fontWidth: 20,
-      //   paddingRight: 20,
-      //   alignment: ZplAlignment.right,
-      // ),
+  List<ZplCommand> _generateReceiptCommands() {
+    // Calculate totals
+    final double subtotal = _items.fold(
+      0,
+      (sum, item) => sum + item.totalPrice,
+    );
+    const double taxRate = 0.12;
+    final double tax = subtotal * taxRate;
+    final double total = subtotal + tax;
 
-      // ZplText(x: 30, y: 350, text: 'Ipsum', fontHeight: 25, fontWidth: 20),
-      // ZplText(
-      //   y: 350,
-      //   text: '2.2',
-      //   fontHeight: 25,
-      //   fontWidth: 20,
-      //   paddingRight: 20,
-      //   alignment: ZplAlignment.right,
-      // ),
-
-      // ZplText(
-      //   x: 30,
-      //   y: 380,
-      //   text: 'Dolor sit amet',
-      //   fontHeight: 25,
-      //   fontWidth: 20,
-      // ),
-      // ZplText(
-      //   y: 380,
-      //   text: '3.3',
-      //   fontHeight: 25,
-      //   fontWidth: 20,
-      //   paddingRight: 20,
-      //   alignment: ZplAlignment.right,
-      // ),
-
-      // ZplText(
-      //   x: 30,
-      //   y: 410,
-      //   text: 'Consectetur',
-      //   fontHeight: 25,
-      //   fontWidth: 20,
-      // ),
-      // ZplText(
-      //   y: 410,
-      //   text: '4.4',
-      //   fontHeight: 25,
-      //   fontWidth: 20,
-      //   paddingRight: 20,
-      //   alignment: ZplAlignment.right,
-      // ),
-
-      // ZplText(
-      //   x: 30,
-      //   y: 440,
-      //   text: 'Adipiscing elit',
-      //   fontHeight: 25,
-      //   fontWidth: 20,
-      // ),
-      // ZplText(
-      //   y: 440,
-      //   text: '5.5',
-      //   fontHeight: 25,
-      //   fontWidth: 20,
-      //   paddingRight: 20,
-      //   alignment: ZplAlignment.right,
-      // ),
-      // ZplText(
-      //   x: 30,
-      //   y: 480,
-      //   text: '*********************************',
-      //   fontHeight: 20,
-      //   fontWidth: 15,
-      // ),
-      // // Total section with right-aligned amounts
-      // ZplText(x: 30, y: 510, text: 'Total', fontHeight: 35, fontWidth: 25),
-      // ZplText(
-      //   y: 510,
-      //   text: '16.5',
-      //   fontHeight: 35,
-      //   fontWidth: 25,
-      //   paddingRight: 20,
-      //   alignment: ZplAlignment.right,
-      // ),
-
-      // ZplText(x: 30, y: 550, text: 'Cash', fontHeight: 25, fontWidth: 20),
-      // ZplText(
-      //   y: 550,
-      //   text: '20.0',
-      //   fontHeight: 25,
-      //   fontWidth: 20,
-      //   paddingRight: 20,
-      //   alignment: ZplAlignment.right,
-      // ),
-
-      // ZplText(x: 30, y: 580, text: 'Change', fontHeight: 25, fontWidth: 20),
-      // ZplText(
-      //   y: 580,
-      //   text: '3.5',
-      //   fontHeight: 25,
-      //   fontWidth: 20,
-      //   paddingRight: 20,
-      //   alignment: ZplAlignment.right,
-      // ),
-      // ZplText(
-      //   x: 30,
-      //   y: 620,
-      //   text: '*********************************',
-      //   fontHeight: 20,
-      //   fontWidth: 15,
-      // ),
-      // // Bank info section
-      // ZplText(x: 30, y: 650, text: 'Bank card', fontHeight: 25, fontWidth: 20),
-      // ZplText(
-      //   y: 650,
-      //   text: '--- --- --- 234',
-      //   fontHeight: 25,
-      //   fontWidth: 20,
-      //   paddingRight: 20,
-      //   alignment: ZplAlignment.right,
-      // ),
-
-      // ZplText(
-      //   x: 30,
-      //   y: 680,
-      //   text: 'Approval Code',
-      //   fontHeight: 25,
-      //   fontWidth: 20,
-      // ),
-      // ZplText(
-      //   y: 680,
-      //   text: '#123456',
-      //   fontHeight: 25,
-      //   fontWidth: 20,
-      //   paddingRight: 20,
-      //   alignment: ZplAlignment.right,
-      // ),
-
-      // ZplText(
-      //   x: 30,
-      //   y: 720,
-      //   text: '*********************************',
-      //   fontHeight: 20,
-      //   fontWidth: 15,
-      // ),
-      // // Add a separator before the grid example
-      // ZplSeparator(
-      //   y: 740,
-      //   type: ZplSeparatorType.character,
-      //   character: '=',
-      //   paddingLeft: 20,
-      //   paddingRight: 20,
-      //   fontHeight: 15,
-      //   fontWidth: 12,
-      // ),
-
-      // Example using the new ZplTable widget
-      ZplTable(
+    final commands = <ZplCommand>[
+      // Header - RECEIPT
+      ZplText(
+        x: 0,
         y: 30,
-        columnWidths: [6, 2, 2, 2], // 12-column grid widths
-        borderThickness: 1, // Reduced for better text visibility
-        cellPadding: 3, // Reduced for tighter layout
+        text: 'RECEIPT',
+        fontHeight: 50,
+        fontWidth: 45,
+        alignment: ZplAlignment.left,
+      ),
+
+      // Receipt number and date
+      ZplText(
+        x: 0,
+        y: 100,
+        text: 'Receipt number: $_receiptNumber',
+        fontHeight: 20,
+        fontWidth: 18,
+        alignment: ZplAlignment.left,
+      ),
+
+      ZplText(
+        x: 0,
+        y: 130,
+        text: 'Date of purchase: $_purchaseDate',
+        fontHeight: 20,
+        fontWidth: 18,
+        alignment: ZplAlignment.left,
+      ),
+
+      // Company and Bill To section
+      ZplGridRow(
+        y: 200,
+        children: [
+          ZplGridCol(
+            width: 6,
+            child: ZplColumn(
+              y: 0,
+              children: [
+                ZplText(
+                  text: _companyName,
+                  fontHeight: 25,
+                  fontWidth: 22,
+                  alignment: ZplAlignment.left,
+                ),
+                ZplText(
+                  text: _companyAddress,
+                  fontHeight: 18,
+                  fontWidth: 16,
+                  alignment: ZplAlignment.left,
+                ),
+                ZplText(
+                  text: _companyEmail,
+                  fontHeight: 18,
+                  fontWidth: 16,
+                  alignment: ZplAlignment.left,
+                ),
+              ],
+            ),
+          ),
+          ZplGridCol(
+            width: 6,
+            child: ZplColumn(
+              y: 0,
+              children: [
+                ZplText(
+                  text: 'Bill By',
+                  fontHeight: 25,
+                  fontWidth: 22,
+                  alignment: ZplAlignment.left,
+                ),
+                ZplText(
+                  text: _customerName,
+                  fontHeight: 18,
+                  fontWidth: 16,
+                  alignment: ZplAlignment.left,
+                ),
+                ZplText(
+                  text: _customerAddress,
+                  fontHeight: 18,
+                  fontWidth: 16,
+                  alignment: ZplAlignment.left,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+
+      // Items table
+      ZplTable(
+        y: 360,
+        columnWidths: [6, 2, 2, 2], // 12-column grid
+        borderThickness: 2,
+        cellPadding: 6,
         headers: [
           ZplTableHeader(
             'Item',
             alignment: ZplAlignment.left,
-            fontHeight: 20,
-            fontWidth: 15,
+            fontHeight: 22,
+            fontWidth: 20,
           ),
           ZplTableHeader(
-            'Qty',
+            'Quantity',
             alignment: ZplAlignment.center,
-            fontHeight: 20,
-            fontWidth: 15,
+            fontHeight: 22,
+            fontWidth: 20,
           ),
           ZplTableHeader(
-            'Price',
-            alignment: ZplAlignment.right,
-            fontHeight: 20,
-            fontWidth: 15,
+            'Unit Price',
+            alignment: ZplAlignment.center,
+            fontHeight: 22,
+            fontWidth: 20,
           ),
           ZplTableHeader(
             'Total',
-            alignment: ZplAlignment.right,
-            fontHeight: 20,
-            fontWidth: 15,
+            alignment: ZplAlignment.center,
+            fontHeight: 22,
+            fontWidth: 20,
           ),
         ],
-        data: [
-          [
-            'V-Neck T-Shirt with Extra Long Product Name',
-            '1',
-            '10.00',
-            '10.00',
-          ],
-          ['Polo Shirt', '2', '25.50', '51.00'],
-          [
-            'Jeans with Premium Fabric and Special Features',
-            '1',
-            '40.00',
-            '40.00',
-          ],
-        ],
+        data: _items
+            .map(
+              (item) => [
+                item.name,
+                item.quantity.toString().padLeft(2, '0'),
+                '\$${item.unitPrice.toStringAsFixed(2)}',
+                '\$${item.totalPrice.toStringAsFixed(2)}',
+              ],
+            )
+            .toList(),
         dataFontHeight: 18,
-        dataFontWidth: 13,
+        dataFontWidth: 16,
       ),
 
-      // Example of manual text wrapping
-      // ZplText(
-      //   x: 30,
-      //   y: 890,
-      //   text:
-      //       'This is a very long text that demonstrates automatic text wrapping across multiple lines within the specified cell width.',
-      //   fontHeight: 18,
-      //   fontWidth: 13,
-      //   maxLines: 3,
-      //   lineSpacing: 2,
-      //   alignment: ZplAlignment.left,
-      // ),
+      // Subtotal
+      ZplText(
+        x: 50,
+        y: 580,
+        text: 'Subtotal: \$${subtotal.toStringAsFixed(2)}',
+        fontHeight: 22,
+        fontWidth: 20,
+        alignment: ZplAlignment.left,
+      ),
 
-      // Example using custom TTF font (if available)
-      // Note: Uncomment and add Roboto-Regular.ttf to assets to test
-      // ZplText(
-      //   x: 30,
-      //   y: 930,
-      //   text: 'Custom Roboto Font Example',
-      //   fontHeight: 24,
-      //   fontWidth: 20,
-      //   customFont: ZplFontAsset(
-      //     assetPath: 'assets/fonts/Roboto-Regular.ttf',
-      //     identifier: 'A',
-      //     displayName: 'Roboto Regular',
-      //   ),
-      // ),
+      // Additional Charges section
+      ZplText(
+        x: 50,
+        y: 620,
+        text: 'Additional Charges',
+        fontHeight: 22,
+        fontWidth: 20,
+        alignment: ZplAlignment.left,
+      ),
 
-      // Center-aligned thank you and barcode
-      // ZplColumn(
-      //   x: 0,
-      //   y: 950,
-      //   alignment: ZplAlignment.center,
-      //   children: [
-      //     ZplText(text: 'THANK YOU!', fontHeight: 30, fontWidth: 25),
-      //     ZplBarcode(
-      //       x: 0, // Will be repositioned by column alignment
-      //       y: 50, // Relative to column
-      //       height: 80,
-      //       data: '1234567890',
-      //       type: ZplBarcodeType.code128,
-      //     ),
-      //   ],
-      // ),
+      ZplText(
+        x: 50,
+        y: 650,
+        text:
+            'Tax (${(taxRate * 100).toStringAsFixed(0)}%): \$${tax.toStringAsFixed(2)}',
+        fontHeight: 20,
+        fontWidth: 18,
+        alignment: ZplAlignment.left,
+      ),
+
+      // Final Total
+      ZplText(
+        x: 50,
+        y: 700,
+        text: 'Total: \$${total.toStringAsFixed(2)}',
+        fontHeight: 26,
+        fontWidth: 24,
+        alignment: ZplAlignment.left,
+      ),
     ];
 
-    final generator = ZplGenerator(commands);
+    return commands;
+  }
 
-    // 2. Use the ZplPreview widget to display the rendered label
+  @override
+  Widget build(BuildContext context) {
+    final generator = ZplGenerator(
+      config: const ZplConfiguration(
+        printWidth: 576, // 2.25 inches at 203 dpi
+        labelLength: 1200,
+        printDensity: ZplPrintDensity.d8,
+      ),
+      commands: _generateReceiptCommands(),
+    );
+
     return Scaffold(
-      appBar: AppBar(title: const Text('Label Preview')),
+      appBar: AppBar(title: const Text('Big Machinery Receipt')),
       body: Center(
-        child: Container(
-          decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
-          // The widget handles everything automatically!
-          child: ZplPreview(generator: generator),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
+              const Text(
+                'Big Machinery Receipt Preview',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ZplPreview(generator: generator),
+              ),
+              const SizedBox(height: 20),
+              // Summary information
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Receipt #$_receiptNumber',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text('Date: $_purchaseDate'),
+                      Text('Customer: $_customerName'),
+                      const SizedBox(height: 8),
+                      Text('Items: ${_items.length}'),
+                      Text(
+                        'Subtotal: \$${_items.fold(0.0, (sum, item) => sum + item.totalPrice).toStringAsFixed(2)}',
+                      ),
+                      Text(
+                        'Total: \$${(_items.fold(0.0, (sum, item) => sum + item.totalPrice) * 1.12).toStringAsFixed(2)}',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

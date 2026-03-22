@@ -5,12 +5,9 @@ abstract class ZplCommand {
   const ZplCommand();
 
   /// Converts the command to its ZPL representation.
-  String toZpl();
+  /// The [context] provides label configuration (dimensions, density, etc.).
+  String toZpl(ZplConfiguration context);
 
   /// Calculates the approximate width of this command in dots.
-  ///
-  /// This method should return the width that this command will occupy
-  /// when rendered on the label. The [config] parameter provides context
-  /// about the label dimensions and printer settings.
-  int calculateWidth(ZplConfiguration? config);
+  int calculateWidth(ZplConfiguration config);
 }

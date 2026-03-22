@@ -159,7 +159,6 @@ class LabelaryService {
       }
 
       final response = await httpClient.post(url, headers: headers, body: zpl);
-      print(zpl);
       if (response.statusCode == 200) {
         // Parse response headers
         final totalCount = response.headers['x-total-count'] != null
@@ -351,6 +350,7 @@ class LabelaryService {
     Uint8List imageData,
     String imageFileName, {
     LabelaryOutputFormat outputFormat = LabelaryOutputFormat.zpl,
+    http.Client? client,
   }) async {
     final url = Uri.parse('$_baseUrl/graphics');
     final request = http.MultipartRequest('POST', url);
@@ -360,7 +360,12 @@ class LabelaryService {
       http.MultipartFile.fromBytes('file', imageData, filename: imageFileName),
     );
 
-    final response = await request.send();
+    final http.StreamedResponse response;
+    if (client != null) {
+      response = await client.send(request);
+    } else {
+      response = await request.send();
+    }
 
     if (response.statusCode == 200) {
       return await response.stream.bytesToString();
@@ -387,6 +392,7 @@ class LabelaryService {
     String? path,
     String? name,
     String? chars,
+    http.Client? client,
   }) async {
     final url = Uri.parse('$_baseUrl/fonts');
     final request = http.MultipartRequest('POST', url);
@@ -399,7 +405,12 @@ class LabelaryService {
     if (name != null) request.fields['name'] = name;
     if (chars != null) request.fields['chars'] = chars;
 
-    final response = await request.send();
+    final http.StreamedResponse response;
+    if (client != null) {
+      response = await client.send(request);
+    } else {
+      response = await request.send();
+    }
 
     if (response.statusCode == 200) {
       return await response.stream.bytesToString();
@@ -447,14 +458,7 @@ class LabelaryService {
     bool enableLinting = false,
     http.Client? client,
   }) async {
-    final config =
-        generator.commands.firstWhere(
-              (cmd) => cmd is ZplConfiguration,
-              orElse: () => throw Exception(
-                'ZplConfiguration must be provided in the command list.',
-              ),
-            )
-            as ZplConfiguration;
+    final config = generator.config;
 
     final densityDpi = config.printDensity?.dpi ?? 203;
     final widthInches = (config.printWidth ?? 406) / densityDpi;

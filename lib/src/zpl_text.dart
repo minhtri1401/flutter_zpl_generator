@@ -30,7 +30,7 @@ class ZplText extends ZplCommand {
   /// The orientation of the text field.
   final ZplOrientation orientation;
 
-  /// The horizontal alignment of the text (requires configuration context)
+  /// The horizontal alignment of the text.
   final ZplAlignment? alignment;
 
   /// Horizontal padding around the text. Affects the x coordinate positioning.
@@ -46,27 +46,14 @@ class ZplText extends ZplCommand {
   final int lineSpacing;
 
   /// Optional custom TrueType font to use for this text.
-  ///
-  /// When specified, this font will be used instead of the default ZPL bitmap fonts.
-  /// The font must be uploaded to the printer using [ZplAssetService] before use.
-  ///
-  /// Example:
-  /// ```dart
-  /// final customFont = ZplFontAsset(
-  ///   assetPath: 'assets/fonts/Roboto-Regular.ttf',
-  ///   identifier: 'A',
-  /// );
-  ///
-  /// final text = ZplText(
-  ///   text: 'Custom font text',
-  ///   customFont: customFont,
-  ///   fontHeight: 24,
-  /// );
-  /// ```
   final ZplFontAsset? customFont;
 
-  /// Optional configuration context for alignment features
-  ZplConfiguration? _configuration;
+  /// Maximum width constraint (set by layout containers like ZplGridRow).
+  /// When set, alignment uses this width instead of the full label width.
+  final int? maxWidth;
+
+  /// Whether to invert the print colors (white on black).
+  final bool reversePrint;
 
   ZplText({
     this.x = 0,
@@ -83,108 +70,92 @@ class ZplText extends ZplCommand {
     this.maxLines = 1,
     this.lineSpacing = 0,
     this.customFont,
+    this.maxWidth,
+    this.reversePrint = false,
   });
 
-  /// Set configuration context for alignment features
-  void setConfiguration(ZplConfiguration config) {
-    _configuration = config;
-  }
-
   @override
-  String toZpl() {
+  String toZpl(ZplConfiguration context) {
     final sb = StringBuffer();
+    final effectiveWidth = maxWidth ?? context.printWidth ?? 406;
 
-    // Use ^FB (Field Block) for alignment when configuration is available and alignment is specified
-    if (_configuration != null &&
-        alignment != null &&
-        alignment != ZplAlignment.left &&
-        x == 0) {
-      // Use Field Block for precise ZPL alignment with padding support
-      final labelWidth = _configuration!.printWidth ?? 406;
-      final availableWidth = labelWidth - paddingLeft - paddingRight;
+    if (alignment != null && alignment != ZplAlignment.left) {
+      final availableWidth = effectiveWidth - paddingLeft - paddingRight;
 
-      // Position the field block to account for left padding
-      // Note: Use x=0 when alignment is used to allow _PositionWrapper to handle positioning
-      sb.writeln('^FO0,$y');
-
-      // Choose font: custom font > font alias > default bitmap font
-      final orientationCode = _getOrientationCode();
-      if (customFont != null) {
-        // Use custom TrueType font with ^A@ command
-        sb.writeln(
-          '^A@$orientationCode,${fontHeight ?? 20},${fontWidth ?? 20},${customFont!.printerPath}',
-        );
-      } else if (fontAlias != null) {
-        // Use font alias
-        sb.writeln(
-          '^A$fontAlias$orientationCode,${fontHeight ?? ''},${fontWidth ?? ''}',
-        );
+      if (maxWidth != null) {
+        // Inside a layout container — x is set by container, use maxWidth for ^FB
+        sb.writeln('^FO$x,$y');
+        _writeFontCommand(sb);
+        final justification = _getJustificationCode();
+        sb.writeln('^FB$availableWidth,$maxLines,$lineSpacing,$justification,0');
+        if (reversePrint) sb.writeln('^FR');
+        sb.writeln('^FD$text^FS');
+      } else if (x == 0) {
+        // Standalone text with alignment — use full label width
+        sb.writeln('^FO0,$y');
+        _writeFontCommand(sb);
+        final justification = _getJustificationCode();
+        sb.writeln('^FB$availableWidth,$maxLines,$lineSpacing,$justification,0');
+        if (reversePrint) sb.writeln('^FR');
+        sb.writeln('^FD$text^FS');
       } else {
-        // Use default bitmap font
-        final fontName = font == ZplFont.zero ? '0' : font!.name.toUpperCase();
-        sb.writeln(
-          '^A$fontName$orientationCode,${fontHeight ?? ''},${fontWidth ?? ''}',
-        );
+        // Manual position with alignment hint — fall through to positioned output
+        sb.writeln('^FO$x,$y');
+        _writeFontCommand(sb);
+        if (maxLines > 1) {
+          final wrapWidth = effectiveWidth - x - paddingRight;
+          sb.writeln('^FB$wrapWidth,$maxLines,$lineSpacing,L,0');
+        }
+        if (reversePrint) sb.writeln('^FR');
+        sb.writeln('^FD$text^FS');
       }
-
-      // ^FB command: use available width (excluding padding) with text wrapping
-      final justification = _getJustificationCode();
-      sb.writeln('^FB$availableWidth,$maxLines,$lineSpacing,$justification,0');
-      sb.writeln('^FD$text^FS');
     } else {
-      // Fall back to manual positioning for specific coordinates or left alignment
-      final alignedX = x == 0 ? _calculateAlignedX() : x;
+      // Left alignment or no alignment
+      final alignedX = (x == 0 && maxWidth == null)
+          ? _calculateAlignedX(context)
+          : x;
       sb.writeln('^FO$alignedX,$y');
-
-      // Choose font: custom font > font alias > default bitmap font
-      final orientationCode = _getOrientationCode();
-      if (customFont != null) {
-        // Use custom TrueType font with ^A@ command
-        sb.writeln(
-          '^A@$orientationCode,${fontHeight ?? 20},${fontWidth ?? 20},${customFont!.printerPath}',
-        );
-      } else if (fontAlias != null) {
-        // Use font alias
-        sb.writeln(
-          '^A$fontAlias$orientationCode,${fontHeight ?? ''},${fontWidth ?? ''}',
-        );
-      } else {
-        // Use default bitmap font
-        final fontName = font == ZplFont.zero ? '0' : font!.name.toUpperCase();
-        sb.writeln(
-          '^A$fontName$orientationCode,${fontHeight ?? ''},${fontWidth ?? ''}',
-        );
-      }
-
-      // Add ^FB command for text wrapping even when not using alignment
+      _writeFontCommand(sb);
       if (maxLines > 1) {
-        // Calculate available width for wrapping (simple estimation)
-        final estimatedWidth = _configuration?.printWidth ?? 406;
-        final availableWidth = estimatedWidth - alignedX - paddingRight;
-        sb.writeln('^FB$availableWidth,$maxLines,$lineSpacing,L,0');
+        final wrapWidth = effectiveWidth - alignedX - paddingRight;
+        sb.writeln('^FB$wrapWidth,$maxLines,$lineSpacing,L,0');
       }
-
+      if (reversePrint) sb.writeln('^FR');
       sb.writeln('^FD$text^FS');
     }
+
     return sb.toString();
   }
 
-  /// Calculate the X position based on alignment and available width
-  int _calculateAlignedX() {
-    // Apply padding to the base x position
+  /// Writes the font selection command (^A) to the buffer.
+  void _writeFontCommand(StringBuffer sb) {
+    final orientationCode = _getOrientationCode();
+    if (customFont != null) {
+      sb.writeln(
+        '^A@$orientationCode,${fontHeight ?? 20},${fontWidth ?? 20},${customFont!.printerPath}',
+      );
+    } else if (fontAlias != null) {
+      sb.writeln(
+        '^A$fontAlias$orientationCode,${fontHeight ?? ''},${fontWidth ?? ''}',
+      );
+    } else {
+      final fontName = font == ZplFont.zero ? '0' : font!.name.toUpperCase();
+      sb.writeln(
+        '^A$fontName$orientationCode,${fontHeight ?? ''},${fontWidth ?? ''}',
+      );
+    }
+  }
+
+  /// Calculate the X position based on alignment and available width.
+  int _calculateAlignedX(ZplConfiguration context) {
     int baseX = x + paddingLeft;
 
-    // If x position is already set (non-zero), it means we're inside a layout container
-    // In that case, use the positioned x rather than applying alignment
-    if (x != 0 || alignment == null || _configuration == null) {
-      return baseX; // Use specified x position (set by layout container or user) + padding
+    if (x != 0 || alignment == null) {
+      return baseX;
     }
 
-    final labelWidth =
-        _configuration!.printWidth ?? 406; // Default to 2" at 203dpi
+    final labelWidth = context.printWidth ?? 406;
     final textWidth = _calculateTextWidth();
-
-    // Account for padding in the available width
     final availableWidth = labelWidth - paddingLeft - paddingRight;
 
     int calculatedX;
@@ -200,21 +171,13 @@ class ZplText extends ZplCommand {
         break;
     }
 
-    // Ensure X position is never negative and doesn't exceed label width
     return calculatedX.clamp(0, labelWidth - paddingRight - 1);
   }
 
-  /// Calculate the approximate width of the text
+  /// Calculate the approximate width of the text.
   int _calculateTextWidth() {
-    // ZPL Font calculation is complex due to proportional fonts
-    // Font 0 (default) is proportional - characters have different widths
-    // This is an approximation for layout purposes
     final baseHeight = fontHeight ?? 12;
     final widthScale = (fontWidth ?? 10) / 10.0;
-
-    // For proportional fonts, use a more conservative estimate
-    // Average character width is roughly 40-50% of font height for readable text
-    // This is more realistic than the previous 60% calculation
     final avgCharWidth = (baseHeight * 0.4 * widthScale).round();
     return text.length * avgCharWidth;
   }
@@ -232,7 +195,7 @@ class ZplText extends ZplCommand {
     }
   }
 
-  /// Get the justification code for ^FB command
+  /// Get the justification code for ^FB command.
   String _getJustificationCode() {
     switch (alignment!) {
       case ZplAlignment.left:
@@ -245,11 +208,11 @@ class ZplText extends ZplCommand {
   }
 
   @override
-  int calculateWidth(ZplConfiguration? config) {
+  int calculateWidth(ZplConfiguration config) {
     return _calculateTextWidth() + paddingLeft + paddingRight;
   }
 
-  /// Calculate the height of the text including multiple lines and line spacing
+  /// Calculate the height of the text including multiple lines and line spacing.
   int calculateHeight() {
     final baseHeight = fontHeight ?? 12;
     return (baseHeight * maxLines) + (lineSpacing * (maxLines - 1));

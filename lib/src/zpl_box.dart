@@ -1,6 +1,5 @@
-import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
-
 import 'zpl_command_base.dart';
+import 'zpl_configuration.dart';
 
 /// A class to handle the Graphic Box command (^GB).
 class ZplBox extends ZplCommand {
@@ -22,6 +21,9 @@ class ZplBox extends ZplCommand {
   /// The degree of corner rounding (0 for sharp, 8 for max rounding).
   final int cornerRounding;
 
+  /// Whether to invert the print colors (white on black).
+  final bool reversePrint;
+
   ZplBox({
     this.x = 0,
     this.y = 0,
@@ -29,6 +31,7 @@ class ZplBox extends ZplCommand {
     required this.height,
     this.borderThickness = 1,
     this.cornerRounding = 0,
+    this.reversePrint = false,
   }) : assert(
          borderThickness >= 1 && borderThickness <= 32000,
          'Border thickness must be between 1 and 32,000 dots',
@@ -39,15 +42,18 @@ class ZplBox extends ZplCommand {
        );
 
   @override
-  String toZpl() {
+  String toZpl(ZplConfiguration context) {
     final sb = StringBuffer();
     sb.writeln('^FO$x,$y');
+    if (reversePrint) {
+      sb.writeln('^FR');
+    }
     sb.writeln('^GB$width,$height,$borderThickness,B,$cornerRounding^FS');
     return sb.toString();
   }
 
   @override
-  int calculateWidth(ZplConfiguration? config) {
+  int calculateWidth(ZplConfiguration config) {
     return width;
   }
 }

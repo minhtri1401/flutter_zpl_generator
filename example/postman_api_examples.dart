@@ -10,12 +10,12 @@ void main() {
   // Example 1: Basic Hello World Label
   _printPostmanExample(
     title: '1. BASIC HELLO WORLD LABEL',
+    config: const ZplConfiguration(
+      printWidth: 406,
+      labelLength: 609,
+      printDensity: ZplPrintDensity.d8,
+    ),
     commands: [
-      const ZplConfiguration(
-        printWidth: 406,
-        labelLength: 609,
-        printDensity: ZplPrintDensity.d8,
-      ),
       ZplText(x: 50, y: 50, text: 'Hello World'),
     ],
     density: '8dpmm',
@@ -29,12 +29,12 @@ void main() {
   // Example 2: Label with Barcode (PDF)
   _printPostmanExample(
     title: '2. LABEL WITH BARCODE (PDF OUTPUT)',
+    config: const ZplConfiguration(
+      printWidth: 812,
+      labelLength: 1218,
+      printDensity: ZplPrintDensity.d8,
+    ),
     commands: [
-      const ZplConfiguration(
-        printWidth: 812,
-        labelLength: 1218,
-        printDensity: ZplPrintDensity.d8,
-      ),
       ZplText(x: 100, y: 100, text: 'Product Label'),
       ZplBarcode(
         x: 100,
@@ -56,12 +56,12 @@ void main() {
   // Example 3: High Density Label
   _printPostmanExample(
     title: '3. HIGH DENSITY LABEL (24dpmm)',
+    config: const ZplConfiguration(
+      printWidth: 1200,
+      labelLength: 900,
+      printDensity: ZplPrintDensity.d24,
+    ),
     commands: [
-      const ZplConfiguration(
-        printWidth: 1200,
-        labelLength: 900,
-        printDensity: ZplPrintDensity.d24,
-      ),
       ZplText(x: 20, y: 20, text: 'High Resolution'),
       ZplBarcode(
         x: 20,
@@ -86,12 +86,12 @@ void main() {
   // Example 5: QR Code Label
   _printPostmanExample(
     title: '5. QR CODE LABEL',
+    config: const ZplConfiguration(
+      printWidth: 406,
+      labelLength: 406,
+      printDensity: ZplPrintDensity.d8,
+    ),
     commands: [
-      const ZplConfiguration(
-        printWidth: 406,
-        labelLength: 406,
-        printDensity: ZplPrintDensity.d8,
-      ),
       ZplText(x: 50, y: 30, text: 'Scan QR Code:'),
       ZplBarcode(
         x: 100,
@@ -113,12 +113,12 @@ void main() {
   // Example 6: JSON Output for Data Extraction
   _printPostmanExample(
     title: '6. JSON OUTPUT (DATA EXTRACTION)',
+    config: const ZplConfiguration(
+      printWidth: 812,
+      labelLength: 609,
+      printDensity: ZplPrintDensity.d8,
+    ),
     commands: [
-      const ZplConfiguration(
-        printWidth: 812,
-        labelLength: 609,
-        printDensity: ZplPrintDensity.d8,
-      ),
       ZplText(x: 50, y: 50, text: 'Product: ABC123'),
       ZplText(x: 50, y: 100, text: 'Price: \$19.99'),
       ZplBarcode(
@@ -155,6 +155,7 @@ void main() {
 
 void _printPostmanExample({
   required String title,
+  required ZplConfiguration config,
   required List<ZplCommand> commands,
   required String density,
   required String width,
@@ -163,7 +164,7 @@ void _printPostmanExample({
   required String outputFormat,
   required String acceptHeader,
 }) {
-  final generator = ZplGenerator(commands);
+  final generator = ZplGenerator(config: config, commands: commands);
   final zpl = generator.build();
 
   print(title);
@@ -196,33 +197,15 @@ void _printMultiLabelExample() async {
   print('4. MULTIPLE LABELS (GET 2ND LABEL)');
   print('=' * 35);
 
-  final label1Commands = [
-    const ZplConfiguration(
-      printWidth: 609,
-      labelLength: 406,
-      printDensity: ZplPrintDensity.d8,
-    ),
-  ];
-  final label2Commands = [
-    const ZplConfiguration(
-      printWidth: 609,
-      labelLength: 406,
-      printDensity: ZplPrintDensity.d8,
-    ),
-    ZplText(x: 50, y: 50, text: 'Label 2'),
-  ];
-  final label3Commands = [
-    const ZplConfiguration(
-      printWidth: 609,
-      labelLength: 406,
-      printDensity: ZplPrintDensity.d8,
-    ),
-    ZplText(x: 50, y: 50, text: 'Label 3'),
-  ];
+  const labelConfig = ZplConfiguration(
+    printWidth: 609,
+    labelLength: 406,
+    printDensity: ZplPrintDensity.d8,
+  );
 
-  final generator1 = ZplGenerator(label1Commands);
-  final generator2 = ZplGenerator(label2Commands);
-  final generator3 = ZplGenerator(label3Commands);
+  final generator1 = ZplGenerator(config: labelConfig, commands: []);
+  final generator2 = ZplGenerator(config: labelConfig, commands: [ZplText(x: 50, y: 50, text: 'Label 2')]);
+  final generator3 = ZplGenerator(config: labelConfig, commands: [ZplText(x: 50, y: 50, text: 'Label 3')]);
 
   final multipleZpl =
       (await generator1.build()) +

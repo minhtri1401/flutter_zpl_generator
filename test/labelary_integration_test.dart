@@ -20,16 +20,15 @@ void main() {
     group('Real API calls', () {
       test('renderZpl - Basic label with text (PNG)', () async {
         // Create ZPL using ZplGenerator
-        final commands = [
-          const ZplConfiguration(
+        final generator = ZplGenerator(
+          config: const ZplConfiguration(
             printWidth: 812, // 4 inches * 203 DPI
             labelLength: 1218, // 6 inches * 203 DPI
             printDensity: ZplPrintDensity.d8,
           ),
-          ZplText(x: 50, y: 50, text: 'Hello World'),
-        ];
-        final generator = ZplGenerator(commands);
-        final zpl = generator.build();
+          commands: [ZplText(x: 50, y: 50, text: 'Hello World')],
+        );
+        final zpl = await generator.build();
 
         final result = await LabelaryService.renderZplSimple(
           zpl,
@@ -56,24 +55,25 @@ void main() {
 
       test('renderZpl - Label with barcode (PDF)', () async {
         // Create ZPL using ZplGenerator with barcode
-        final commands = [
-          const ZplConfiguration(
+        final generator = ZplGenerator(
+          config: const ZplConfiguration(
             printWidth: 812, // 4 inches * 203 DPI
             labelLength: 1218, // 6 inches * 203 DPI
             printDensity: ZplPrintDensity.d8,
           ),
-          ZplText(x: 100, y: 100, text: 'Product Label'),
-          ZplBarcode(
-            x: 100,
-            y: 200,
-            data: '123456789012',
-            type: ZplBarcodeType.code128,
-            height: 100,
-            moduleWidth: 3,
-          ),
-        ];
-        final generator = ZplGenerator(commands);
-        final zpl = generator.build();
+          commands: [
+            ZplText(x: 100, y: 100, text: 'Product Label'),
+            ZplBarcode(
+              x: 100,
+              y: 200,
+              data: '123456789012',
+              type: ZplBarcodeType.code128,
+              height: 100,
+              moduleWidth: 3,
+            ),
+          ],
+        );
+        final zpl = await generator.build();
 
         final result = await LabelaryService.renderZplSimple(
           zpl,
@@ -100,37 +100,33 @@ void main() {
 
       test('renderZpl - Multiple labels with index selection', () async {
         // Create multiple labels using ZplGenerator
-        final label1Commands = [
-          const ZplConfiguration(
+        final generator1 = ZplGenerator(
+          config: const ZplConfiguration(
             printWidth: 609, // 3 inches * 203 DPI
             labelLength: 406, // 2 inches * 203 DPI
             printDensity: ZplPrintDensity.d8,
           ),
-          ZplText(x: 50, y: 50, text: 'Label 1'),
-        ];
-        final label2Commands = [
-          const ZplConfiguration(
+          commands: [ZplText(x: 50, y: 50, text: 'Label 1')],
+        );
+        final generator2 = ZplGenerator(
+          config: const ZplConfiguration(
             printWidth: 609,
             labelLength: 406,
             printDensity: ZplPrintDensity.d8,
           ),
-          ZplText(x: 50, y: 50, text: 'Label 2'),
-        ];
-        final label3Commands = [
-          const ZplConfiguration(
+          commands: [ZplText(x: 50, y: 50, text: 'Label 2')],
+        );
+        final generator3 = ZplGenerator(
+          config: const ZplConfiguration(
             printWidth: 609,
             labelLength: 406,
             printDensity: ZplPrintDensity.d8,
           ),
-          ZplText(x: 50, y: 50, text: 'Label 3'),
-        ];
-
-        final generator1 = ZplGenerator(label1Commands);
-        final generator2 = ZplGenerator(label2Commands);
-        final generator3 = ZplGenerator(label3Commands);
+          commands: [ZplText(x: 50, y: 50, text: 'Label 3')],
+        );
 
         final zpl =
-            generator1.build() + generator2.build() + generator3.build();
+            await generator1.build() + await generator2.build() + await generator3.build();
 
         // Get the second label (index 1)
         final result = await LabelaryService.renderZplSimple(
@@ -155,24 +151,25 @@ void main() {
 
       test('renderZpl - High density label', () async {
         // Create high-density label using ZplGenerator
-        final commands = [
-          const ZplConfiguration(
+        final generator = ZplGenerator(
+          config: const ZplConfiguration(
             printWidth: 1200, // 2 inches * 600 DPI (24dpmm)
             labelLength: 900, // 1.5 inches * 600 DPI
             printDensity: ZplPrintDensity.d24,
           ),
-          ZplText(x: 20, y: 20, text: 'High Resolution'),
-          ZplBarcode(
-            x: 20,
-            y: 60,
-            data: '987654321',
-            type: ZplBarcodeType.code128,
-            height: 80,
-            moduleWidth: 2,
-          ),
-        ];
-        final generator = ZplGenerator(commands);
-        final zpl = generator.build();
+          commands: [
+            ZplText(x: 20, y: 20, text: 'High Resolution'),
+            ZplBarcode(
+              x: 20,
+              y: 60,
+              data: '987654321',
+              type: ZplBarcodeType.code128,
+              height: 80,
+              moduleWidth: 2,
+            ),
+          ],
+        );
+        final zpl = await generator.build();
 
         final result = await LabelaryService.renderZplSimple(
           zpl,
@@ -195,16 +192,17 @@ void main() {
       }, skip: shouldSkip);
 
       test('renderFromGenerator - Using ZplGenerator', () async {
-        final commands = [
-          const ZplConfiguration(
+        final generator = ZplGenerator(
+          config: const ZplConfiguration(
             printWidth: 406,
             labelLength: 203,
             printDensity: ZplPrintDensity.d8,
           ),
-          ZplText(x: 50, y: 50, text: 'Generated Label'),
-          ZplText(x: 50, y: 100, text: 'Using ZplGenerator'),
-        ];
-        final generator = ZplGenerator(commands);
+          commands: [
+            ZplText(x: 50, y: 50, text: 'Generated Label'),
+            ZplText(x: 50, y: 100, text: 'Using ZplGenerator'),
+          ],
+        );
 
         final result = await LabelaryService.renderFromGeneratorSimple(
           generator,
@@ -220,7 +218,7 @@ void main() {
         print(
           '  URL used: https://api.labelary.com/v1/printers/8dpmm/labels/2.0x1.0/0/',
         );
-        print('  ZPL generated: ${generator.build()}');
+        print('  ZPL generated: ${await generator.build()}');
       }, skip: shouldSkip);
 
       test('renderZpl - JSON output for data extraction', () async {

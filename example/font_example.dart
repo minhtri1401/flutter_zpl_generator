@@ -24,12 +24,6 @@ void main() async {
 
   // Step 2: Create your label commands using custom fonts
   final commands = [
-    const ZplConfiguration(
-      printWidth: 576, // 2.25 inches at 203 DPI
-      labelLength: 400,
-      printDensity: ZplPrintDensity.d8,
-    ),
-
     // Header with bold font
     ZplText(
       x: 50,
@@ -104,7 +98,12 @@ void main() async {
 
   // Step 3: Create the generator with font assets
   final generator = ZplGenerator(
-    commands,
+    config: const ZplConfiguration(
+      printWidth: 576, // 2.25 inches at 203 DPI
+      labelLength: 400,
+      printDensity: ZplPrintDensity.d8,
+    ),
+    commands: commands,
     fonts: [robotoRegular, robotoBold], // Specify which fonts to upload
     // assetService: ZplAssetService(), // Optional: provide custom service
   );

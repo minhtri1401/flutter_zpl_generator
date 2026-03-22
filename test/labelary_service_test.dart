@@ -15,21 +15,23 @@ void main() {
 
     setUp(() {
       mockClient = MockClient();
+      provideDummy<http.ByteStream>(
+        http.ByteStream.fromBytes([]),
+      );
     });
 
     group('renderZpl', () {
       test('renders ZPL to PNG with default parameters', () async {
         // Arrange
-        final commands = [
-          const ZplConfiguration(
+        final generator = ZplGenerator(
+          config: const ZplConfiguration(
             printWidth: 406,
             labelLength: 609,
             printDensity: ZplPrintDensity.d8,
           ),
-          ZplText(x: 50, y: 50, text: 'Hello World'),
-        ];
-        final generator = ZplGenerator(commands);
-        final zpl = generator.build();
+          commands: [ZplText(x: 50, y: 50, text: 'Hello World')],
+        );
+        final zpl = await generator.build();
         final expectedUrl = Uri.parse(
           'https://api.labelary.com/v1/printers/8dpmm/labels/4.0x6.0/0/',
         );
@@ -41,7 +43,7 @@ void main() {
         when(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png'},
+            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
             body: zpl,
           ),
         ).thenAnswer((_) async => mockResponse);
@@ -57,7 +59,7 @@ void main() {
         verify(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png'},
+            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
             body: zpl,
           ),
         ).called(1);
@@ -74,16 +76,15 @@ void main() {
 
       test('renders ZPL to PDF with custom dimensions', () async {
         // Arrange
-        final commands = [
-          const ZplConfiguration(
+        final generator = ZplGenerator(
+          config: const ZplConfiguration(
             printWidth: 900,
             labelLength: 600,
             printDensity: ZplPrintDensity.d12,
           ),
-          ZplText(x: 100, y: 100, text: 'Test Label'),
-        ];
-        final generator = ZplGenerator(commands);
-        final zpl = generator.build();
+          commands: [ZplText(x: 100, y: 100, text: 'Test Label')],
+        );
+        final zpl = await generator.build();
 
         final expectedUrl = Uri.parse(
           'https://api.labelary.com/v1/printers/12dpmm/labels/3.0x2.0/0/',
@@ -96,7 +97,7 @@ void main() {
         when(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'application/pdf'},
+            headers: {'Accept': 'application/pdf', 'Content-Type': 'application/x-www-form-urlencoded'},
             body: zpl,
           ),
         ).thenAnswer((_) async => mockResponse);
@@ -116,7 +117,7 @@ void main() {
         verify(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'application/pdf'},
+            headers: {'Accept': 'application/pdf', 'Content-Type': 'application/x-www-form-urlencoded'},
             body: zpl,
           ),
         ).called(1);
@@ -133,28 +134,25 @@ void main() {
 
       test('renders ZPL with specific label index', () async {
         // Arrange - Create multiple labels by generating each separately
-        final label1Commands = [
-          const ZplConfiguration(
+        final generator1 = ZplGenerator(
+          config: const ZplConfiguration(
             printWidth: 406,
             labelLength: 609,
             printDensity: ZplPrintDensity.d8,
           ),
-          ZplText(x: 50, y: 50, text: 'Label 1'),
-        ];
-        final label2Commands = [
-          const ZplConfiguration(
+          commands: [ZplText(x: 50, y: 50, text: 'Label 1')],
+        );
+        final generator2 = ZplGenerator(
+          config: const ZplConfiguration(
             printWidth: 406,
             labelLength: 609,
             printDensity: ZplPrintDensity.d8,
           ),
-          ZplText(x: 50, y: 50, text: 'Label 2'),
-        ];
-
-        final generator1 = ZplGenerator(label1Commands);
-        final generator2 = ZplGenerator(label2Commands);
+          commands: [ZplText(x: 50, y: 50, text: 'Label 2')],
+        );
 
         // Concatenate multiple labels into one ZPL script
-        final zpl = generator1.build() + generator2.build();
+        final zpl = await generator1.build() + await generator2.build();
 
         final expectedUrl = Uri.parse(
           'https://api.labelary.com/v1/printers/8dpmm/labels/4.0x6.0/1/',
@@ -167,7 +165,7 @@ void main() {
         when(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png'},
+            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
             body: zpl,
           ),
         ).thenAnswer((_) async => mockResponse);
@@ -184,7 +182,7 @@ void main() {
         verify(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png'},
+            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
             body: zpl,
           ),
         ).called(1);
@@ -207,7 +205,7 @@ void main() {
         when(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png'},
+            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
             body: zpl,
           ),
         ).thenAnswer((_) async => mockResponse);
@@ -229,16 +227,15 @@ void main() {
     group('renderFromGenerator', () {
       test('renders from ZplGenerator with correct URL construction', () async {
         // Arrange
-        final commands = [
-          const ZplConfiguration(
+        final generator = ZplGenerator(
+          config: const ZplConfiguration(
             printWidth: 406,
             labelLength: 203,
             printDensity: ZplPrintDensity.d8,
           ),
-          ZplText(x: 10, y: 10, text: 'Generator Test'),
-        ];
-        final generator = ZplGenerator(commands);
-        final expectedZpl = generator.build();
+          commands: [ZplText(x: 10, y: 10, text: 'Generator Test')],
+        );
+        final expectedZpl = await generator.build();
         final expectedUrl = Uri.parse(
           'https://api.labelary.com/v1/printers/8dpmm/labels/2.0x1.0/0/',
         );
@@ -250,7 +247,7 @@ void main() {
         when(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png'},
+            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
             body: expectedZpl,
           ),
         ).thenAnswer((_) async => mockResponse);
@@ -266,47 +263,56 @@ void main() {
         verify(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png'},
+            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
             body: expectedZpl,
           ),
         ).called(1);
       });
 
-      test('throws exception when ZplConfiguration is missing', () async {
+      test('uses default configuration when none specified', () async {
         // Arrange
-        final commands = [ZplText(x: 10, y: 10, text: 'No Config')];
-        final generator = ZplGenerator(commands);
-
-        // Act & Assert
-        expect(
-          () => LabelaryService.renderFromGeneratorSimple(
-            generator,
-            client: mockClient,
-          ),
-          throwsA(
-            isA<Exception>().having(
-              (e) => e.toString(),
-              'message',
-              contains('ZplConfiguration must be provided'),
-            ),
-          ),
+        final generator = ZplGenerator(
+          commands: [ZplText(x: 10, y: 10, text: 'No Config')],
         );
+        final expectedZpl = await generator.build();
+        final expectedUrl = Uri.parse(
+          'https://api.labelary.com/v1/printers/8dpmm/labels/2.0x1.0/0/',
+        );
+        final mockResponse = http.Response.bytes(
+          Uint8List.fromList([1, 2, 3, 4]),
+          200,
+        );
+        when(
+          mockClient.post(
+            expectedUrl,
+            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
+            body: expectedZpl,
+          ),
+        ).thenAnswer((_) async => mockResponse);
+
+        // Act
+        final result = await LabelaryService.renderFromGeneratorSimple(
+          generator,
+          client: mockClient,
+        );
+
+        // Assert
+        expect(result, equals(Uint8List.fromList([1, 2, 3, 4])));
       });
 
       test('handles different print densities correctly', () async {
         // Arrange
-        final commands = [
-          const ZplConfiguration(
+        final generator = ZplGenerator(
+          config: const ZplConfiguration(
             printWidth: 609,
             labelLength: 304,
             printDensity: ZplPrintDensity.d12,
           ),
-          ZplText(x: 20, y: 20, text: 'High Density'),
-        ];
-        final generator = ZplGenerator(commands);
-        final expectedZpl = generator.build();
+          commands: [ZplText(x: 20, y: 20, text: 'High Density')],
+        );
+        final expectedZpl = await generator.build();
         final expectedUrl = Uri.parse(
-          'https://api.labelary.com/v1/printers/12dpmm/labels/2.03x1.013333/0/',
+          'https://api.labelary.com/v1/printers/12dpmm/labels/2.03x1.0133333333333334/0/',
         );
         final mockResponse = http.Response.bytes(
           Uint8List.fromList([5, 6, 7, 8]),
@@ -316,7 +322,7 @@ void main() {
         when(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png'},
+            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
             body: expectedZpl,
           ),
         ).thenAnswer((_) async => mockResponse);
@@ -353,6 +359,7 @@ void main() {
         final result = await LabelaryService.convertImageToGraphic(
           imageData,
           fileName,
+          client: mockClient,
         );
 
         // Assert
@@ -405,7 +412,7 @@ void main() {
 
         // Act & Assert
         expect(
-          () => LabelaryService.convertImageToGraphic(imageData, fileName),
+          () => LabelaryService.convertImageToGraphic(imageData, fileName, client: mockClient),
           throwsA(
             isA<Exception>().having(
               (e) => e.toString(),
@@ -441,6 +448,7 @@ void main() {
         final result = await LabelaryService.convertFontToZpl(
           fontData,
           fileName,
+          client: mockClient,
         );
 
         // Assert
@@ -477,6 +485,7 @@ void main() {
           path: path,
           name: name,
           chars: chars,
+          client: mockClient,
         );
 
         // Assert
@@ -500,7 +509,7 @@ void main() {
 
         // Act & Assert
         expect(
-          () => LabelaryService.convertFontToZpl(fontData, fileName),
+          () => LabelaryService.convertFontToZpl(fontData, fileName, client: mockClient),
           throwsA(
             isA<Exception>().having(
               (e) => e.toString(),
@@ -537,7 +546,7 @@ void main() {
           when(
             mockClient.post(
               expectedUrl,
-              headers: {'Accept': 'image/png'},
+              headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
               body: zpl,
             ),
           ).thenAnswer((_) async => mockResponse);
@@ -553,7 +562,7 @@ void main() {
           verify(
             mockClient.post(
               expectedUrl,
-              headers: {'Accept': 'image/png'},
+              headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
               body: zpl,
             ),
           ).called(1);
@@ -589,7 +598,7 @@ void main() {
           when(
             mockClient.post(
               expectedUrl,
-              headers: {'Accept': expectedHeader},
+              headers: {'Accept': expectedHeader, 'Content-Type': 'application/x-www-form-urlencoded'},
               body: zpl,
             ),
           ).thenAnswer((_) async => mockResponse);
@@ -605,7 +614,7 @@ void main() {
           verify(
             mockClient.post(
               expectedUrl,
-              headers: {'Accept': expectedHeader},
+              headers: {'Accept': expectedHeader, 'Content-Type': 'application/x-www-form-urlencoded'},
               body: zpl,
             ),
           ).called(1);

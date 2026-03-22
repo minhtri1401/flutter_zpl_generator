@@ -33,7 +33,15 @@ enum ZplBarcodeType {
 
   /// QR Code (2D barcode)
   qrCode,
-  // More types can be added as needed
+
+  /// Data Matrix (2D barcode) - ^BX
+  dataMatrix,
+
+  /// EAN-13 Barcode - ^BE
+  ean13,
+
+  /// UPC-A Barcode - ^BU
+  upcA,
 }
 
 /// Enum for different print modes.

@@ -5,6 +5,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-03-22
+
+The "Library Finalization & Layout Redux" Release.
+
+### Added
+- **12-Unit Grid Layout Engine**: Overhauled horizontal layouts by introducing `ZplGridRow` and `ZplGridCol` for robust proportional layouts and offsets without requiring string hacks.
+- **Graphic Shapes**: Added `ZplGraphicCircle` (`^GC`), `ZplGraphicEllipse` (`^GE`), and `ZplGraphicDiagonalLine` (`^GD`).
+- **Raw Escape Hatch**: Added `ZplRaw` command allowing developers to inject arbitrary raw ZPL string segments cleanly into the hierarchy.
+- **Advanced Barcode Formats**: Upgraded `ZplBarcodeType` with native support for `DataMatrix` (`^BX`), European Article Number `ean13` (`^BE`), and Universal Product Code `upcA` (`^BU`).
+- **Reverse Colors**: Added `reversePrint` parameter to display standard white-on-black inverse patterns (`^FR`) in `ZplText` and `ZplBox`.
+- **Inline Graphics**: Added `ZplInlineImage` to embed pure Graphic Fields (`^GF`) straight into the label to prevent printer memory saturation.
+
+### Changed
+- **BREAKING**: `ZplConfiguration` is no longer passed as a fake object inside the `commands` array. It is now passed directly as a root parameter to the generator: `ZplGenerator(config: ..., commands: [...])`. 
+- **ZplPreview Reactivity**: `ZplPreview` widget is now fully reactive and correctly implements Flutter's `didUpdateWidget()`, automatically rerendering images optimally when configurations or properties change.
+- **Networking Compliance**: `LabelaryService` REST network calls were updated to enforce proper `Content-Type` headers ensuring better proxy network pass-throughs.
+- Internal layout rendering logic entirely rewritten. `toZpl()` now takes a `ZplConfiguration context`, enforcing parent bound limits like `maxWidth` implicitly down through children layers.
+
+### Removed
+- **BREAKING**: Completely deleted the outdated and brittle `ZplRow` component. Use the superior mathematically driven `ZplGridRow` instead.
+
 ## [1.0.0] - 2024-03-15
 
 ### Added

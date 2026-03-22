@@ -1,4 +1,5 @@
 import 'zpl_command_base.dart';
+import 'zpl_column.dart';
 import 'zpl_grid_col.dart';
 import 'zpl_configuration.dart';
 import 'zpl_text.dart';
@@ -168,6 +169,17 @@ class ZplGridRow extends ZplCommand {
       );
     }
 
+    if (child is ZplColumn) {
+      return ZplColumn(
+        x: newX,
+        y: newY,
+        children: child.children,
+        spacing: child.spacing,
+        alignment: child.alignment,
+        maxWidth: availableWidth,
+      );
+    }
+
     return child;
   }
 
@@ -202,6 +214,13 @@ class ZplGridRow extends ZplCommand {
       }
     }
     if (child is ZplSeparator) return child.calculateHeight(config);
+    if (child is ZplColumn) {
+      int totalHeight = 0;
+      for (final grandChild in child.children) {
+        totalHeight += _calculateChildHeight(grandChild, config) + child.spacing;
+      }
+      return totalHeight > 0 ? totalHeight - child.spacing : 0;
+    }
     return 20;
   }
 }

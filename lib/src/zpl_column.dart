@@ -16,12 +16,17 @@ class ZplColumn extends ZplCommand {
   final int spacing;
   final ZplAlignment alignment;
 
+  /// Maximum width constraint (set by layout containers like ZplGridRow).
+  /// When set, children use this width instead of the full label width.
+  final int? maxWidth;
+
   ZplColumn({
     this.x = 0,
     this.y = 0,
     required this.children,
     this.spacing = 10,
     this.alignment = ZplAlignment.left,
+    this.maxWidth,
   }) {
     for (final child in children) {
       if (child is ZplColumn) {
@@ -70,7 +75,7 @@ class ZplColumn extends ZplCommand {
     int newY,
     ZplConfiguration context,
   ) {
-    final columnWidth = context.printWidth ?? 406;
+    final columnWidth = maxWidth ?? context.printWidth ?? 406;
 
     if (child is ZplText) {
       final childAlignment = child.alignment ?? alignment;

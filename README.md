@@ -1,204 +1,249 @@
 # Flutter ZPL Generator
 
-A comprehensive Flutter package for generating ZPL (Zebra Programming Language) labels with **industry-first TTF font conversion** and **automatic image-to-ZPL conversion** capabilities.
+A comprehensive Flutter package for generating ZPL (Zebra Programming Language) labels with **industry-first TTF font conversion**, **automatic image-to-ZPL conversion** capabilities, and a mathematically robust **12-column grid layout engine**.
 
 [![pub package](https://img.shields.io/pub/v/flutter_zpl_generator.svg)](https://pub.dev/packages/flutter_zpl_generator)
 [![popularity](https://img.shields.io/pub/popularity/flutter_zpl_generator?logo=dart)](https://pub.dev/packages/flutter_zpl_generator/score)
 [![likes](https://img.shields.io/pub/likes/flutter_zpl_generator?logo=dart)](https://pub.dev/packages/flutter_zpl_generator/score)
-[![pub points](https://img.shields.io/pub/points/flutter_zpl_generator?logo=dart)](https://pub.dev/packages/flutter_zpl_generator/score)
+
+## 📸 Component Demos & Previews
+
+The library boasts an unparalleled set of components, beautifully simulated inside Flutter using the `ZplPreview` widget via the Labelary REST API:
+
+| Text & Fonts | Barcodes & Data Matrix |
+| :---: | :---: |
+| <img src="images/text_demo.png" height="300" /> | <img src="images/barcodes_demo.png" height="300" /> |
+| **Graphics & Shapes** | **Responsive 12-Unit Grid Layout** |
+| <img src="images/graphics_demo.png" height="300" /> | <img src="images/layouts_demo.png" height="300" /> |
+
 
 ## 🌟 **What Makes This Package Special**
 
-### 🔤 **TTF to ZPL Font Conversion** (First in Flutter!)
-- Convert any TrueType font to ZPL format
-- Upload custom fonts directly to your Zebra printer's memory
-- Use your brand fonts in labels for perfect consistency
-- No more limitations to basic printer fonts
+### 📐 Robust Native Layout Architecture
+- **`ZplGridRow` & `ZplGridCol`**: Build complex receipt layouts utilizing a proportional 12-unit grid container with offset spacing capabilities instead of brittle raw `^FO` (Field Origin) numbers.
+- **Natural Configuration Flow**: `ZplConfiguration` propagates correctly down to children natively, accurately calculating `ZplAlignment.right` or `ZplAlignment.center` based on `printWidth`.
 
-### 📸 **Automatic Image to ZPL Graphics**
-- Convert PNG, JPEG, GIF images to ZPL graphics
-- Automatic dithering and optimization for thermal printing
-- Embed company logos, photos, and graphics directly in labels
-- Memory-efficient printer storage options
+### 🔤 **TTF to ZPL Font Conversion** (First in Flutter!)
+- Convert any TrueType font to ZPL format and upload custom fonts directly to your Zebra printer's memory.
+- Use your brand fonts in labels for perfect consistency!
+- No more limitations to basic printer fonts.
+
+### 💯 **Unrivaled ZPL Component Coverage**
+- Included shapes: `ZplBox`, `ZplGraphicCircle` (^GC), `ZplGraphicEllipse` (^GE), `ZplGraphicDiagonalLine` (^GD).
+- **Reverse Print Support (^FR)**: Easily achieve stunning white-on-black UI elements utilizing `reversePrint: true`.
+- Native Support for **DataMatrix (^BX)**, EAN-13 (^BE), UPC-A (^BU), Code 128 (^BC), Code 39 (^B3), and QR Codes (^BQ).
+- **`ZplRaw` Support**: An escape hatch that lets you cleanly inject highly specific/legacy raw strings (e.g., `^MD` darkness or RFID triggers).
+- **ZplInlineImage**: Support for parsing PNG/JPEGs into inline `^GF` (Graphics Fields), avoiding printer-memory leak issues.
 
 ### 🖼️ **Live Flutter Preview**
-- See exactly how your labels will print
-- Real-time preview as you build
-- No need for physical printer during development
+- The `ZplPreview` widget hooks up directly to Labelary endpoints recursively respecting the `generator` state for immediate real-time feedback visually in Flutter while you code.
 
-### ⚡ **Quick Example: Custom Font Label**
+---
 
-```dart
-// 1. Convert your TTF font to ZPL
-final fontBytes = await loadFont('assets/fonts/Roboto-Bold.ttf');
-final zplFont = await LabelaryService.convertFontToZpl(fontBytes, 'Roboto-Bold.ttf', name: 'R');
-
-// 2. Use it in your label with live preview
-final commands = [
-  ZplFontAsset(alias: 'R', fileName: 'ROBOTO.TTF', fontData: fontBytes),
-  const ZplText(x: 20, y: 20, text: 'Beautiful Custom Font!', fontAlias: 'R', fontHeight: 30),
-  const ZplBarcode(x: 20, y: 70, data: '12345', height: 50),
-];
-
-// 3. See it live in Flutter
-Widget build(context) => ZplPreview(generator: ZplGenerator(commands));
-```
-
-## Features
-
-- 🏷️ **Complete ZPL Support**: Text, barcodes, images, boxes, and layout components
-- 🖼️ **Live Preview**: Built-in `ZplPreview` widget for real-time label visualization
-- 🌐 **Labelary Integration**: Full API support with advanced features (rotation, PDF options, linting)
-- 🔤 **🌟 TTF Font Conversion**: Convert TrueType fonts to ZPL and use them directly on your printer
-- 📸 **🌟 Image to ZPL Conversion**: Automatically convert images (PNG, JPEG) to ZPL graphics
-- 📱 **Cross-Platform**: Works on iOS, Android, Web, macOS, Windows, and Linux
-- 🎯 **Type-Safe**: Strongly typed ZPL command generation
-- 🔧 **Flexible**: Extensive customization options for all label elements
-- ⚡ **Performance**: Optimized for efficient label generation and rendering
-
-## Installation
-
-Add this to your package's `pubspec.yaml` file:
-
-```yaml
-dependencies:
-  flutter_zpl_generator: ^1.0.0
-```
-
-Then run:
-
-```bash
-flutter pub get
-```
-
-## Quick Start
+## 🚀 Quick Start
 
 ### Basic Label Generation
 
 ```dart
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 
-// Create ZPL commands
-final commands = [
-  const ZplConfiguration(
+// Create ZPL commands and pass the configuration natively
+final generator = ZplGenerator(
+  config: const ZplConfiguration(
     printWidth: 406, // 2 inches at 203 DPI
     labelLength: 203, // 1 inch at 203 DPI
-    printDensity: ZplPrintDensity.d8,
+    printDensity: ZplPrintDensity.d8, // 8 dpmm / 203 DPI
   ),
-  const ZplText(x: 20, y: 20, text: 'Hello World!'),
-  const ZplBarcode(x: 20, y: 60, height: 50, data: '12345'),
-];
+  commands: [
+    // Simple text handling
+    ZplText(x: 20, y: 20, text: 'Hello World!'),
+    
+    // Barcode Support
+    ZplBarcode(
+      x: 20, y: 60, 
+      height: 50, 
+      data: '12345',
+      type: ZplBarcodeType.code128,
+      printInterpretationLine: true,
+    ),
+  ],
+);
 
-// Generate ZPL string
-final generator = ZplGenerator(commands);
-final zplString = generator.build();
+// Generate ZPL string 
+// (Async required if parsing external images or TTF fonts!)
+final zplString = await generator.build();
 print(zplString);
 // Output: ^XA^LL203^PR8^JMB^FO20,20^A0N,,...^XZ
 ```
 
-### Live Preview Widget
+---
+
+## 🏗️ Core Layout Components
+
+A massive advantage over writing raw strings is abstracting raw X/Y origins via container-based bounds checks.
+
+### The 12-Unit Grid (`ZplGridRow`)
+Create responsive horizontal layouts easily without manually calculating X-offsets.
+```dart
+ZplGridRow(
+  y: 355,
+  children: [
+    ZplGridCol(
+      width: 6, // 50% width bounds
+      offset: 0,
+      child: ZplText(text: 'LEFT COLUMN', alignment: ZplAlignment.left),
+    ),
+    ZplGridCol(
+      width: 6, // 50% width bounds
+      child: ZplText(text: 'RIGHT COLUMN', alignment: ZplAlignment.right),
+    ),
+  ],
+)
+```
+
+### Advanced Tabular Data (`ZplTable`)
+```dart
+ZplTable(
+  y: 780,
+  columnWidths: [5, 2, 2, 3], // The 12-unit layout
+  borderThickness: 2,
+  cellPadding: 6,
+  headers: [
+    ZplTableHeader('Product', alignment: ZplAlignment.left),
+    ZplTableHeader('Qty', alignment: ZplAlignment.center),
+    ZplTableHeader('Price', alignment: ZplAlignment.right),
+  ],
+  data: [
+    ['Widget Pro', '2', '\$15.00'],
+    ['Gadget XL', '1', '\$42.50'],
+  ],
+)
+```
+
+### Graphic Shapes & Escapes
+```dart
+// Shapes
+ZplGraphicCircle(x: 20, y: 310, diameter: 100, borderThickness: 2)
+ZplGraphicEllipse(x: 260, y: 485, width: 80, height: 100, borderThickness: 2)
+
+// Diagonal Lines
+ZplGraphicDiagonalLine(
+  x: 20, y: 665,
+  width: 150, height: 120,
+  borderThickness: 3, orientation: 'R', // Or 'L'
+)
+
+// Inverted Reverse Print (White Text, Black box)
+ZplBox(x: 20, y: 620, width: 772, height: 50, borderThickness: 50)
+ZplText(
+  x: 20, y: 630,
+  text: 'WHITE ON BLACK',
+  reversePrint: true, // Output ^FR
+)
+
+// The Raw Escape Hatch
+ZplRaw(command: '^FO20,880^A0N,24,20^FDInject anything directly!^FS')
+```
+
+---
+
+## 🧾 Complete Use-Case: Complex Retail Receipt
+
+Combine the 12-Unit Grid, Tables, and Barcodes to generate a fully formatted receipt effortlessly.
+
+<img src="images/receipt_demo.png" height="500" />
 
 ```dart
-import 'package:flutter/material.dart';
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 
-class LabelPreviewScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final commands = [
-      const ZplConfiguration(
-        printWidth: 406,
-        labelLength: 203,
-        printDensity: ZplPrintDensity.d8,
-      ),
-      const ZplText(x: 20, y: 20, text: 'Product Label'),
-      const ZplBarcode(x: 20, y: 60, height: 50, data: '123456789'),
-    ];
-    
-    final generator = ZplGenerator(commands);
+final generator = ZplGenerator(
+  config: const ZplConfiguration(
+    printWidth: 576, // 203 DPI standard receipt
+    labelLength: 1200,
+    printDensity: ZplPrintDensity.d8,
+  ),
+  commands: [
+    // Header
+    ZplText(x: 0, y: 30, text: 'RECEIPT', fontHeight: 50, fontWidth: 45),
+    ZplText(x: 0, y: 100, text: 'Receipt number: 117 - 44332'),
+    ZplText(x: 0, y: 130, text: 'Date of purchase: December 8, 2023'),
 
-    return Scaffold(
-      appBar: AppBar(title: Text('Label Preview')),
-      body: Center(
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
+    // Company & Bill To (Side-by-side using 12-unit Grid system)
+    ZplGridRow(
+      y: 200,
+      children: [
+        ZplGridCol(
+          width: 6, // 50% width
+          child: ZplColumn(
+            children: [
+              ZplText(text: 'Big Machinery, LLC', fontHeight: 25, fontWidth: 22),
+              ZplText(text: '3345, Diamond St, Orange City, ST 9987', fontHeight: 18, fontWidth: 16),
+            ],
           ),
-          child: ZplPreview(generator: generator),
         ),
-      ),
-    );
-  }
-}
-```
+        ZplGridCol(
+          width: 6, // 50% width
+          child: ZplColumn(
+            children: [
+              ZplText(text: 'Bill To', fontHeight: 25, fontWidth: 22),
+              ZplText(text: 'Doe John', fontHeight: 18, fontWidth: 16),
+            ],
+          ),
+        ),
+      ],
+    ),
 
-## Core Components
+    // Items table
+    ZplTable(
+      y: 360,
+      columnWidths: [6, 2, 2, 2], // 12-column grid mapping
+      borderThickness: 2,
+      cellPadding: 6,
+      headers: [
+        ZplTableHeader('Item', alignment: ZplAlignment.left, fontHeight: 22, fontWidth: 20),
+        ZplTableHeader('Qty', alignment: ZplAlignment.center, fontHeight: 22, fontWidth: 20),
+        ZplTableHeader('Unit', alignment: ZplAlignment.center, fontHeight: 22, fontWidth: 20),
+        ZplTableHeader('Total', alignment: ZplAlignment.center, fontHeight: 22, fontWidth: 20),
+      ],
+      data: [
+        ['Fuel Plastic Jug (10 gal)', '01', '\$34.00', '\$34.00'],
+        ['Gas Hose (5 feet)', '01', '\$15.00', '\$15.00'],
+        ['Aluminum Screw (4 in)', '100', '\$0.87', '\$87.00'],
+      ],
+      dataFontHeight: 18,
+      dataFontWidth: 16,
+    ),
 
-### ZPL Commands
+    // Totals
+    ZplText(x: 50, y: 580, text: 'Subtotal: \$136.00', fontHeight: 22, fontWidth: 20),
+    ZplText(x: 50, y: 650, text: 'Tax (12%): \$16.32', fontHeight: 20, fontWidth: 18),
+    ZplSeparator(y: 685, thickness: 2, paddingLeft: 50, paddingRight: 50),
+    ZplText(x: 50, y: 710, text: 'Total: \$152.32', fontHeight: 26, fontWidth: 24),
 
-| Component | Description | Example |
-|-----------|-------------|---------|
-| `ZplConfiguration` | Label setup (size, density, orientation) | `ZplConfiguration(printWidth: 406, labelLength: 203)` |
-| `ZplText` | Text rendering with fonts and formatting | `ZplText(x: 10, y: 10, text: 'Hello')` |
-| `ZplBarcode` | Various barcode types (Code128, QR, etc.) | `ZplBarcode(x: 10, y: 50, data: '12345')` |
-| `ZplImage` | Image embedding and positioning | `ZplImage(x: 10, y: 10, imageData: bytes)` |
-| `ZplBox` | Rectangles and borders | `ZplBox(x: 5, y: 5, width: 100, height: 50)` |
-
-### Layout Components
-
-```dart
-// Horizontal layout
-ZplRow(
-  x: 10, y: 20,
-  spacing: 50,
-  children: [
-    ZplText(text: 'Col 1'),
-    ZplText(text: 'Col 2'),
+    // Footer with QR code
+    ZplSeparator(y: 760, thickness: 1),
+    ZplText(x: 0, y: 785, text: 'Scan for digital receipt:', alignment: ZplAlignment.center),
+    ZplBarcode(
+      x: 0, y: 815,
+      data: 'https://receipt.example.com/117-44332',
+      type: ZplBarcodeType.qrCode,
+      height: 120,
+      alignment: ZplAlignment.center,
+    ),
   ],
-)
-
-// Vertical layout
-ZplColumn(
-  x: 10, y: 20,
-  spacing: 30,
-  children: [
-    ZplText(text: 'Row 1'),
-    ZplText(text: 'Row 2'),
-  ],
-)
-```
-
-## Advanced Features
-
-### Labelary API Integration
-
-```dart
-// Basic rendering
-final response = await LabelaryService.renderZpl(zplString);
-final imageBytes = response.data;
-
-// Advanced rendering with options
-final response = await LabelaryService.renderZpl(
-  zplString,
-  outputFormat: LabelaryOutputFormat.pdf,
-  rotation: LabelaryRotation.rotate90,
-  pageSize: LabelaryPageSize.a4,
-  enableLinting: true,
 );
 
-// Check for warnings
-if (response.warnings.isNotEmpty) {
-  for (final warning in response.warnings) {
-    print('Warning: ${warning.message}');
-  }
-}
+final zpl = await generator.build();
+print(zpl);
 ```
 
-## 🌟 **Unique Features: TTF Font & Image Conversion**
+---
+
+## 🌟 TTF Font & Image Conversion
 
 ### Import Custom Fonts to Your Printer
 
-One of the standout features of this package is the ability to **convert TrueType fonts (TTF) to ZPL format** and upload them directly to your Zebra printer's memory. This allows you to use custom fonts in your labels without relying on the printer's built-in fonts.
+Convert TrueType fonts (TTF) to ZPL format and upload them directly to your Zebra printer's RAM.
 
 #### Step 1: Convert TTF Font to ZPL
 
@@ -215,459 +260,82 @@ final zplFontData = await LabelaryService.convertFontToZpl(
   fontBytes,
   'Roboto-Regular.ttf',
   name: 'R', // Single letter alias for the font
-  fontSize: 12, // Optional: specify font size
 );
-
-print('ZPL Font Data: $zplFontData');
-// This outputs ZPL commands that upload the font to printer memory
+// Sends output to printer memory: ~DU...
 ```
 
 #### Step 2: Use the Font Asset in Your Labels
 
 ```dart
-// Method 1: Use ZplFontAsset to include font in your label
-final commands = [
-  ZplFontAsset(
-    alias: 'R',
-    fileName: 'ROBOTO.TTF',
-    fontData: fontBytes,
-  ),
-  const ZplText(
-    x: 50, y: 100,
-    text: 'Custom Font Text!',
-    fontAlias: 'R', // Use your custom font
-    fontHeight: 25,
-  ),
-];
+final generator = ZplGenerator(
+  config: ZplConfiguration(printWidth: 406, labelLength: 609),
+  commands: [
+    ZplFontAsset(
+      alias: 'R',
+      fileName: 'ROBOTO.TTF',
+      fontData: fontBytes,
+    ),
+    const ZplText(
+      x: 50, y: 100,
+      text: 'Custom Font Text!',
+      fontAlias: 'R', // Use your custom font
+      fontHeight: 25,
+    ),
+  ]
+);
 
-// Method 2: Send font to printer first, then use in any label
-// Send the ZPL font data to your printer once:
-await sendToPrinter(zplFontData); // Your printer communication code
-
-// Then use the font in any subsequent labels:
-final quickLabel = ZplGenerator([
-  const ZplText(
-    x: 20, y: 20,
-    text: 'Using uploaded font!',
-    fontAlias: 'R', // References the font already in printer memory
-    fontHeight: 30,
-  ),
-]);
-```
-
-#### Real-World Font Usage Example
-
-```dart
-class CustomFontLabel extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder<Uint8List>(
-      future: loadFontFromAssets('fonts/YourCustomFont.ttf'),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return CircularProgressIndicator();
-        
-        final fontBytes = snapshot.data!;
-        final commands = [
-          const ZplConfiguration(printWidth: 406, labelLength: 609),
-          
-          // Upload custom font to printer
-          ZplFontAsset(
-            alias: 'C',
-            fileName: 'CUSTOM.TTF',
-            fontData: fontBytes,
-          ),
-          
-          // Use the custom font
-          const ZplText(
-            x: 30, y: 50,
-            text: 'Beautiful Custom Typography',
-            fontAlias: 'C',
-            fontHeight: 35,
-          ),
-          
-          // Mix with standard fonts
-          const ZplText(
-            x: 30, y: 100,
-            text: 'Standard font text',
-            font: ZplFont.a,
-            fontHeight: 20,
-          ),
-        ];
-        
-        return ZplPreview(generator: ZplGenerator(commands));
-      },
-    );
-  }
-}
+final zplNetworkString = await generator.build();
 ```
 
 ### Convert Images to ZPL Graphics
 
 Transform any image (PNG, JPEG, GIF) into ZPL graphics that can be embedded directly in your labels:
 
-#### Basic Image Conversion
-
 ```dart
-import 'dart:io';
-
-// Load your image
-final imageFile = File('assets/images/company_logo.png');
-final imageBytes = await imageFile.readAsBytes();
-
 // Convert to ZPL graphics
 final zplGraphics = await LabelaryService.convertImageToGraphic(
   imageBytes,
   'logo.png',
   outputFormat: LabelaryGraphicOutputFormat.zpl,
+  blackThreshold: 128 // Auto-Dithering
 );
-
-print('ZPL Graphics Commands: $zplGraphics');
-// Outputs: ~DG commands that define the image in ZPL
 ```
 
-#### Using Images in Labels
+---
+
+## 📱 Live Preview Details (Labelary Integration)
+
+You can preview the receipt in pseudo-real-time simply by wrapping your `generator` reference mathematically natively.
 
 ```dart
-// Method 1: Direct image embedding
-final commands = [
-  const ZplConfiguration(printWidth: 406, labelLength: 609),
+class LabelPreviewScreen extends StatelessWidget {
   
-  ZplImage(
-    x: 20, y: 20,
-    image: imageBytes,
-    graphicName: 'LOGO.GRF', // Name for the graphic in ZPL
-  ),
-  
-  const ZplText(
-    x: 150, y: 80,
-    text: 'Company Name',
-    fontHeight: 25,
-  ),
-];
+  final generator = ZplGenerator(
+      config: const ZplConfiguration(printWidth: 406, labelLength: 203),
+      commands: [ ... ]
+  );
 
-// Method 2: Pre-convert and store in printer memory
-final graphicCommands = await LabelaryService.convertImageToGraphic(
-  imageBytes,
-  'logo.png',
-  graphicName: 'LOGO',
-);
-
-// Send to printer once for reuse
-await sendToPrinter(graphicCommands);
-
-// Then reference in any label
-final labelWithLogo = ZplGenerator([
-  const ZplConfiguration(printWidth: 406, labelLength: 609),
-  const ZplText(x: 20, y: 20, text: '^XGLOGO.GRF,1,1^FS'), // Reference stored graphic
-]);
-```
-
-#### Advanced Image Features
-
-```dart
-// Convert with specific options
-final zplGraphics = await LabelaryService.convertImageToGraphic(
-  imageBytes,
-  'photo.jpg',
-  outputFormat: LabelaryGraphicOutputFormat.zpl,
-  blackThreshold: 128, // Adjust for better contrast
-  graphicName: 'PHOTO', // Custom name
-);
-
-// Multiple images in one label
-final commands = [
-  const ZplConfiguration(printWidth: 812, labelLength: 1218), // 4x6 inch
-  
-  // Company logo
-  ZplImage(x: 50, y: 50, image: logoBytes, graphicName: 'LOGO.GRF'),
-  
-  // Product photo
-  ZplImage(x: 300, y: 50, image: productBytes, graphicName: 'PRODUCT.GRF'),
-  
-  // QR code (generated separately)
-  ZplImage(x: 600, y: 50, image: qrBytes, graphicName: 'QR.GRF'),
-  
-  const ZplText(x: 50, y: 300, text: 'Product Information', fontHeight: 30),
-];
-```
-
-### Why These Features Matter
-
-1. **🎨 Brand Consistency**: Use your exact corporate fonts and logos
-2. **📱 Modern Design**: No limitations to basic printer fonts
-3. **🏭 Enterprise Ready**: Upload assets once, use everywhere
-4. **💾 Memory Efficient**: Store frequently used graphics in printer memory
-5. **🚀 Performance**: Faster printing when assets are pre-loaded
-6. **🌍 Multi-language**: Support for international fonts and characters
-
-### 🏆 **Industry Advantages**
-
-**No other Flutter ZPL package offers:**
-- ✅ TTF font conversion and printer upload
-- ✅ Automatic image-to-ZPL graphics conversion
-- ✅ Live Flutter preview widget
-- ✅ Complete Labelary API integration with all advanced features
-- ✅ Memory management for printer assets
-- ✅ Enterprise-grade font and image handling
-
-**Perfect for:**
-- 🏢 **Enterprise Applications**: Corporate branding requirements
-- 🏪 **Retail Systems**: Product labels with custom fonts and logos
-- 🏥 **Healthcare**: Patient wristbands with logos and custom formatting
-- 📦 **Logistics**: Shipping labels with company branding
-- 🏭 **Manufacturing**: Asset tags with specialized fonts and graphics
-
-### Printer Memory Management
-
-```dart
-// Check available printer memory (implement with your printer SDK)
-final availableMemory = await checkPrinterMemory();
-
-// Clear old graphics if needed
-if (availableMemory < requiredSpace) {
-  await sendToPrinter('^XA^IDR:*.*^FS^XZ'); // Clear all graphics
-}
-
-// Upload optimized assets
-await sendToPrinter(zplFontData);
-await sendToPrinter(zplGraphicsData);
-```
-
-## Barcode Support
-
-Supports all major barcode formats:
-
-```dart
-// Code 128
-ZplBarcode(
-  x: 10, y: 50,
-  type: ZplBarcodeType.code128,
-  data: 'ABC12345',
-  height: 50,
-)
-
-// QR Code
-ZplBarcode(
-  x: 10, y: 120,
-  type: ZplBarcodeType.qrCode,
-  data: 'https://example.com',
-  height: 100,
-)
-
-// UPC/EAN
-ZplBarcode(
-  x: 10, y: 250,
-  type: ZplBarcodeType.upcA,
-  data: '123456789012',
-  height: 60,
-)
-```
-
-## Complete Example
-
-```dart
-import 'package:flutter/material.dart';
-import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
-
-void main() => runApp(MyApp());
-
-class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'ZPL Generator Demo',
-      home: ProductLabelScreen(),
-    );
-  }
-}
-
-class ProductLabelScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    // Create a product label
-    final commands = [
-      const ZplConfiguration(
-        printWidth: 406, // 2" wide
-        labelLength: 609, // 3" tall
-        printDensity: ZplPrintDensity.d8, // 203 DPI
-      ),
-      
-      // Title
-      const ZplText(
-        x: 20, y: 20,
-        text: 'PRODUCT LABEL',
-        fontHeight: 25,
-        fontWidth: 15,
-      ),
-      
-      // Border
-      const ZplBox(
-        x: 10, y: 10,
-        width: 386, height: 589,
-        thickness: 3,
-      ),
-      
-      // Product info in columns
-      ZplColumn(
-        x: 30, y: 60,
-        spacing: 25,
-        children: [
-          ZplRow(
-            spacing: 100,
-            children: [
-              const ZplText(text: 'SKU:', fontWeight: FontWeight.bold),
-              const ZplText(text: 'ABC-12345'),
-            ],
-          ),
-          ZplRow(
-            spacing: 100,
-            children: [
-              const ZplText(text: 'Price:', fontWeight: FontWeight.bold),
-              const ZplText(text: '\$29.99'),
-            ],
-          ),
-        ],
-      ),
-      
-      // Barcode
-      const ZplBarcode(
-        x: 50, y: 200,
-        type: ZplBarcodeType.code128,
-        data: 'ABC12345',
-        height: 80,
-        showText: true,
-      ),
-    ];
-
-    final generator = ZplGenerator(commands);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Product Label'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.print),
-            onPressed: () async {
-              // Generate and render label
-              final response = await LabelaryService.renderFromGenerator(
-                generator,
-                outputFormat: LabelaryOutputFormat.pdf,
-              );
-              
-              // Handle the rendered label (save, print, etc.)
-              print('Label generated: ${response.data.length} bytes');
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Live preview
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: EdgeInsets.all(16),
-              child: ZplPreview(generator: generator),
-            ),
-            
-            SizedBox(height: 20),
-            
-            // Generated ZPL
-            Expanded(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(16),
-                child: Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    generator.build(),
-                    style: TextStyle(
-                      fontFamily: 'monospace',
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return ZplPreview(
+      generator: generator, // Hot-reloads on Widget Rebuild automatically!
     );
   }
 }
 ```
 
-## Testing Labels
+If you prefer to hit the REST API directly for PDFs or native assets:
+```dart
+final response = await LabelaryService.renderFromGenerator(
+  generator,
+  outputFormat: LabelaryOutputFormat.pdf,
+);
 
-You can test your generated ZPL using:
-
-1. **Online Labelary Viewer**: http://labelary.com/viewer.html
-2. **Our ZplPreview widget** (recommended for Flutter apps)
-3. **Physical Zebra printer**
-4. **Labelary API directly**:
-
-```bash
-curl -X POST \
-  'https://api.labelary.com/v1/printers/8dpmm/labels/4x6/0/' \
-  -H 'Accept: image/png' \
-  -d '^XA^FO20,20^A0N,25,25^FDHello World^FS^XZ'
+// Write bytes to disk
+await File('label.pdf').writeAsBytes(response.data);
 ```
-
-## API Reference
-
-### Core Classes
-
-- **`ZplGenerator`**: Main class for building ZPL strings
-- **`ZplConfiguration`**: Label setup and printer configuration
-- **`ZplText`**: Text rendering with fonts and formatting
-- **`ZplBarcode`**: Barcode generation (Code128, QR, UPC, etc.)
-- **`ZplImage`**: Image embedding and positioning
-- **`ZplBox`**: Rectangle and border drawing
-- **`ZplRow`/`ZplColumn`**: Layout helpers
-
-### Services
-
-- **`LabelaryService`**: API integration for rendering and conversion
-- **`ZplPreview`**: Flutter widget for live preview
-
-### Enums
-
-- **`ZplPrintDensity`**: Printer resolution (6, 8, 12, 24 DPI)
-- **`ZplBarcodeType`**: Supported barcode formats
-- **`LabelaryOutputFormat`**: Output formats (PNG, PDF, EPL, etc.)
-
-For complete API documentation, see the [API reference](https://pub.dev/documentation/flutter_zpl_generator/).
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Support
-
-- 📖 [Documentation](https://pub.dev/documentation/flutter_zpl_generator/)
-- 🐛 [Issue Tracker](https://github.com/yourusername/flutter_zpl_generator/issues)
-- 💬 [Discussions](https://github.com/yourusername/flutter_zpl_generator/discussions)
 
 ## Related Projects
-
 - [Labelary API](https://labelary.com/) - Online ZPL viewer and API
 - [ZPL Programming Guide](https://www.zebra.com/us/en/support-downloads/knowledge-articles/ait/zpl-programming-guide.html)
 - [Zebra Printers](https://www.zebra.com/us/en/products/printers.html)

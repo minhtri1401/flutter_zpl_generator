@@ -30,7 +30,9 @@ class _ZplPreviewState extends State<ZplPreview> {
     super.didUpdateWidget(oldWidget);
     if (widget.generator != oldWidget.generator) {
       setState(() {
-        _renderFuture = LabelaryService.renderFromGeneratorSimple(widget.generator);
+        _renderFuture = LabelaryService.renderFromGeneratorSimple(
+          widget.generator,
+        );
       });
     }
   }

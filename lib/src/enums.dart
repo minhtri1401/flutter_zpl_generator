@@ -166,3 +166,28 @@ enum ZplSeparatorType {
   /// Use repeated characters for decorative lines
   character,
 }
+
+/// RFID Operation types for the ^RF command.
+enum RfidOperation {
+  write,
+  writeWithLock,
+  read,
+  readPassword,
+  specifyPassword,
+  encode,
+}
+
+/// RFID Data Formats for the ^RF command.
+enum RfidDataFormat {
+  ascii,
+  hex,
+  epc,
+}
+
+/// RFID Memory Banks for Gen 2 tags via the ^RF command.
+enum RfidMemoryBank {
+  reserved,
+  epc,
+  tid,
+  user,
+}

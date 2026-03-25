@@ -15,9 +15,7 @@ void main() {
 
     setUp(() {
       mockClient = MockClient();
-      provideDummy<http.ByteStream>(
-        http.ByteStream.fromBytes([]),
-      );
+      provideDummy<http.ByteStream>(http.ByteStream.fromBytes([]));
     });
 
     group('renderZpl', () {
@@ -43,7 +41,10 @@ void main() {
         when(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
+            headers: {
+              'Accept': 'image/png',
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
             body: zpl,
           ),
         ).thenAnswer((_) async => mockResponse);
@@ -59,7 +60,10 @@ void main() {
         verify(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
+            headers: {
+              'Accept': 'image/png',
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
             body: zpl,
           ),
         ).called(1);
@@ -97,7 +101,10 @@ void main() {
         when(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'application/pdf', 'Content-Type': 'application/x-www-form-urlencoded'},
+            headers: {
+              'Accept': 'application/pdf',
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
             body: zpl,
           ),
         ).thenAnswer((_) async => mockResponse);
@@ -117,7 +124,10 @@ void main() {
         verify(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'application/pdf', 'Content-Type': 'application/x-www-form-urlencoded'},
+            headers: {
+              'Accept': 'application/pdf',
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
             body: zpl,
           ),
         ).called(1);
@@ -165,7 +175,10 @@ void main() {
         when(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
+            headers: {
+              'Accept': 'image/png',
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
             body: zpl,
           ),
         ).thenAnswer((_) async => mockResponse);
@@ -182,7 +195,10 @@ void main() {
         verify(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
+            headers: {
+              'Accept': 'image/png',
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
             body: zpl,
           ),
         ).called(1);
@@ -205,7 +221,10 @@ void main() {
         when(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
+            headers: {
+              'Accept': 'image/png',
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
             body: zpl,
           ),
         ).thenAnswer((_) async => mockResponse);
@@ -247,7 +266,10 @@ void main() {
         when(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
+            headers: {
+              'Accept': 'image/png',
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
             body: expectedZpl,
           ),
         ).thenAnswer((_) async => mockResponse);
@@ -263,7 +285,10 @@ void main() {
         verify(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
+            headers: {
+              'Accept': 'image/png',
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
             body: expectedZpl,
           ),
         ).called(1);
@@ -285,7 +310,10 @@ void main() {
         when(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
+            headers: {
+              'Accept': 'image/png',
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
             body: expectedZpl,
           ),
         ).thenAnswer((_) async => mockResponse);
@@ -322,7 +350,10 @@ void main() {
         when(
           mockClient.post(
             expectedUrl,
-            headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
+            headers: {
+              'Accept': 'image/png',
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
             body: expectedZpl,
           ),
         ).thenAnswer((_) async => mockResponse);
@@ -412,7 +443,11 @@ void main() {
 
         // Act & Assert
         expect(
-          () => LabelaryService.convertImageToGraphic(imageData, fileName, client: mockClient),
+          () => LabelaryService.convertImageToGraphic(
+            imageData,
+            fileName,
+            client: mockClient,
+          ),
           throwsA(
             isA<Exception>().having(
               (e) => e.toString(),
@@ -509,7 +544,11 @@ void main() {
 
         // Act & Assert
         expect(
-          () => LabelaryService.convertFontToZpl(fontData, fileName, client: mockClient),
+          () => LabelaryService.convertFontToZpl(
+            fontData,
+            fileName,
+            client: mockClient,
+          ),
           throwsA(
             isA<Exception>().having(
               (e) => e.toString(),
@@ -546,7 +585,10 @@ void main() {
           when(
             mockClient.post(
               expectedUrl,
-              headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
+              headers: {
+                'Accept': 'image/png',
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
               body: zpl,
             ),
           ).thenAnswer((_) async => mockResponse);
@@ -562,7 +604,10 @@ void main() {
           verify(
             mockClient.post(
               expectedUrl,
-              headers: {'Accept': 'image/png', 'Content-Type': 'application/x-www-form-urlencoded'},
+              headers: {
+                'Accept': 'image/png',
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
               body: zpl,
             ),
           ).called(1);
@@ -598,7 +643,10 @@ void main() {
           when(
             mockClient.post(
               expectedUrl,
-              headers: {'Accept': expectedHeader, 'Content-Type': 'application/x-www-form-urlencoded'},
+              headers: {
+                'Accept': expectedHeader,
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
               body: zpl,
             ),
           ).thenAnswer((_) async => mockResponse);
@@ -614,7 +662,10 @@ void main() {
           verify(
             mockClient.post(
               expectedUrl,
-              headers: {'Accept': expectedHeader, 'Content-Type': 'application/x-www-form-urlencoded'},
+              headers: {
+                'Accept': expectedHeader,
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
               body: zpl,
             ),
           ).called(1);

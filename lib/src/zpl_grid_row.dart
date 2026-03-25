@@ -154,6 +154,9 @@ class ZplGridRow extends ZplCommand {
         y: newY,
         image: child.image,
         graphicName: child.graphicName,
+        targetWidth: child.targetWidth,
+        targetHeight: child.targetHeight,
+        maintainAspect: child.maintainAspect,
       );
     }
 
@@ -217,7 +220,8 @@ class ZplGridRow extends ZplCommand {
     if (child is ZplColumn) {
       int totalHeight = 0;
       for (final grandChild in child.children) {
-        totalHeight += _calculateChildHeight(grandChild, config) + child.spacing;
+        totalHeight +=
+            _calculateChildHeight(grandChild, config) + child.spacing;
       }
       return totalHeight > 0 ? totalHeight - child.spacing : 0;
     }

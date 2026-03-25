@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-03-26
+
+The "Enterprise RFID & Smart Imaging" Release.
+
+### Added
+- **Enterprise RFID Tag Encoding**: New `ZplRfidSetup` (`^RS`) and `ZplRfidWrite` (`^RF`) commands for simultaneous print-and-encode workflows on Zebra RFID printers (e.g., ZT411 RFID).
+  - Supports all Gen 2 memory banks: Reserved, EPC, TID, User.
+  - Full operation set: Write, Write with Lock, Read, Read Password, Specify Password, Encode.
+  - Data formats: ASCII, Hexadecimal, EPC.
+  - Runtime `ArgumentError` validation for hex payloads to prevent silent printer failures.
+- **Advanced Image Dithering**: `ZplImage` now supports `ZplDitheringAlgorithm` with three modes:
+  - `floydSteinberg` (new default) — smooth error diffusion for natural-looking gradients.
+  - `atkinson` — high contrast dot patterns with a vintage newspaper print aesthetic.
+  - `threshold` — legacy hard black/white clipping behavior.
+- **Templating & Data Binding Engine**: New `ZplTemplate` class for high-performance mass-label generation.
+  - Define layouts with `{{variable}}` placeholders in any `ZplText`, `ZplBarcode`, etc.
+  - `init()` pre-compiles the layout once (fonts, images, grid math).
+  - `bindSync()` enables zero-overhead synchronous label stamping in tight loops.
+
+### Changed
+- Default image dithering algorithm changed from `threshold` to `floydSteinberg` for significantly better print quality out of the box.
+
 ## [1.1.1] - 2026-03-22
 
 ### Fixed

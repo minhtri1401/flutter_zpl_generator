@@ -113,7 +113,9 @@ class ZplBarcode extends ZplCommand {
         final orientationCode = _getOrientationCode();
         final printLine = printInterpretationLine ? 'Y' : 'N';
         final printLineAbove = printInterpretationLineAbove ? 'Y' : 'N';
-        sb.writeln('^BC$orientationCode,$height,$printLine,$printLineAbove,N,A');
+        sb.writeln(
+          '^BC$orientationCode,$height,$printLine,$printLineAbove,N,A',
+        );
         sb.writeln('^FD$data^FS');
         break;
 

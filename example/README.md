@@ -38,6 +38,32 @@ Check out these files for more advanced usage:
 - `zpl_generation_demo.dart` - Command-line ZPL generation examples
 - `postman_api_examples.dart` - Direct API usage examples
 
+### Image Dithering Modes
+You can test the three different image dithering algorithms in the **Images** tab. Here is how you use each mode natively:
+
+```dart
+// 1. Floyd-Steinberg (Default) - Smoothly disperses dots for natural gradients
+ZplImage(
+  x: 20, y: 20,
+  image: myImageBytes,
+  ditheringAlgorithm: ZplDitheringAlgorithm.floydSteinberg,
+)
+
+// 2. Atkinson - High contrast dot pattern without washing out (excellent for 203 DPI)
+ZplImage(
+  x: 20, y: 150,
+  image: myImageBytes,
+  ditheringAlgorithm: ZplDitheringAlgorithm.atkinson,
+)
+
+// 3. Threshold - Hard black & white clipping (Legacy behavior)
+ZplImage(
+  x: 20, y: 280,
+  image: myImageBytes,
+  ditheringAlgorithm: ZplDitheringAlgorithm.threshold,
+)
+```
+
 ## Learn More
 
 For comprehensive documentation, visit:

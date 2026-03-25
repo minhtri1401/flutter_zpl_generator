@@ -5,6 +5,8 @@ import 'demos/barcode_demo.dart';
 import 'demos/graphics_demo.dart';
 import 'demos/layout_demo.dart';
 import 'demos/receipt_demo.dart';
+import 'demos/image_demo.dart';
+import 'demos/templating_demo.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,7 +31,7 @@ class ShowcaseHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 5,
+      length: 7,
       child: Scaffold(
         appBar: AppBar(
           title: const Text('ZPL Generator Showcase'),
@@ -39,8 +41,10 @@ class ShowcaseHome extends StatelessWidget {
               Tab(icon: Icon(Icons.text_fields), text: 'Text'),
               Tab(icon: Icon(Icons.qr_code), text: 'Barcodes'),
               Tab(icon: Icon(Icons.shape_line), text: 'Graphics'),
+              Tab(icon: Icon(Icons.image), text: 'Images'),
               Tab(icon: Icon(Icons.grid_view), text: 'Layouts'),
               Tab(icon: Icon(Icons.receipt_long), text: 'Receipt'),
+              Tab(icon: Icon(Icons.style), text: 'Template'),
             ],
           ),
         ),
@@ -49,8 +53,10 @@ class ShowcaseHome extends StatelessWidget {
             TextDemo(),
             BarcodeDemo(),
             GraphicsDemo(),
+            ImageDemo(),
             LayoutDemo(),
             ReceiptDemo(),
+            TemplatingDemo(),
           ],
         ),
       ),

@@ -126,7 +126,9 @@ void main() {
         );
 
         final zpl =
-            await generator1.build() + await generator2.build() + await generator3.build();
+            await generator1.build() +
+            await generator2.build() +
+            await generator3.build();
 
         // Get the second label (index 1)
         final result = await LabelaryService.renderZplSimple(

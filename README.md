@@ -15,6 +15,8 @@ The library boasts an unparalleled set of components, beautifully simulated insi
 | <img src="images/text_demo.png" height="300" /> | <img src="images/barcodes_demo.png" height="300" /> |
 | **Graphics & Shapes** | **Responsive 12-Unit Grid Layout** |
 | <img src="images/graphics_demo.png" height="300" /> | <img src="images/layouts_demo.png" height="300" /> |
+| **Image Dithering Algorithms** | |
+| <img src="images/image_demo.png" height="300" /> | |
 
 
 ## 🌟 **What Makes This Package Special**
@@ -239,6 +241,72 @@ print(zpl);
 
 ---
 
+## 💾 Data Binding & Templating Engine
+
+In logistics and production environments, you shouldn't compile identical labels from scratch 10,000 times. `ZplTemplate` enables you to cache the heavy geometry and image rendering algorithms once, unlocking blistering fast synchronous label generations.
+
+1. **Design the layout** using `{{variable}}` placements in standard commands.
+2. **Init the template once** globally.
+3. **Bind synchronous data maps** aggressively in a loop.
+
+```dart
+// 1. Initial Setup
+final template = ZplTemplate(
+  ZplGenerator(
+    config: const ZplConfiguration(printWidth: 406, labelLength: 203),
+    commands: [
+      ZplText(x: 10, y: 10, text: 'Hello {{name}}'),
+      ZplText(x: 10, y: 50, text: 'Price: \${{price}}'),
+      ZplBarcode(x: 10, y: 90, height: 50, data: '{{barcode}}', type: ZplBarcodeType.code128),
+    ],
+  )
+);
+
+// 2. Compile geometry & imagery ONCE 
+await template.init();
+
+// 3. Loop generating thousands of labels instantly
+for (var dataMap in customers) {
+    // Zero layout/AST overhead, pure native string replacement
+    final rawZplPayload = template.bindSync(dataMap);
+    printer.print(rawZplPayload);
+}
+```
+
+---
+
+## 📡 Enterprise RFID Tag Encoding (`^RF` / `^RS`)
+
+Generate "Smart Labels" by leveraging Zebra's dual-hardware printers (like the *ZT411 RFID*). You can encode the tiny silicon microchip hidden inside the label **at the exact same time** you print the visual ink barcodes! 
+
+```dart
+final generator = ZplGenerator(
+  config: ZplConfiguration(printWidth: 406, labelLength: 203),
+  commands: [
+    // 1. Tell the printer what hardware protocol to run (EPC Class 1 Gen 2)
+    ZplRfidSetup(tagType: 8),
+
+    // 2. Blast your payload onto the actual RFID Antenna using HEX!
+    // (This encodes 11112222 directly into the EPC bank block 3)
+    ZplRfidWrite(
+      data: '11112222',
+      operation: RfidOperation.write,
+      format: RfidDataFormat.hex,
+      startingBlock: 3, 
+      byteCount: 4,
+      memoryBank: RfidMemoryBank.epc,
+    ),
+
+    // 3. Normal printing logic is executed in parallel!
+    ZplText(x: 10, y: 10, text: 'This text gets printed with ink!'),
+    ZplBarcode(x: 10, y: 50, data: '11112222', type: ZplBarcodeType.code128),
+  ],
+);
+```
+> Note: When using `RfidDataFormat.hex`, the library strictly asserts that your payload only contains completely valid `[0-9A-Fa-f]` characters to prevent silent printer-locking failures.
+
+---
+
 ## 🌟 TTF Font & Image Conversion
 
 ### Import Custom Fonts to Your Printer
@@ -299,6 +367,32 @@ final zplGraphics = await LabelaryService.convertImageToGraphic(
   outputFormat: LabelaryGraphicOutputFormat.zpl,
   blackThreshold: 128 // Auto-Dithering
 );
+```
+
+### Advanced Image Dithering (Pristine Graphics)
+`ZplImage` now supports advanced image dithering natively in Dart. This converts continuous-tone photographs and colorful gradients into meticulously balanced dot patterns that print beautifully on 203 DPI devices.
+
+```dart
+// 1. Floyd-Steinberg (Default) - Smoothly disperses dots for natural gradients
+ZplImage(
+  x: 20, y: 20,
+  image: bytes,
+  ditheringAlgorithm: ZplDitheringAlgorithm.floydSteinberg,
+)
+
+// 2. Atkinson - High contrast dot pattern without washing out (vintage print look)
+ZplImage(
+  x: 20, y: 150,
+  image: bytes,
+  ditheringAlgorithm: ZplDitheringAlgorithm.atkinson,
+)
+
+// 3. Threshold - Hard black & white clipping (Legacy behavior)
+ZplImage(
+  x: 20, y: 280,
+  image: bytes,
+  ditheringAlgorithm: ZplDitheringAlgorithm.threshold,
+)
 ```
 
 ---

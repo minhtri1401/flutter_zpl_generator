@@ -139,6 +139,9 @@ class ZplColumn extends ZplCommand {
         y: newY,
         image: child.image,
         graphicName: child.graphicName,
+        targetWidth: child.targetWidth,
+        targetHeight: child.targetHeight,
+        maintainAspect: child.maintainAspect,
       );
     }
     if (child is ZplBox) {

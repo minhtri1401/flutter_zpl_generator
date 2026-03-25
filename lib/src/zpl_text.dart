@@ -87,7 +87,9 @@ class ZplText extends ZplCommand {
         sb.writeln('^FO$x,$y');
         _writeFontCommand(sb);
         final justification = _getJustificationCode();
-        sb.writeln('^FB$availableWidth,$maxLines,$lineSpacing,$justification,0');
+        sb.writeln(
+          '^FB$availableWidth,$maxLines,$lineSpacing,$justification,0',
+        );
         if (reversePrint) sb.writeln('^FR');
         sb.writeln('^FD$text^FS');
       } else if (x == 0) {
@@ -95,7 +97,9 @@ class ZplText extends ZplCommand {
         sb.writeln('^FO0,$y');
         _writeFontCommand(sb);
         final justification = _getJustificationCode();
-        sb.writeln('^FB$availableWidth,$maxLines,$lineSpacing,$justification,0');
+        sb.writeln(
+          '^FB$availableWidth,$maxLines,$lineSpacing,$justification,0',
+        );
         if (reversePrint) sb.writeln('^FR');
         sb.writeln('^FD$text^FS');
       } else {

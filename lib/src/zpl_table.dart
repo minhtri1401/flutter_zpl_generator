@@ -102,7 +102,9 @@ class ZplTable extends ZplCommand {
     final totalTableHeight = headerHeight + totalDataHeight + borderSpacing;
 
     if (borderThickness > 0) {
-      sb.write(_drawTableBorders(tableWidth, totalTableHeight, rowHeight, context));
+      sb.write(
+        _drawTableBorders(tableWidth, totalTableHeight, rowHeight, context),
+      );
     }
 
     final adjustedConfig = _buildAdjustedConfig(context);
@@ -150,8 +152,10 @@ class ZplTable extends ZplCommand {
       final h = header.fontHeight ?? 20;
       if (h > maxHeaderFontHeight) maxHeaderFontHeight = h;
     }
-    final maxFontHeight = [maxHeaderFontHeight, dataFontHeight]
-        .reduce((a, b) => a > b ? a : b);
+    final maxFontHeight = [
+      maxHeaderFontHeight,
+      dataFontHeight,
+    ].reduce((a, b) => a > b ? a : b);
     return maxFontHeight + (2 * cellPadding);
   }
 

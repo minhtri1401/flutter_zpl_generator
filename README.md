@@ -275,6 +275,56 @@ for (var dataMap in customers) {
 
 ---
 
+## 🖨️ Production Print Configurations (`^PQ`)
+
+**Purpose**: In production environments, you often need to print multiple copies of the exact same label without transmitting the entire payload over Wi-Fi/Bluetooth multiple times. `ZplPrintQuantity` safely delegates the responsibility of duplicating the label directly to the printer's internal memory buffer.
+
+**Placement Guidelines**: You can append `ZplPrintQuantity` anywhere inside the `commands:` list. It will safely execute hardware features natively before the label officially terminates (`^XZ`).
+
+```dart
+final generator = ZplGenerator(
+  config: const ZplConfiguration(printWidth: 406, labelLength: 203),
+  commands: [
+    ZplText(x: 10, y: 10, text: 'Product Label'),
+    
+    // You can place this command anywhere in the 'commands' array!
+    // This offloads the work to the printer hardware itself:
+    // "Print 50 copies of this label, and physically pause after every 10."
+    ZplPrintQuantity(quantity: 50, pauseInterval: 10),
+  ],
+);
+```
+
+## 🔢 Auto-Increment Serialization (`^SN`)
+
+When printing many identical layout labels but with increasing/decreasing ID numbers (e.g. SN-001, SN-002, SN-003), sending a new payload for every single label is highly inefficient. 
+
+Instead, you can combine `ZplPrintQuantity` with a `ZplText` configured for **hardware serialization**. The printer will calculate and index the variable numbers internally!
+
+```dart
+final generator = ZplGenerator(
+  config: const ZplConfiguration(printWidth: 406, labelLength: 203),
+  commands: [
+    // This looks like static text, but we attach a 'serialization' config to it
+    ZplText(
+      x: 10, 
+      y: 10, 
+      text: 'SN-001', // Your starting value
+      serialization: const ZplSerialConfig(
+        increment: 1,      // +1 per label copy 
+        leadingZeros: true // Keep it exactly 3 digits long ('001' -> '002' -> '003')
+      ),
+    ),
+    
+    // We only send 1 print job over Wi-Fi, but the printer hardware will 
+    // eject 10 labels counting up to 'SN-010' automatically!
+    ZplPrintQuantity(quantity: 10),
+  ],
+);
+```
+
+---
+
 ## 📡 Enterprise RFID Tag Encoding (`^RF` / `^RS`)
 
 Generate "Smart Labels" by leveraging Zebra's dual-hardware printers (like the *ZT411 RFID*). You can encode the tiny silicon microchip hidden inside the label **at the exact same time** you print the visual ink barcodes! 
@@ -392,6 +442,40 @@ ZplImage(
   x: 20, y: 280,
   image: bytes,
   ditheringAlgorithm: ZplDitheringAlgorithm.threshold,
+)
+```
+
+### ACS Image Compression (^GFA)
+ZPL payloads containing high-resolution images can grow massive, taking several seconds to transmit to the printer over Bluetooth or Serial connections. 
+
+You can compress the payload using `ZplImageCompression.acs`, which mathematically encodes the byte layout (Run-length Encoding). This routinely shrinks image payloads by **60-90%**, slashing transmission delays!
+
+```dart
+ZplImage(
+  x: 20, y: 20,
+  image: highResPhotoBytes,
+  compression: ZplImageCompression.acs, // Emits ^GFA instead of ~DG
+)
+```
+
+---
+
+## 👁️ Conditional Printing (`ZplConditional`)
+
+Sometimes you want to show or hide entire layout sections natively based on condition flags (e.g. `hasDiscount`, `showSerialNumber`).
+
+Instead of writing messy ternary operators inside Dart lists `if (true) myObj,`, we've introduced `ZplConditional` mapping. If `condition: false`, it safely outputs an empty string, and gracefully returns `0` layout height so surrounding containers like `ZplColumn` immediately collapse the missing element without rendering any blank gaps!
+
+```dart
+final generator = ZplGenerator(
+  commands: [
+    ZplText(text: 'Product: Widget'),
+    ZplConditional(
+      condition: product.hasDiscount, // If false, the below command is skipped AND collapses safely in columns
+      child: ZplText(text: 'SALE: \${product.discount}% OFF', reversePrint: true),
+    ),
+    ZplBarcode(data: product.sku, type: ZplBarcodeType.code128),
+  ],
 )
 ```
 

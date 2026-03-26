@@ -2,6 +2,7 @@ import 'zpl_command_base.dart';
 import 'zpl_configuration.dart';
 import 'zpl_font_asset.dart';
 import 'enums.dart';
+import 'zpl_serial_config.dart';
 
 /// A class to handle text-related commands (^FO, ^A, ^FD, ^FS).
 class ZplText extends ZplCommand {
@@ -55,6 +56,9 @@ class ZplText extends ZplCommand {
   /// Whether to invert the print colors (white on black).
   final bool reversePrint;
 
+  /// Optional serialization config. If provided, replaces ^FD with ^SN.
+  final ZplSerialConfig? serialization;
+
   ZplText({
     this.x = 0,
     this.y = 0,
@@ -72,6 +76,7 @@ class ZplText extends ZplCommand {
     this.customFont,
     this.maxWidth,
     this.reversePrint = false,
+    this.serialization,
   });
 
   @override
@@ -91,7 +96,7 @@ class ZplText extends ZplCommand {
           '^FB$availableWidth,$maxLines,$lineSpacing,$justification,0',
         );
         if (reversePrint) sb.writeln('^FR');
-        sb.writeln('^FD$text^FS');
+        _writeDataCommand(sb);
       } else if (x == 0) {
         // Standalone text with alignment — use full label width
         sb.writeln('^FO0,$y');
@@ -101,7 +106,7 @@ class ZplText extends ZplCommand {
           '^FB$availableWidth,$maxLines,$lineSpacing,$justification,0',
         );
         if (reversePrint) sb.writeln('^FR');
-        sb.writeln('^FD$text^FS');
+        _writeDataCommand(sb);
       } else {
         // Manual position with alignment hint — fall through to positioned output
         sb.writeln('^FO$x,$y');
@@ -111,7 +116,7 @@ class ZplText extends ZplCommand {
           sb.writeln('^FB$wrapWidth,$maxLines,$lineSpacing,L,0');
         }
         if (reversePrint) sb.writeln('^FR');
-        sb.writeln('^FD$text^FS');
+        _writeDataCommand(sb);
       }
     } else {
       // Left alignment or no alignment
@@ -125,7 +130,7 @@ class ZplText extends ZplCommand {
         sb.writeln('^FB$wrapWidth,$maxLines,$lineSpacing,L,0');
       }
       if (reversePrint) sb.writeln('^FR');
-      sb.writeln('^FD$text^FS');
+      _writeDataCommand(sb);
     }
 
     return sb.toString();
@@ -147,6 +152,16 @@ class ZplText extends ZplCommand {
       sb.writeln(
         '^A$fontName$orientationCode,${fontHeight ?? ''},${fontWidth ?? ''}',
       );
+    }
+  }
+
+  /// Writes data payload via ^FD or auto-incrementing ^SN
+  void _writeDataCommand(StringBuffer sb) {
+    if (serialization != null) {
+      final leading = serialization!.leadingZeros ? 'Y' : 'N';
+      sb.writeln('^SN$text,${serialization!.increment},$leading^FS');
+    } else {
+      sb.writeln('^FD$text^FS');
     }
   }
 

@@ -7,6 +7,7 @@ import 'zpl_barcode.dart';
 import 'zpl_image.dart';
 import 'zpl_box.dart';
 import 'zpl_separator.dart';
+import 'zpl_conditional.dart';
 
 /// Creates a row with a 12-unit grid system for structured layouts.
 ///
@@ -109,6 +110,7 @@ class ZplGridRow extends ZplCommand {
         customFont: child.customFont,
         maxWidth: availableWidth,
         reversePrint: child.reversePrint,
+        serialization: child.serialization,
       );
     }
 
@@ -182,6 +184,13 @@ class ZplGridRow extends ZplCommand {
         maxWidth: availableWidth,
       );
     }
+    
+    if (child is ZplConditional) {
+      return ZplConditional(
+        condition: child.condition,
+        child: _updateChildPosition(child.child, newX, newY, availableWidth),
+      );
+    }
 
     return child;
   }
@@ -224,6 +233,9 @@ class ZplGridRow extends ZplCommand {
             _calculateChildHeight(grandChild, config) + child.spacing;
       }
       return totalHeight > 0 ? totalHeight - child.spacing : 0;
+    }
+    if (child is ZplConditional) {
+      return child.condition ? _calculateChildHeight(child.child, config) : 0;
     }
     return 20;
   }

@@ -18,6 +18,16 @@ enum ZplDitheringAlgorithm {
   atkinson,
 }
 
+/// Represents the compression algorithm used for the image data.
+enum ZplImageCompression {
+  /// No compression. Uses ~DG with raw hex. Maximum compatibility.
+  none,
+
+  /// ACS run-length encoding. Uses ^GFA with compressed data.
+  /// Typically 60-90% smaller. Supported on all Zebra printers.
+  acs,
+}
+
 /// A class to handle image-related commands, primarily for downloading graphics (~DG).
 class ZplImage extends ZplCommand {
   /// The x-axis position of the image.
@@ -44,6 +54,9 @@ class ZplImage extends ZplCommand {
   /// The algorithm used to convert the image to monochrome.
   final ZplDitheringAlgorithm ditheringAlgorithm;
 
+  /// The compression algorithm to reduce the transmitted ZPL payload size.
+  final ZplImageCompression compression;
+
   const ZplImage({
     this.x = 0,
     this.y = 0,
@@ -53,6 +66,7 @@ class ZplImage extends ZplCommand {
     this.targetHeight,
     this.maintainAspect = true,
     this.ditheringAlgorithm = ZplDitheringAlgorithm.floydSteinberg,
+    this.compression = ZplImageCompression.none,
   });
 
   int get width => targetWidth ?? (img.decodeImage(image)?.width ?? 0);
@@ -79,12 +93,23 @@ class ZplImage extends ZplCommand {
     final widthBytes = (imgWidth / 8).ceil();
     final totalBytes = widthBytes * imgHeight;
 
+    final hexRows = _toMonochromeHexRows(decodedImage);
+
+    if (compression == ZplImageCompression.acs) {
+      return _toCompressedZpl(hexRows, totalBytes, widthBytes);
+    } else {
+      return _toUncompressedZpl(hexRows, totalBytes, widthBytes);
+    }
+  }
+
+  String _toUncompressedZpl(List<String> hexRows, int totalBytes, int widthBytes) {
     final sb = StringBuffer();
 
     // Download graphic command
     sb.write('~DG$graphicName,${totalBytes.toInt()},${widthBytes.toInt()},');
-    final hexString = _toMonochromeHex(decodedImage);
-    sb.writeln(hexString);
+    for (final row in hexRows) {
+      sb.writeln(row);
+    }
 
     // Position and print the graphic
     sb.writeln('^FO$x,$y');
@@ -93,9 +118,86 @@ class ZplImage extends ZplCommand {
     return sb.toString();
   }
 
-  /// Converts an image to a ZPL-compatible monochrome hexadecimal string.
-  String _toMonochromeHex(img.Image src) {
+  String _toCompressedZpl(List<String> hexRows, int totalBytes, int widthBytes) {
     final sb = StringBuffer();
+    sb.writeln('^FO$x,$y');
+    sb.write('^GFA,$totalBytes,$totalBytes,$widthBytes,');
+    
+    String? previousRow;
+    for (final row in hexRows) {
+      if (row == previousRow) {
+        sb.writeln(':'); // ZPL ACS duplicate row
+      } else {
+        sb.writeln(_compressRow(row));
+        previousRow = row;
+      }
+    }
+    sb.writeln('^FS');
+    
+    return sb.toString();
+  }
+
+  String _compressRow(String hexRow) {
+    final sb = StringBuffer();
+    int i = 0;
+
+    // Check for trailing zeros or Fs
+    final allZeros = RegExp(r'^0+$');
+    final allFs = RegExp(r'^F+$');
+    if (allZeros.hasMatch(hexRow)) return ',';
+    if (allFs.hasMatch(hexRow)) return '!';
+
+    while (i < hexRow.length) {
+      final char = hexRow[i];
+      int count = 1;
+
+      while (i + count < hexRow.length && hexRow[i + count] == char) {
+        count++;
+      }
+      
+      final originalCount = count;
+
+      while (count > 0) {
+        if (count >= 20) {
+          int multiples = (count ~/ 20).clamp(1, 20);
+          sb.write(String.fromCharCode('g'.codeUnitAt(0) - 1 + multiples)); 
+          count -= multiples * 20;
+        } else if (count >= 2) {
+          sb.write(String.fromCharCode('G'.codeUnitAt(0) - 2 + count));
+          count = 0;
+        } else {
+          count = 0;
+        }
+      }
+      sb.write(char);
+      i += originalCount;
+    }
+
+    // Attempt to end with a comma (fill resting line with zeros) or exc. mark (Fs) if applicable
+    String result = sb.toString();
+    if (result.endsWith('0') && result.length >= 2) {
+      // Find where trailing zeroes start
+      int lastNonZero = result.lastIndexOf(RegExp(r'[1-9A-Ea-z]'));
+      if (lastNonZero != -1 && lastNonZero < result.length - 2) {
+        // Strip out the zero repetition encoding and just use comma
+        // E.g., 'K0' -> ',' at end. 
+        final trailingZerosMatch = RegExp(r'[g-zG-Y]*0+$').firstMatch(result);
+         if (trailingZerosMatch != null) {
+            result = '${result.substring(0, trailingZerosMatch.start)},';
+         }
+      }
+    } else if (result.endsWith('F') && result.length >= 2) {
+       final trailingFsMatch = RegExp(r'[g-zG-Y]*F+$').firstMatch(result);
+       if (trailingFsMatch != null) {
+          result = '${result.substring(0, trailingFsMatch.start)}!';
+       }
+    }
+
+    return result;
+  }
+
+  /// Converts an image to a list of ZPL-compatible monochrome hexadecimal string rows.
+  List<String> _toMonochromeHexRows(img.Image src) {
     final srcWidth = src.width;
     final srcHeight = src.height;
 
@@ -146,7 +248,10 @@ class ZplImage extends ZplCommand {
       }
     }
 
+    final rows = <String>[];
+
     for (int h = 0; h < srcHeight; h++) {
+      final rowSb = StringBuffer();
       var byte = 0;
       var bit = 0;
       for (int w = 0; w < srcWidth; w++) {
@@ -164,7 +269,7 @@ class ZplImage extends ZplCommand {
 
         bit++;
         if (bit == 8) {
-          sb.write(byte.toRadixString(16).padLeft(2, '0').toUpperCase());
+          rowSb.write(byte.toRadixString(16).padLeft(2, '0').toUpperCase());
           byte = 0;
           bit = 0;
         }
@@ -172,12 +277,12 @@ class ZplImage extends ZplCommand {
 
       // Write any remaining bits
       if (bit > 0) {
-        sb.write(byte.toRadixString(16).padLeft(2, '0').toUpperCase());
+        rowSb.write(byte.toRadixString(16).padLeft(2, '0').toUpperCase());
       }
-      sb.writeln(); // Newline for each row
+      rows.add(rowSb.toString());
     }
 
-    return sb.toString();
+    return rows;
   }
 
   @override

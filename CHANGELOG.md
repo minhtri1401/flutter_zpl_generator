@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2026-03-26
+
+The "Enterprise Print Batching & Compression" Release.
+
+### Added
+- **Native Print Quantity (`^PQ`)**: Control batches dynamically with `ZplPrintQuantity`. Set quantity counts, overrides, pausing, and cut intervals mathematically outside of strings.
+- **Auto-Increment Serialization (`^SN`)**: Embed native hardware serialization with `ZplSerialization` mapping `start`, `increment`, and `pad` controls natively into ZPL blocks.
+- **ACS Image Compression (`^GFA`)**: Greatly optimized print times by compressing binary string images natively into `acs` run-length encoded `ZplImageCompression` outputs. Drops image payload payload size by 60-90%.
+- **Conditional Layout Support (`ZplConditional`)**: Drop-in wrapper that renders layout elements recursively conditionally based on a `bool`. Works natively inside `ZplGridRow` and `ZplColumn` gracefully mapping mathematical zeroes preventing spacing gaps!
+
 ## [1.2.0] - 2026-03-26
 
 The "Enterprise RFID & Smart Imaging" Release.

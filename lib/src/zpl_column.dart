@@ -4,6 +4,7 @@ import 'zpl_barcode.dart';
 import 'zpl_image.dart';
 import 'zpl_box.dart';
 import 'zpl_separator.dart';
+import 'zpl_conditional.dart';
 import 'zpl_configuration.dart';
 import 'enums.dart';
 
@@ -66,6 +67,9 @@ class ZplColumn extends ZplCommand {
       }
     }
     if (element is ZplSeparator) return element.calculateHeight(context);
+    if (element is ZplConditional) {
+      return element.condition ? _calculateElementHeight(element.child, context) : 0;
+    }
     return 20;
   }
 
@@ -96,6 +100,7 @@ class ZplColumn extends ZplCommand {
         customFont: child.customFont,
         maxWidth: child.maxWidth ?? columnWidth,
         reversePrint: child.reversePrint,
+        serialization: child.serialization,
       );
     }
     if (child is ZplBarcode) {
@@ -153,6 +158,12 @@ class ZplColumn extends ZplCommand {
         borderThickness: child.borderThickness,
         cornerRounding: child.cornerRounding,
         reversePrint: child.reversePrint,
+      );
+    }
+    if (child is ZplConditional) {
+      return ZplConditional(
+        condition: child.condition,
+        child: _updateChildPosition(child.child, newX, newY, context),
       );
     }
     return child;

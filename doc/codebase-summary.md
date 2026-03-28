@@ -6,9 +6,9 @@ A comprehensive overview of the `flutter_zpl_generator` package structure, modul
 
 - **Language**: Dart/Flutter
 - **Package**: flutter_zpl_generator
-- **Version**: 1.1.0 (March 2026)
+- **Version**: 1.5.1 (March 2026)
 - **License**: MIT
-- **Main Files**: 22 Dart modules
+- **Main Files**: 32 Dart modules
 - **Test Coverage**: > 85%
 - **Documentation**: Inline comments + external guides
 
@@ -28,23 +28,38 @@ flutter_zpl_generator/
 │   │   ├── labelary_service.dart      # API integration
 │   │   │
 │   │   ├── zpl_text.dart              # Text rendering
+│   │   ├── zpl_text_block.dart        # Text block rendering (^TB)
 │   │   ├── zpl_barcode.dart           # Barcode rendering
 │   │   ├── zpl_box.dart               # Box drawing
-│   │   ├── zpl_image.dart             # Image rendering
+│   │   ├── zpl_image.dart             # Image rendering with compression
 │   │   ├── zpl_separator.dart         # Separator lines
 │   │   ├── zpl_raw.dart               # Raw ZPL injection
+│   │   ├── zpl_template.dart          # Templating and data binding
 │   │   │
 │   │   ├── zpl_graphic_circle.dart    # Circle drawing
 │   │   ├── zpl_graphic_ellipse.dart   # Ellipse drawing
 │   │   ├── zpl_graphic_diagonal_line.dart # Diagonal lines
+│   │   ├── zpl_graphic_symbol.dart    # Native Hardware Symbols
 │   │   │
 │   │   ├── zpl_column.dart            # Vertical layout
 │   │   ├── zpl_grid_row.dart          # Horizontal layout
 │   │   ├── zpl_grid_col.dart          # Grid column definition
-│   │   └── zpl_table.dart             # Table layout
+│   │   ├── zpl_table.dart             # Table layout
+│   │   ├── zpl_conditional.dart       # Conditional layout wrapper
+│   │   │
+│   │   ├── zpl_rfid_setup.dart        # RFID configuration
+│   │   ├── zpl_rfid_write.dart        # RFID encoding
+│   │   ├── zpl_network.dart           # Network constraints
+│   │   ├── zpl_hardware.dart          # ZBI & Hardware transparency
+│   │   ├── zpl_print_quantity.dart    # Batch print quantity (^PQ)
+│   │   └── zpl_serial_config.dart     # Auto-serialization (^SN)
 │   │
+│   └── preview/
+│       ├── zpl_native_preview.dart    # Offline Flutter Widget preview
+│       └── zpl_canvas_painter.dart    # Core rendering canvas logic
+│
 │   └── widgets/
-│       └── zpl_preview.dart           # Flutter preview widget
+│       └── zpl_preview.dart           # Legacy Labelary preview widget
 │
 ├── test/
 │   └── flutter_zpl_generator_test.dart # Comprehensive test suite
@@ -232,7 +247,7 @@ ZplGenerator({
 - `toZpl(ZplConfiguration context)` — Generates `^GB` or character repetition
 - `calculateWidth()` — Returns separator width
 
-### 10. Graphics Components (v1.1.0)
+### 10. Graphics Components
 
 #### zpl_raw.dart
 Direct ZPL injection for unsupported features.
@@ -251,6 +266,23 @@ Ellipse drawing using `^GE` command.
 
 #### zpl_graphic_diagonal_line.dart
 Diagonal line drawing using `^GD` command.
+
+#### zpl_graphic_symbol.dart
+Standard registered trademark (®), copyright (©), UL, CSA, and VDE symbols (`^GS`).
+
+### 11. Enterprise Hardware Features (v1.2.0 - v1.5.0)
+
+#### zpl_rfid_write.dart
+Supports simultaneous print-and-encode UHF RFID tags using `^RF`.
+
+#### zpl_network.dart
+Configure primary IP, subnet, gateway (`^ND`, `^NS`), and SNMP (`^NN`).
+
+#### zpl_print_quantity.dart
+Native print counts, pauses, and overrides (`^PQ`).
+
+#### zpl_template.dart
+Zero-overhead synchronous bulk label generator utilizing `{{variables}}` injected natively before runtime.
 
 ### 11. Layout Containers
 

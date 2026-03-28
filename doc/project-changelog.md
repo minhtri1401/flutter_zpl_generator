@@ -4,6 +4,71 @@ All notable changes to the `flutter_zpl_generator` package are documented in thi
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v1.1.0.0.html).
 
+## [1.5.1] - 2026-03-28
+
+### Fixed
+- **Native Preview Fixes**: Stabilized anti-aliasing artifacts on `ZplCanvasPainter` that resulted in edge-bleeding in scannable offline barcode widgets. Corrected module-width distortion calculation for 1D and 2D barcodes ensuring perfect native preview parity to printer firmware output.
+- **Native Preview Images**: Upgraded offline native preview to now physically dither and render image payloads directly within the Flutter canvas securely, rather than just displaying a blue placeholder bounds.
+
+## [1.5.0] - 2026-03-28
+
+The "Native Preview & Advanced Typography" Release.
+
+### Added
+- **Native Offline Canvas Preview**: Added `ZplNativePreview` and `ZplCanvasPainter` for high-performance offline rendering of ZPL layouts in Flutter without relying on external network calls.
+- **Advanced Typography (`^PA`)**: Added `ZplAdvancedTextProperties` for fine-grained control over text alignment and styling.
+- **Text Blocks (`^TB`)**: Added `ZplTextBlock` support, natively integrated into `ZplGridRow` and `ZplColumn` for complex rich-text layouts.
+- **Zebra BASIC Interpreter (ZBI) Commands**: Implemented `ZplZbiStart` (`~JI`), `ZplZbiStop` (`~JQ`), `ZplHostQuery` (`~HQ`), and `ZplEarlyWarning` (`^JH`) for programmatic printer control and bidirectional host querying.
+
+### Dependencies
+- Added `barcode: ^2.2.9` to support native offline barcode generation.
+
+## [1.4.0] - 2026-03-28
+
+The "Enterprise Networking & Hardware Integrations" Release.
+
+### Added
+- **Hardware Network Configuration**: Comprehensive suite of commands for configuring ZPL printer networks natively.
+  - `ZplNetworkSettings` (`^ND`): Interface for changing primary IP, subnet, gateway, resolving timeouts for a device.
+  - `ZplNetworkWiredSettings` (`^NS`): Wired-specific network configurations matching dynamic addressing.
+  - `ZplNetworkSnmp` (`^NN`): Full configuration of Simple Network Management Protocol parameters (community strings, location, contact, traps).
+  - `ZplNetworkSmtp` (`^NT`): Define printer SMTP email routing server details.
+  - Operations for device connection limits (`^NC`, `~NC`, `^NP`), ID assignment (`^NI`), firmware boot server routines (`^NB`), and password timeouts (`^NW`).
+- **Printer Transparency Management**: Address downstream printers linked off a primary printer port using `ZplNetworkPrintersTransparentAll` (`~NR`) and `ZplNetworkPrinterTransparentCurrent` (`~NT`).
+- **Graphic Symbols (`^GS`)**: Added `ZplGraphicSymbol` utility allowing for hardware-native validation and rendering of standard registered trademark (®), copyright (©), UL, CSA, and VDE symbols.
+
+## [1.3.0] - 2026-03-26
+
+The "Enterprise Print Batching & Compression" Release.
+
+### Added
+- **Native Print Quantity (`^PQ`)**: Control batches dynamically with `ZplPrintQuantity`. Set quantity counts, overrides, pausing, and cut intervals mathematically outside of strings.
+- **Auto-Increment Serialization (`^SN`)**: Embed native hardware serialization with `ZplSerialization` mapping `start`, `increment`, and `pad` controls natively into ZPL blocks.
+- **ACS Image Compression (`^GFA`)**: Greatly optimized print times by compressing binary string images natively into `acs` run-length encoded `ZplImageCompression` outputs. Drops image payload payload size by 60-90%.
+- **Conditional Layout Support (`ZplConditional`)**: Drop-in wrapper that renders layout elements recursively conditionally based on a `bool`. Works natively inside `ZplGridRow` and `ZplColumn` gracefully mapping mathematical zeroes preventing spacing gaps.
+
+## [1.2.0] - 2026-03-26
+
+The "Enterprise RFID & Smart Imaging" Release.
+
+### Added
+- **Enterprise RFID Tag Encoding**: New `ZplRfidSetup` (`^RS`) and `ZplRfidWrite` (`^RF`) commands for simultaneous print-and-encode workflows on Zebra RFID printers (e.g., ZT411 RFID).
+  - Supports all Gen 2 memory banks: Reserved, EPC, TID, User.
+  - Full operation set: Write, Write with Lock, Read, Read Password, Specify Password, Encode.
+  - Data formats: ASCII, Hexadecimal, EPC.
+  - Runtime `ArgumentError` validation for hex payloads to prevent silent printer failures.
+- **Advanced Image Dithering**: `ZplImage` now supports `ZplDitheringAlgorithm` with three modes:
+  - `floydSteinberg` (new default) — smooth error diffusion for natural-looking gradients.
+  - `atkinson` — high contrast dot patterns with a vintage newspaper print aesthetic.
+  - `threshold` — legacy hard black/white clipping behavior.
+- **Templating & Data Binding Engine**: New `ZplTemplate` class for high-performance mass-label generation.
+  - Define layouts with `{{variable}}` placeholders in any `ZplText`, `ZplBarcode`, etc.
+  - `init()` pre-compiles the layout once (fonts, images, grid math).
+  - `bindSync()` enables zero-overhead synchronous label stamping in tight loops.
+
+### Changed
+- Default image dithering algorithm changed from `threshold` to `floydSteinberg` for significantly better print quality out of the box.
+
 ## [1.1.0] - 2026-03-22
 
 ### Breaking Changes

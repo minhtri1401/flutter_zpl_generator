@@ -52,12 +52,12 @@ class ZplGraphicSymbol extends ZplCommand {
     required this.height,
     this.orientation = 'N',
   }) : assert(
-          orientation == 'N' ||
-              orientation == 'R' ||
-              orientation == 'I' ||
-              orientation == 'B',
-          'Orientation must be N, R, I, or B',
-        );
+         orientation == 'N' ||
+             orientation == 'R' ||
+             orientation == 'I' ||
+             orientation == 'B',
+         'Orientation must be N, R, I, or B',
+       );
 
   @override
   String toZpl(ZplConfiguration context) {

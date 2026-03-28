@@ -54,22 +54,16 @@ void main() {
     });
 
     test('ZplRfidWrite throws ArgumentError on invalid hex', () {
-      expect(
-        () {
-          ZplRfidWrite(
-            data: 'ZYX123', // Z, Y, X are not hex!
-            format: RfidDataFormat.hex,
-          ).toZpl(defaultConfig);
-        },
-        throwsA(isA<ArgumentError>()),
-      );
+      expect(() {
+        ZplRfidWrite(
+          data: 'ZYX123', // Z, Y, X are not hex!
+          format: RfidDataFormat.hex,
+        ).toZpl(defaultConfig);
+      }, throwsA(isA<ArgumentError>()));
     });
 
     test('ZplRfidSetup with only voidPrintLength (skip readWritePosition)', () {
-      final setup = ZplRfidSetup(
-        tagType: 8,
-        voidPrintLength: 100,
-      );
+      final setup = ZplRfidSetup(tagType: 8, voidPrintLength: 100);
       final zpl = setup.toZpl(defaultConfig);
       expect(zpl, '^RS8,,100');
     });

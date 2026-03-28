@@ -32,8 +32,10 @@ class ZplPrintQuantity extends ZplCommand {
     this.replicatesPerSerial,
     this.overridePause = false,
     this.cutOnRfidVoid = false,
-  }) : assert(quantity >= 1 && quantity <= 99999999,
-            'Quantity must be between 1 and 99999999');
+  }) : assert(
+         quantity >= 1 && quantity <= 99999999,
+         'Quantity must be between 1 and 99999999',
+       );
 
   @override
   String toZpl(ZplConfiguration context) {

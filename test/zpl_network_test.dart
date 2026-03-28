@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
-import 'package:flutter_zpl_generator/src/zpl_configuration.dart';
 
 void main() {
   const config = ZplConfiguration();
@@ -62,8 +61,10 @@ void main() {
         mask: '255.255.255.0',
         port: 9100,
       );
-      expect(cmd.toZpl(config),
-          equals('^NSA,192.168.1.50,255.255.255.0,,,,,,9100\n'));
+      expect(
+        cmd.toZpl(config),
+        equals('^NSA,192.168.1.50,255.255.255.0,,,,,,9100\n'),
+      );
     });
 
     test('ZplNetworkPrinterTransparentCurrent generates ~NT', () {

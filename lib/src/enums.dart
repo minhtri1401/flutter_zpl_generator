@@ -178,16 +178,7 @@ enum RfidOperation {
 }
 
 /// RFID Data Formats for the ^RF command.
-enum RfidDataFormat {
-  ascii,
-  hex,
-  epc,
-}
+enum RfidDataFormat { ascii, hex, epc }
 
 /// RFID Memory Banks for Gen 2 tags via the ^RF command.
-enum RfidMemoryBank {
-  reserved,
-  epc,
-  tid,
-  user,
-}
+enum RfidMemoryBank { reserved, epc, tid, user }

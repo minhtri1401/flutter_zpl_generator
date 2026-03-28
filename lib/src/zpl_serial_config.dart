@@ -12,8 +12,5 @@ class ZplSerialConfig {
   /// to maintain the original string length.
   final bool leadingZeros;
 
-  const ZplSerialConfig({
-    this.increment = 1,
-    this.leadingZeros = false,
-  });
+  const ZplSerialConfig({this.increment = 1, this.leadingZeros = false});
 }

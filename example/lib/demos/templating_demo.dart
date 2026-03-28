@@ -63,7 +63,11 @@ class _TemplatingDemoState extends State<TemplatingDemo> {
         ZplText(x: 20, y: 50, text: '{{address}}', fontHeight: 18),
         ZplSeparator(y: 80, thickness: 2),
         ZplText(
-            x: 20, y: 100, text: 'Item: {{sku}}   \${{price}}', fontHeight: 20),
+          x: 20,
+          y: 100,
+          text: 'Item: {{sku}}   \${{price}}',
+          fontHeight: 20,
+        ),
         ZplBarcode(
           x: 20,
           y: 130,
@@ -136,14 +140,15 @@ class _TemplatingDemoState extends State<TemplatingDemo> {
                   child: Text(
                     'Data Binding Engine',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
-                        ),
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 16.0, vertical: 20.0),
+                    horizontal: 16.0,
+                    vertical: 20.0,
+                  ),
                   child: const Text(
                     'Using ZplTemplate, we initialize the layout once to cache raw string geometries, and then inject Maps synchronously. \n\nSwitch personas below to dynamically regenerate ZPL with zero AST evaluation overhead.',
                     style: TextStyle(fontSize: 14),
@@ -156,8 +161,9 @@ class _TemplatingDemoState extends State<TemplatingDemo> {
                     final active = _currentIndex == index;
                     return ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            active ? Colors.indigo : Colors.grey[300],
+                        backgroundColor: active
+                            ? Colors.indigo
+                            : Colors.grey[300],
                         foregroundColor: active ? Colors.white : Colors.black,
                       ),
                       onPressed: () {
@@ -179,8 +185,8 @@ class _TemplatingDemoState extends State<TemplatingDemo> {
                     child: !_isTemplateReady || _isLoadingPreview
                         ? const CircularProgressIndicator()
                         : _previewBytes != null
-                            ? Image.memory(_previewBytes!)
-                            : const Text('Error loading preview'),
+                        ? Image.memory(_previewBytes!)
+                        : const Text('Error loading preview'),
                   ),
                 ),
                 const SizedBox(height: 20),
@@ -196,31 +202,38 @@ class _TemplatingDemoState extends State<TemplatingDemo> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Features demonstrated',
-                      style: Theme.of(context).textTheme.titleSmall),
+                  Text(
+                    'Features demonstrated',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                   const SizedBox(height: 8),
                   ...[
                     'ZplTemplate - highly optimized caching engine',
                     'Asynchronous Template initialization (await init())',
                     'Synchronous map binding (bindSync())',
                     'Flat string replacement injection parsing',
-                  ].map((f) => Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.check_circle_outline, size: 16),
-                            const SizedBox(width: 8),
-                            Expanded(
-                                child: Text(f,
-                                    style: const TextStyle(fontSize: 13))),
-                          ],
-                        ),
-                      )),
+                  ].map(
+                    (f) => Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.check_circle_outline, size: 16),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              f,
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );

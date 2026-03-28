@@ -29,4 +29,7 @@ export 'src/zpl_graphic_ellipse.dart';
 export 'src/zpl_graphic_diagonal_line.dart';
 export 'src/zpl_graphic_symbol.dart';
 export 'src/labelary_service.dart';
+export 'src/zpl_text_block.dart';
+export 'src/zpl_hardware.dart';
 export 'widgets/zpl_preview.dart';
+export 'src/preview/zpl_native_preview.dart';

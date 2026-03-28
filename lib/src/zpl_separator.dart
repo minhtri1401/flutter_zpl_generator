@@ -70,7 +70,8 @@ class ZplSeparator extends ZplCommand {
 
   @override
   String toZpl(ZplConfiguration context) {
-    final isHorizontal = orientation == ZplOrientation.normal ||
+    final isHorizontal =
+        orientation == ZplOrientation.normal ||
         orientation == ZplOrientation.inverted180;
 
     if (type == ZplSeparatorType.box) {
@@ -184,7 +185,8 @@ class ZplSeparator extends ZplCommand {
 
   @override
   int calculateWidth(ZplConfiguration config) {
-    final isHorizontal = orientation == ZplOrientation.normal ||
+    final isHorizontal =
+        orientation == ZplOrientation.normal ||
         orientation == ZplOrientation.inverted180;
 
     if (isHorizontal) {
@@ -196,7 +198,8 @@ class ZplSeparator extends ZplCommand {
 
   /// Calculate the height of the separator.
   int calculateHeight(ZplConfiguration config) {
-    final isHorizontal = orientation == ZplOrientation.normal ||
+    final isHorizontal =
+        orientation == ZplOrientation.normal ||
         orientation == ZplOrientation.inverted180;
 
     if (isHorizontal) {

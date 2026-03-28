@@ -120,8 +120,9 @@ class ZplText extends ZplCommand {
       }
     } else {
       // Left alignment or no alignment
-      final alignedX =
-          (x == 0 && maxWidth == null) ? _calculateAlignedX(context) : x;
+      final alignedX = (x == 0 && maxWidth == null)
+          ? _calculateAlignedX(context)
+          : x;
       sb.writeln('^FO$alignedX,$y');
       _writeFontCommand(sb);
       if (maxLines > 1) {

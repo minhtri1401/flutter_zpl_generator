@@ -14,10 +14,7 @@ class TextDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final generator = ZplGenerator(
-      config: _config,
-      commands: _buildCommands(),
-    );
+    final generator = ZplGenerator(config: _config, commands: _buildCommands());
 
     return DemoScaffold(
       title: 'Text & Typography',
@@ -84,7 +81,12 @@ class TextDemo extends StatelessWidget {
       // Font sizes showcase
       ZplText(x: 20, y: 245, text: 'Small font', fontHeight: 18, fontWidth: 14),
       ZplText(
-          x: 20, y: 275, text: 'Medium font', fontHeight: 28, fontWidth: 24),
+        x: 20,
+        y: 275,
+        text: 'Medium font',
+        fontHeight: 28,
+        fontWidth: 24,
+      ),
       ZplText(x: 20, y: 315, text: 'Large font', fontHeight: 42, fontWidth: 38),
 
       // Separator
@@ -101,7 +103,8 @@ class TextDemo extends StatelessWidget {
       ZplText(
         x: 20,
         y: 430,
-        text: 'This is a longer text that demonstrates multi-line '
+        text:
+            'This is a longer text that demonstrates multi-line '
             'wrapping with lineSpacing. The text will wrap based on '
             'the available label width and maxLines setting.',
         fontHeight: 20,
@@ -150,11 +153,12 @@ class TextDemo extends StatelessWidget {
 
       // Character separator demo
       ZplText(
-          x: 20,
-          y: 765,
-          text: 'Character separator:',
-          fontHeight: 20,
-          fontWidth: 16),
+        x: 20,
+        y: 765,
+        text: 'Character separator:',
+        fontHeight: 20,
+        fontWidth: 16,
+      ),
       ZplSeparator(
         y: 800,
         type: ZplSeparatorType.character,
@@ -165,11 +169,12 @@ class TextDemo extends StatelessWidget {
 
       // Box separator demo
       ZplText(
-          x: 20,
-          y: 835,
-          text: 'Box separator (thick):',
-          fontHeight: 20,
-          fontWidth: 16),
+        x: 20,
+        y: 835,
+        text: 'Box separator (thick):',
+        fontHeight: 20,
+        fontWidth: 16,
+      ),
       ZplSeparator(y: 870, thickness: 4),
     ];
   }

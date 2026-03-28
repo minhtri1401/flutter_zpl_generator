@@ -22,8 +22,9 @@ class _ImageDemoState extends State<ImageDemo> {
   }
 
   Future<void> _loadImage() async {
-    final byteData =
-        await rootBundle.load('assets/images/orioninnovation_logo.jpeg');
+    final byteData = await rootBundle.load(
+      'assets/images/orioninnovation_logo.jpeg',
+    );
     setState(() {
       _gradientBytes = byteData.buffer.asUint8List();
     });
@@ -54,11 +55,12 @@ class _ImageDemoState extends State<ImageDemo> {
 
         // Threshold
         ZplText(
-            x: 20,
-            y: 100,
-            text: 'Threshold (hard clip):',
-            fontHeight: 20,
-            fontWidth: 16),
+          x: 20,
+          y: 100,
+          text: 'Threshold (hard clip):',
+          fontHeight: 20,
+          fontWidth: 16,
+        ),
         ZplImage(
           x: 400,
           y: 90,
@@ -70,11 +72,12 @@ class _ImageDemoState extends State<ImageDemo> {
 
         // Floyd-Steinberg
         ZplText(
-            x: 20,
-            y: 380,
-            text: 'Floyd-Steinberg:',
-            fontHeight: 20,
-            fontWidth: 16),
+          x: 20,
+          y: 380,
+          text: 'Floyd-Steinberg:',
+          fontHeight: 20,
+          fontWidth: 16,
+        ),
         ZplImage(
           x: 400,
           y: 370,
@@ -86,7 +89,12 @@ class _ImageDemoState extends State<ImageDemo> {
 
         // Atkinson
         ZplText(
-            x: 20, y: 660, text: 'Atkinson:', fontHeight: 20, fontWidth: 16),
+          x: 20,
+          y: 660,
+          text: 'Atkinson:',
+          fontHeight: 20,
+          fontWidth: 16,
+        ),
         ZplImage(
           x: 400,
           y: 650,

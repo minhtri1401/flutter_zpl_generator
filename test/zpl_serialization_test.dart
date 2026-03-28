@@ -8,10 +8,7 @@ void main() {
         x: 50,
         y: 50,
         text: '001',
-        serialization: const ZplSerialConfig(
-          increment: 1,
-          leadingZeros: true,
-        ),
+        serialization: const ZplSerialConfig(increment: 1, leadingZeros: true),
       );
 
       final result = text.toZpl(const ZplConfiguration());
@@ -24,10 +21,7 @@ void main() {
         x: 50,
         y: 50,
         text: 'LOT-100',
-        serialization: const ZplSerialConfig(
-          increment: 5,
-          leadingZeros: false,
-        ),
+        serialization: const ZplSerialConfig(increment: 5, leadingZeros: false),
       );
 
       final result = text.toZpl(const ZplConfiguration());
@@ -39,10 +33,7 @@ void main() {
         x: 50,
         y: 50,
         text: '999',
-        serialization: const ZplSerialConfig(
-          increment: -1,
-          leadingZeros: true,
-        ),
+        serialization: const ZplSerialConfig(increment: -1, leadingZeros: true),
       );
 
       final result = text.toZpl(const ZplConfiguration());

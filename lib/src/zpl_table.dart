@@ -96,8 +96,9 @@ class ZplTable extends ZplCommand {
     final headerHeight = rowHeight;
     final totalDataHeight = data.length * rowHeight;
 
-    final borderSpacing =
-        borderThickness > 0 ? (data.length + 1) * borderThickness : 0;
+    final borderSpacing = borderThickness > 0
+        ? (data.length + 1) * borderThickness
+        : 0;
     final totalTableHeight = headerHeight + totalDataHeight + borderSpacing;
 
     if (borderThickness > 0) {
@@ -111,7 +112,8 @@ class ZplTable extends ZplCommand {
     sb.write(headerRow.toZpl(adjustedConfig));
 
     for (int i = 0; i < data.length; i++) {
-      final rowY = y +
+      final rowY =
+          y +
           headerHeight +
           (i * rowHeight) +
           (borderThickness > 0 ? (i + 1) * borderThickness : 0);
@@ -125,7 +127,8 @@ class ZplTable extends ZplCommand {
 
   /// Build a config with width adjusted for borders.
   ZplConfiguration _buildAdjustedConfig(ZplConfiguration context) {
-    final adjustedWidth = (context.printWidth ?? 406) -
+    final adjustedWidth =
+        (context.printWidth ?? 406) -
         (borderThickness > 0 ? 2 * borderThickness : 0);
     return ZplConfiguration(
       darkness: context.darkness,

@@ -40,7 +40,8 @@ class ZplTemplate {
   String bindSync(Map<String, dynamic> data) {
     if (_cachedZpl == null) {
       throw StateError(
-          'ZplTemplate must be initialized with await init() before bindSync is called.');
+        'ZplTemplate must be initialized with await init() before bindSync is called.',
+      );
     }
 
     return _replaceVariables(data);

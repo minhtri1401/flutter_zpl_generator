@@ -62,9 +62,8 @@ class _DemoScaffoldState extends State<DemoScaffold> {
                   child: Text(
                     widget.title,
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
-                        ),
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
                   ),
                 ),
                 Container(
@@ -84,22 +83,29 @@ class _DemoScaffoldState extends State<DemoScaffold> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Features demonstrated',
-                      style: Theme.of(context).textTheme.titleSmall),
+                  Text(
+                    'Features demonstrated',
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
                   const SizedBox(height: 8),
-                  ...widget.features.map((f) => Padding(
-                        padding: const EdgeInsets.only(bottom: 4),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(Icons.check_circle_outline, size: 16),
-                            const SizedBox(width: 8),
-                            Expanded(
-                                child: Text(f,
-                                    style: const TextStyle(fontSize: 13))),
-                          ],
-                        ),
-                      )),
+                  ...widget.features.map(
+                    (f) => Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.check_circle_outline, size: 16),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              f,
+                              style: const TextStyle(fontSize: 13),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -139,13 +145,17 @@ class _DemoScaffoldState extends State<DemoScaffold> {
                     top: 4,
                     right: 4,
                     child: IconButton(
-                      icon: const Icon(Icons.copy,
-                          size: 18, color: Colors.white70),
+                      icon: const Icon(
+                        Icons.copy,
+                        size: 18,
+                        color: Colors.white70,
+                      ),
                       onPressed: () {
                         Clipboard.setData(ClipboardData(text: _zpl!));
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('ZPL copied to clipboard')),
+                            content: Text('ZPL copied to clipboard'),
+                          ),
                         );
                       },
                     ),

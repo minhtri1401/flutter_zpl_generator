@@ -31,7 +31,10 @@ void main() {
 
     test('Format with pause and override', () {
       final cmd = ZplPrintQuantity(
-          quantity: 50, pauseInterval: 10, overridePause: true);
+        quantity: 50,
+        pauseInterval: 10,
+        overridePause: true,
+      );
       expect(cmd.toZpl(config), '^PQ50,10,0,Y');
     });
 

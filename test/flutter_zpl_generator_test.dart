@@ -16,10 +16,73 @@ Future<Uint8List> loadImageBytes(String filename) async {
   } else {
     // Fallback to valid 1x1 transparent PNG
     return Uint8List.fromList([
-      137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1,
-      0, 0, 0, 1, 8, 6, 0, 0, 0, 31, 21, 196, 137, 0, 0, 0, 10, 73, 68, 65, 84,
-      120, 156, 99, 96, 0, 0, 0, 2, 0, 1, 226, 38, 5, 163, 0, 0, 0, 0, 73, 69,
-      78, 68, 174, 66, 96, 130
+      137,
+      80,
+      78,
+      71,
+      13,
+      10,
+      26,
+      10,
+      0,
+      0,
+      0,
+      13,
+      73,
+      72,
+      68,
+      82,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      1,
+      8,
+      6,
+      0,
+      0,
+      0,
+      31,
+      21,
+      196,
+      137,
+      0,
+      0,
+      0,
+      10,
+      73,
+      68,
+      65,
+      84,
+      120,
+      156,
+      99,
+      96,
+      0,
+      0,
+      0,
+      2,
+      0,
+      1,
+      226,
+      38,
+      5,
+      163,
+      0,
+      0,
+      0,
+      0,
+      73,
+      69,
+      78,
+      68,
+      174,
+      66,
+      96,
+      130,
     ]);
   }
 }
@@ -62,7 +125,8 @@ void main() {
         printSpeed: 4,
         printMode: ZplPrintMode.tearOff,
       );
-      const expectedZpl = '~SD15\n'
+      const expectedZpl =
+          '~SD15\n'
           '^LL600\n'
           '^LH10,20\n'
           '^PR4\n'
@@ -74,7 +138,8 @@ void main() {
   group('ZplText Tests', () {
     test('Basic ZplText should generate correct ZPL', () {
       final text = ZplText(x: 50, y: 100, text: 'Hello ZPL');
-      final expectedZpl = '^FO50,100\n'
+      final expectedZpl =
+          '^FO50,100\n'
           '^A0N,,\n'
           '^FDHello ZPL^FS\n';
       expect(text.toZpl(const ZplConfiguration()), expectedZpl);
@@ -90,7 +155,8 @@ void main() {
         fontWidth: 20,
         orientation: ZplOrientation.rotated90,
       );
-      const expectedZpl = '^FO30,60\n'
+      const expectedZpl =
+          '^FO30,60\n'
           '^AAR,30,20\n'
           '^FDRotated Text^FS\n';
       expect(text.toZpl(const ZplConfiguration()), expectedZpl);
@@ -100,7 +166,8 @@ void main() {
   group('ZplBarcode Tests', () {
     test('Basic Code128 barcode should generate correct ZPL', () {
       final barcode = ZplBarcode(x: 50, y: 150, data: '12345ABC', height: 100);
-      const expectedZpl = '^FO50,150\n'
+      const expectedZpl =
+          '^FO50,150\n'
           '^BCN,100,Y,N,N,A\n'
           '^FD12345ABC^FS\n';
       expect(barcode.toZpl(const ZplConfiguration()), expectedZpl);
@@ -115,7 +182,8 @@ void main() {
         moduleWidth: 3,
         wideBarToNarrowBarRatio: 2.5,
       );
-      const expectedZpl = '^FO50,150\n'
+      const expectedZpl =
+          '^FO50,150\n'
           '^BY3,2.5\n'
           '^BCN,100,Y,N,N,A\n'
           '^FD12345ABC^FS\n';
@@ -215,8 +283,7 @@ void main() {
   });
 
   group('ZplFontAsset Tests', () {
-    test('should download a font and then use it in a ZplText command',
-        () async {
+    test('should download a font and then use it in a ZplText command', () async {
       // 1. Define the font asset (asset loading won't work in test context)
       final font = ZplFontAsset(
         assetPath: 'assets/fonts/Roboto-Regular.ttf',
@@ -268,7 +335,8 @@ void main() {
         ],
       );
 
-      const expectedZpl = '^XA\n'
+      const expectedZpl =
+          '^XA\n'
           '^FO10,10\n^A0N,,\n^FDTest^FS\n'
           '^FO10,40\n^BCN,50,Y,N,N,A\n^FD123^FS\n'
           '^XZ\n';
@@ -819,7 +887,8 @@ void main() {
       ];
       final generator = ZplGenerator(config: config, commands: commands);
 
-      final expectedZpl = '''
+      final expectedZpl =
+          '''
 ^XA
 ^LL800
 ^PR4
@@ -834,8 +903,8 @@ void main() {
 ^GB400,200,2,B,0^FS
 ^XZ
 '''
-          .replaceAll(RegExp(r'\n\s*'), '\n') // Normalize indentation
-          .trim();
+              .replaceAll(RegExp(r'\n\s*'), '\n') // Normalize indentation
+              .trim();
 
       expect((await generator.build()).trim(), expectedZpl);
     },

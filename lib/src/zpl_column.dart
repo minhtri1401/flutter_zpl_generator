@@ -7,6 +7,7 @@ import 'zpl_separator.dart';
 import 'zpl_conditional.dart';
 import 'zpl_configuration.dart';
 import 'enums.dart';
+import 'zpl_text_block.dart';
 
 /// A layout helper to arrange multiple [ZplCommand] objects vertically in a column.
 /// Children are positioned automatically based on their calculated heights.
@@ -72,6 +73,7 @@ class ZplColumn extends ZplCommand {
           ? _calculateElementHeight(element.child, context)
           : 0;
     }
+    if (element is ZplTextBlock) return element.maxHeight;
     return 20;
   }
 
@@ -166,6 +168,16 @@ class ZplColumn extends ZplCommand {
       return ZplConditional(
         condition: child.condition,
         child: _updateChildPosition(child.child, newX, newY, context),
+      );
+    }
+    if (child is ZplTextBlock) {
+      return ZplTextBlock(
+        x: newX,
+        y: newY,
+        text: child.text,
+        orientation: child.orientation,
+        maxWidth: columnWidth < child.maxWidth ? columnWidth : child.maxWidth,
+        maxHeight: child.maxHeight,
       );
     }
     return child;

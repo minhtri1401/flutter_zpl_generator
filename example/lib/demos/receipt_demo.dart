@@ -7,8 +7,11 @@ class ReceiptItem {
   final int quantity;
   final String name;
   final double unitPrice;
-  ReceiptItem(
-      {required this.quantity, required this.name, required this.unitPrice});
+  ReceiptItem({
+    required this.quantity,
+    required this.name,
+    required this.unitPrice,
+  });
   double get totalPrice => quantity * unitPrice;
 }
 
@@ -43,10 +46,16 @@ class ReceiptDemo extends StatelessWidget {
   List<ZplCommand> _buildCommands() {
     final items = [
       ReceiptItem(
-          quantity: 1, name: 'Fuel Plastic Jug (10 gal)', unitPrice: 34.00),
+        quantity: 1,
+        name: 'Fuel Plastic Jug (10 gal)',
+        unitPrice: 34.00,
+      ),
       ReceiptItem(quantity: 1, name: 'Gas Hose (5 feet)', unitPrice: 15.00),
       ReceiptItem(
-          quantity: 100, name: 'Aluminum Screw (4 in)', unitPrice: 0.87),
+        quantity: 100,
+        name: 'Aluminum Screw (4 in)',
+        unitPrice: 0.87,
+      ),
     ];
     final subtotal = items.fold(0.0, (sum, i) => sum + i.totalPrice);
     const taxRate = 0.12;
@@ -87,14 +96,20 @@ class ReceiptDemo extends StatelessWidget {
             child: ZplColumn(
               children: [
                 ZplText(
-                    text: 'Big Machinery, LLC', fontHeight: 25, fontWidth: 22),
+                  text: 'Big Machinery, LLC',
+                  fontHeight: 25,
+                  fontWidth: 22,
+                ),
                 ZplText(
                   text: '3345, Diamond St, Orange City, ST 9987',
                   fontHeight: 18,
                   fontWidth: 16,
                 ),
                 ZplText(
-                    text: 'machinery@big.com', fontHeight: 18, fontWidth: 16),
+                  text: 'machinery@big.com',
+                  fontHeight: 18,
+                  fontWidth: 16,
+                ),
               ],
             ),
           ),
@@ -122,22 +137,40 @@ class ReceiptDemo extends StatelessWidget {
         borderThickness: 2,
         cellPadding: 6,
         headers: [
-          ZplTableHeader('Item',
-              alignment: ZplAlignment.left, fontHeight: 22, fontWidth: 20),
-          ZplTableHeader('Qty',
-              alignment: ZplAlignment.center, fontHeight: 22, fontWidth: 20),
-          ZplTableHeader('Unit',
-              alignment: ZplAlignment.center, fontHeight: 22, fontWidth: 20),
-          ZplTableHeader('Total',
-              alignment: ZplAlignment.center, fontHeight: 22, fontWidth: 20),
+          ZplTableHeader(
+            'Item',
+            alignment: ZplAlignment.left,
+            fontHeight: 22,
+            fontWidth: 20,
+          ),
+          ZplTableHeader(
+            'Qty',
+            alignment: ZplAlignment.center,
+            fontHeight: 22,
+            fontWidth: 20,
+          ),
+          ZplTableHeader(
+            'Unit',
+            alignment: ZplAlignment.center,
+            fontHeight: 22,
+            fontWidth: 20,
+          ),
+          ZplTableHeader(
+            'Total',
+            alignment: ZplAlignment.center,
+            fontHeight: 22,
+            fontWidth: 20,
+          ),
         ],
         data: items
-            .map((item) => [
-                  item.name,
-                  item.quantity.toString().padLeft(2, '0'),
-                  '\$${item.unitPrice.toStringAsFixed(2)}',
-                  '\$${item.totalPrice.toStringAsFixed(2)}',
-                ])
+            .map(
+              (item) => [
+                item.name,
+                item.quantity.toString().padLeft(2, '0'),
+                '\$${item.unitPrice.toStringAsFixed(2)}',
+                '\$${item.totalPrice.toStringAsFixed(2)}',
+              ],
+            )
             .toList(),
         dataFontHeight: 18,
         dataFontWidth: 16,

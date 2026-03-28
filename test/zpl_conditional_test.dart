@@ -57,15 +57,18 @@ void main() {
     });
 
     test('inside ZplGridRow skips height calculations when false', () async {
-      final row = ZplGridRow(y: 100, children: [
-        ZplGridCol(
-          width: 12,
-          child: ZplConditional(
-            condition: false,
-            child: ZplText(text: 'Hidden Grid Child', fontHeight: 50),
+      final row = ZplGridRow(
+        y: 100,
+        children: [
+          ZplGridCol(
+            width: 12,
+            child: ZplConditional(
+              condition: false,
+              child: ZplText(text: 'Hidden Grid Child', fontHeight: 50),
+            ),
           ),
-        )
-      ]);
+        ],
+      );
 
       final height = row.calculateHeight(const ZplConfiguration());
       expect(height, equals(0)); // Height must be exactly 0, not 50.

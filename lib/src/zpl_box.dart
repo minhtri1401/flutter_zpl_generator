@@ -36,18 +36,18 @@ class ZplBox extends ZplCommand {
     this.lineColor = 'B',
     this.cornerRounding = 0,
     this.reversePrint = false,
-  })  : assert(
-          borderThickness >= 1 && borderThickness <= 32000,
-          'Border thickness must be between 1 and 32,000 dots',
-        ),
-        assert(
-          lineColor == 'B' || lineColor == 'W',
-          'Line color must be B (black) or W (white)',
-        ),
-        assert(
-          cornerRounding >= 0 && cornerRounding <= 8,
-          'Corner rounding must be between 0 (no rounding) and 8 (maximum rounding)',
-        );
+  }) : assert(
+         borderThickness >= 1 && borderThickness <= 32000,
+         'Border thickness must be between 1 and 32,000 dots',
+       ),
+       assert(
+         lineColor == 'B' || lineColor == 'W',
+         'Line color must be B (black) or W (white)',
+       ),
+       assert(
+         cornerRounding >= 0 && cornerRounding <= 8,
+         'Corner rounding must be between 0 (no rounding) and 8 (maximum rounding)',
+       );
 
   @override
   String toZpl(ZplConfiguration context) {
@@ -57,7 +57,8 @@ class ZplBox extends ZplCommand {
       sb.writeln('^FR');
     }
     sb.writeln(
-        '^GB$width,$height,$borderThickness,$lineColor,$cornerRounding^FS');
+      '^GB$width,$height,$borderThickness,$lineColor,$cornerRounding^FS',
+    );
     return sb.toString();
   }
 

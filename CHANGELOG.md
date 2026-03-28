@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.0] - 2026-03-28
+
+The "Native Preview & Advanced Typography" Release.
+
+### Added
+- **Native Offline Canvas Preview**: Added `ZplNativePreview` and `ZplCanvasPainter` for high-performance offline rendering of ZPL layouts in Flutter without relying on external network calls.
+- **Advanced Typography (`^PA`)**: Added `ZplAdvancedTextProperties` for fine-grained control over text alignment and styling.
+- **Text Blocks (`^TB`)**: Added `ZplTextBlock` support, natively integrated into `ZplGridRow` and `ZplColumn` for complex rich-text layouts.
+- **Zebra BASIC Interpreter (ZBI) Commands**: Implemented `ZplZbiStart` (`~JI`), `ZplZbiStop` (`~JQ`), `ZplHostQuery` (`~HQ`), and `ZplEarlyWarning` (`^JH`) for programmatic printer control and bidirectional host querying.
+
+### Dependencies
+- Added `barcode: ^2.2.9` to support native offline barcode generation.
+
 ## [1.4.0] - 2026-03-28
 
 The "Enterprise Networking & Hardware Integrations" Release.

@@ -8,6 +8,7 @@ import 'zpl_image.dart';
 import 'zpl_box.dart';
 import 'zpl_separator.dart';
 import 'zpl_conditional.dart';
+import 'zpl_text_block.dart';
 
 /// Creates a row with a 12-unit grid system for structured layouts.
 ///
@@ -192,6 +193,19 @@ class ZplGridRow extends ZplCommand {
       );
     }
 
+    if (child is ZplTextBlock) {
+      return ZplTextBlock(
+        x: newX,
+        y: newY,
+        text: child.text,
+        orientation: child.orientation,
+        maxWidth: availableWidth < child.maxWidth
+            ? availableWidth
+            : child.maxWidth,
+        maxHeight: child.maxHeight,
+      );
+    }
+
     return child;
   }
 
@@ -237,6 +251,7 @@ class ZplGridRow extends ZplCommand {
     if (child is ZplConditional) {
       return child.condition ? _calculateChildHeight(child.child, config) : 0;
     }
+    if (child is ZplTextBlock) return child.maxHeight;
     return 20;
   }
 }

@@ -15,9 +15,7 @@ void main() {
       labelLength: 609,
       printDensity: ZplPrintDensity.d8,
     ),
-    commands: [
-      ZplText(x: 50, y: 50, text: 'Hello World'),
-    ],
+    commands: [ZplText(x: 50, y: 50, text: 'Hello World')],
     density: '8dpmm',
     width: '2.0',
     height: '3.0',
@@ -205,11 +203,16 @@ void _printMultiLabelExample() async {
 
   final generator1 = ZplGenerator(config: labelConfig, commands: []);
   final generator2 = ZplGenerator(
-      config: labelConfig, commands: [ZplText(x: 50, y: 50, text: 'Label 2')]);
+    config: labelConfig,
+    commands: [ZplText(x: 50, y: 50, text: 'Label 2')],
+  );
   final generator3 = ZplGenerator(
-      config: labelConfig, commands: [ZplText(x: 50, y: 50, text: 'Label 3')]);
+    config: labelConfig,
+    commands: [ZplText(x: 50, y: 50, text: 'Label 3')],
+  );
 
-  final multipleZpl = (await generator1.build()) +
+  final multipleZpl =
+      (await generator1.build()) +
       (await generator2.build()) +
       (await generator3.build());
 

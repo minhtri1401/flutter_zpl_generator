@@ -14,10 +14,7 @@ class GraphicsDemo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final generator = ZplGenerator(
-      config: _config,
-      commands: _buildCommands(),
-    );
+    final generator = ZplGenerator(config: _config, commands: _buildCommands());
 
     return DemoScaffold(
       title: 'Graphics & Shapes',
@@ -58,39 +55,47 @@ class GraphicsDemo extends StatelessWidget {
 
       // Rounded box
       ZplBox(
-          x: 200,
-          y: 130,
-          width: 150,
-          height: 100,
-          borderThickness: 2,
-          cornerRounding: 5),
+        x: 200,
+        y: 130,
+        width: 150,
+        height: 100,
+        borderThickness: 2,
+        cornerRounding: 5,
+      ),
       ZplText(x: 215, y: 165, text: 'Rounded', fontHeight: 16, fontWidth: 14),
 
       // Filled box
       ZplBox(x: 380, y: 130, width: 150, height: 100, borderThickness: 100),
       ZplText(
-          x: 395,
-          y: 165,
-          text: 'Filled',
-          fontHeight: 16,
-          fontWidth: 14,
-          reversePrint: true),
+        x: 395,
+        y: 165,
+        text: 'Filled',
+        fontHeight: 16,
+        fontWidth: 14,
+        reversePrint: true,
+      ),
 
       // Reverse print box
       ZplBox(
-          x: 560,
-          y: 130,
-          width: 150,
-          height: 100,
-          borderThickness: 100,
-          reversePrint: true),
+        x: 560,
+        y: 130,
+        width: 150,
+        height: 100,
+        borderThickness: 100,
+        reversePrint: true,
+      ),
       ZplText(x: 575, y: 165, text: 'Reverse', fontHeight: 16, fontWidth: 14),
 
       ZplSeparator(y: 255, thickness: 1),
 
       // === Circles ===
       ZplText(
-          x: 20, y: 275, text: 'Circles (^GC):', fontHeight: 20, fontWidth: 16),
+        x: 20,
+        y: 275,
+        text: 'Circles (^GC):',
+        fontHeight: 20,
+        fontWidth: 16,
+      ),
 
       // Thin circle
       ZplGraphicCircle(x: 20, y: 310, diameter: 100, borderThickness: 2),
@@ -118,36 +123,53 @@ class GraphicsDemo extends StatelessWidget {
 
       // === Ellipses ===
       ZplText(
-          x: 20,
-          y: 450,
-          text: 'Ellipses (^GE):',
-          fontHeight: 20,
-          fontWidth: 16),
+        x: 20,
+        y: 450,
+        text: 'Ellipses (^GE):',
+        fontHeight: 20,
+        fontWidth: 16,
+      ),
 
       // Wide ellipse
       ZplGraphicEllipse(
-          x: 20, y: 485, width: 200, height: 80, borderThickness: 2),
+        x: 20,
+        y: 485,
+        width: 200,
+        height: 80,
+        borderThickness: 2,
+      ),
       ZplText(x: 70, y: 515, text: 'Wide', fontHeight: 14, fontWidth: 12),
 
       // Tall ellipse
       ZplGraphicEllipse(
-          x: 260, y: 485, width: 80, height: 100, borderThickness: 2),
+        x: 260,
+        y: 485,
+        width: 80,
+        height: 100,
+        borderThickness: 2,
+      ),
       ZplText(x: 275, y: 525, text: 'Tall', fontHeight: 14, fontWidth: 12),
 
       // Thick ellipse
       ZplGraphicEllipse(
-          x: 380, y: 485, width: 180, height: 90, borderThickness: 8),
+        x: 380,
+        y: 485,
+        width: 180,
+        height: 90,
+        borderThickness: 8,
+      ),
       ZplText(x: 430, y: 520, text: 'Thick', fontHeight: 14, fontWidth: 12),
 
       ZplSeparator(y: 610, thickness: 1),
 
       // === Diagonal Lines ===
       ZplText(
-          x: 20,
-          y: 630,
-          text: 'Diagonal Lines (^GD):',
-          fontHeight: 20,
-          fontWidth: 16),
+        x: 20,
+        y: 630,
+        text: 'Diagonal Lines (^GD):',
+        fontHeight: 20,
+        fontWidth: 16,
+      ),
 
       // Right-leaning
       ZplGraphicDiagonalLine(
@@ -194,11 +216,12 @@ class GraphicsDemo extends StatelessWidget {
 
       // === ZplRaw escape hatch ===
       ZplText(
-          x: 20,
-          y: 845,
-          text: 'ZplRaw (escape hatch):',
-          fontHeight: 20,
-          fontWidth: 16),
+        x: 20,
+        y: 845,
+        text: 'ZplRaw (escape hatch):',
+        fontHeight: 20,
+        fontWidth: 16,
+      ),
       // Raw ZPL: draw a custom field with direct ZPL commands
       ZplRaw(command: '^FO20,880^A0N,24,20^FDThis line is from ZplRaw^FS'),
       ZplRaw(command: '^FO20,915^GB772,0,3^FS'),

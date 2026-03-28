@@ -11,10 +11,7 @@ class ZplConditional extends ZplCommand {
   /// The child command to render if the condition is true.
   final ZplCommand child;
 
-  const ZplConditional({
-    required this.condition,
-    required this.child,
-  });
+  const ZplConditional({required this.condition, required this.child});
 
   @override
   String toZpl(ZplConfiguration context) {

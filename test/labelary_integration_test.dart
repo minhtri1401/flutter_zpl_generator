@@ -125,7 +125,8 @@ void main() {
           commands: [ZplText(x: 50, y: 50, text: 'Label 3')],
         );
 
-        final zpl = await generator1.build() +
+        final zpl =
+            await generator1.build() +
             await generator2.build() +
             await generator3.build();
 
@@ -223,7 +224,8 @@ void main() {
       }, skip: shouldSkip);
 
       test('renderZpl - JSON output for data extraction', () async {
-        const zpl = '^XA'
+        const zpl =
+            '^XA'
             '^FO50,50^A0N,30,30^FDProduct: ABC123^FS'
             '^FO50,100^A0N,30,30^FDPrice: \$19.99^FS'
             '^FO50,150^BY2^BCN,80,Y,N,N^FD123456789^FS'

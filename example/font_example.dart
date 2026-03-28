@@ -141,7 +141,8 @@ void manualFontUploadExample() async {
   print(uploadCommand);
 
   // You can then include this in your ZPL manually if needed
-  final manualZpl = '''
+  final manualZpl =
+      '''
 ^XA
 $uploadCommand
 ^FO50,50

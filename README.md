@@ -52,6 +52,10 @@ The library boasts an unparalleled set of components, beautifully simulated insi
 
 ### 🖼️ Live Flutter Preview
 - The `ZplPreview` widget hooks up directly to Labelary endpoints recursively respecting the `generator` state for immediate real-time feedback visually in Flutter while you code.
+- Alternatively, you can run the **`ZplNativePreview`** widget which operates completely 100% offline leveraging `CustomPainter` to natively reconstruct elements! 
+
+> **Important Disclosure**: 
+> The native preview (`ZplNativePreview`) provides a highly performant offline UI mapping capability. However, ZPL is ultimately a hardware execution language. Thus, while it maps boundaries correctly, it will incredibly rarely map **100% visually identically** to the final printer firmware output due to nuances in built-in Zebra TTF rendering logic, line kerning, dot inflation, and physical ribbon tracking.
 
 ---
 

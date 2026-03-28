@@ -120,9 +120,7 @@ class ZplText extends ZplCommand {
       }
     } else {
       // Left alignment or no alignment
-      final alignedX = (x == 0 && maxWidth == null)
-          ? _calculateAlignedX(context)
-          : x;
+      final alignedX = (x == 0 && maxWidth == null) ? getAlignedX(context) : x;
       sb.writeln('^FO$alignedX,$y');
       _writeFontCommand(sb);
       if (maxLines > 1) {
@@ -165,32 +163,26 @@ class ZplText extends ZplCommand {
     }
   }
 
-  /// Calculate the X position based on alignment and available width.
-  int _calculateAlignedX(ZplConfiguration context) {
+  /// Calculate the X position based on alignment, available width, and left padding.
+  int getAlignedX(ZplConfiguration context) {
     int baseX = x + paddingLeft;
 
     if (x != 0 || alignment == null) {
       return baseX;
     }
 
-    final labelWidth = context.printWidth ?? 406;
-    final textWidth = _calculateTextWidth();
-    final availableWidth = labelWidth - paddingLeft - paddingRight;
-
-    int calculatedX;
+    final labelWidth = maxWidth ?? context.printWidth ?? 406;
+    final textWidth = calculateWidth(context);
     switch (alignment!) {
       case ZplAlignment.center:
-        calculatedX = paddingLeft + ((availableWidth - textWidth) ~/ 2);
-        break;
+        return baseX +
+            ((labelWidth - textWidth) ~/ 2).clamp(0, labelWidth - 1).toInt();
       case ZplAlignment.right:
-        calculatedX = paddingLeft + (availableWidth - textWidth);
-        break;
+        return baseX +
+            (labelWidth - textWidth).clamp(0, labelWidth - 1).toInt();
       case ZplAlignment.left:
-        calculatedX = paddingLeft;
-        break;
+        return baseX;
     }
-
-    return calculatedX.clamp(0, labelWidth - paddingRight - 1);
   }
 
   /// Calculate the approximate width of the text.

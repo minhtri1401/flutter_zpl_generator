@@ -290,6 +290,97 @@ class ZplTable extends ZplCommand {
     return sb.toString();
   }
 
+  /// Decompose this table into drawable primitives (boxes + grid rows)
+  /// for use by the native canvas painter.
+  List<ZplCommand> getDrawableCommands(ZplConfiguration context) {
+    final List<ZplCommand> result = [];
+    final labelWidth = context.printWidth ?? 406;
+    final tableWidth = labelWidth;
+    final rowHeight = _calculateRowHeight();
+    final headerHeight = rowHeight;
+    final totalDataHeight = data.length * rowHeight;
+    final borderSpacing = borderThickness > 0
+        ? (data.length + 1) * borderThickness
+        : 0;
+    final totalTableHeight = headerHeight + totalDataHeight + borderSpacing;
+
+    // Borders
+    if (borderThickness > 0) {
+      // Outer border
+      result.add(
+        ZplBox(
+          x: x,
+          y: y,
+          width: tableWidth,
+          height: totalTableHeight,
+          borderThickness: borderThickness,
+        ),
+      );
+
+      // Header separator
+      result.add(
+        ZplBox(
+          x: x,
+          y: y + rowHeight,
+          width: tableWidth,
+          height: borderThickness,
+          borderThickness: borderThickness,
+        ),
+      );
+
+      // Row separators
+      for (int i = 1; i < data.length; i++) {
+        final lineY = y + rowHeight + (i * rowHeight) + (i * borderThickness);
+        result.add(
+          ZplBox(
+            x: x,
+            y: lineY,
+            width: tableWidth,
+            height: borderThickness,
+            borderThickness: borderThickness,
+          ),
+        );
+      }
+
+      // Vertical column separators
+      if (columnWidths.length > 1) {
+        final unitWidth = tableWidth / 12.0;
+        int currentGridPosition = 0;
+        for (int i = 0; i < columnWidths.length - 1; i++) {
+          currentGridPosition += columnWidths[i];
+          final lineX = x + (currentGridPosition * unitWidth).round();
+          result.add(
+            ZplBox(
+              x: lineX,
+              y: y,
+              width: borderThickness,
+              height: totalTableHeight,
+              borderThickness: borderThickness,
+            ),
+          );
+        }
+      }
+    }
+
+    // Content rows (header + data)
+    final adjustedConfig = _buildAdjustedConfig(context);
+
+    final headerRow = _createHeaderRow(adjustedConfig);
+    result.addAll(headerRow.getPositionedChildren(adjustedConfig));
+
+    for (int i = 0; i < data.length; i++) {
+      final rowY =
+          y +
+          headerHeight +
+          (i * rowHeight) +
+          (borderThickness > 0 ? (i + 1) * borderThickness : 0);
+      final dataRow = _createDataRow(data[i], rowY, adjustedConfig);
+      result.addAll(dataRow.getPositionedChildren(adjustedConfig));
+    }
+
+    return result;
+  }
+
   @override
   int calculateWidth(ZplConfiguration config) {
     return config.printWidth ?? 406;

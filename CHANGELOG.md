@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.1] - 2026-03-28
+
+### Fixed
+- **Native Preview Fixes**: Stabilized anti-aliasing artifacts on `ZplCanvasPainter` that resulted in edge-bleeding in scannable offline barcode widgets. Corrected module-width distortion calculation for 1D and 2D barcodes ensuring perfect native preview parity to printer firmware output.
+- **Native Preview Images**: Upgraded offline native preview to now physically dither and render image payloads directly within the Flutter canvas securely, rather than just displaying a blue placeholder bounds.
+
 ## [1.5.0] - 2026-03-28
 
 The "Native Preview & Advanced Typography" Release.

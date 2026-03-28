@@ -183,6 +183,20 @@ class ZplColumn extends ZplCommand {
     return child;
   }
 
+  /// Returns the children commands with their absolute positions calculated based on spacing.
+  List<ZplCommand> getPositionedChildren(ZplConfiguration context) {
+    final List<ZplCommand> result = [];
+    var currentY = y;
+
+    for (final child in children) {
+      result.add(_updateChildPosition(child, x, currentY, context));
+      final elementHeight = _calculateElementHeight(child, context);
+      currentY += elementHeight + spacing;
+    }
+
+    return result;
+  }
+
   @override
   int calculateWidth(ZplConfiguration config) {
     int maxW = 0;

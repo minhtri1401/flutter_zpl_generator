@@ -209,6 +209,34 @@ class ZplGridRow extends ZplCommand {
     return child;
   }
 
+  /// Returns the children commands with their absolute positions and constraints calculated.
+  /// This is highly useful for canvas painters or visualizers that need precise coordinates.
+  List<ZplCommand> getPositionedChildren(ZplConfiguration context) {
+    final labelWidth = context.printWidth ?? 406;
+    final totalSpacing = (children.length - 1) * columnSpacing;
+    final availableWidth = labelWidth - totalSpacing;
+    final unitWidth = availableWidth / 12.0;
+
+    int actualX = x;
+    final List<ZplCommand> result = [];
+
+    for (int i = 0; i < children.length; i++) {
+      final col = children[i];
+
+      actualX += (col.offset * unitWidth).round();
+      final colWidthDots = (col.width * unitWidth).round();
+
+      result.add(_updateChildPosition(col.child, actualX, y, colWidthDots));
+
+      actualX += colWidthDots;
+      if (i < children.length - 1) {
+        actualX += columnSpacing;
+      }
+    }
+
+    return result;
+  }
+
   @override
   int calculateWidth(ZplConfiguration config) {
     return config.printWidth ?? 406;

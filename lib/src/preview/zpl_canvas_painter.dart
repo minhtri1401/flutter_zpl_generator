@@ -24,6 +24,8 @@ class ZplCanvasPainter extends CustomPainter {
         _drawEllipse(canvas, cmd);
       } else if (cmd is ZplGraphicDiagonalLine) {
         _drawDiagonalLine(canvas, cmd);
+      } else if (cmd is ZplSeparator) {
+        _drawSeparator(canvas, cmd);
       } else if (cmd is ZplBarcode) {
         _drawBarcode(canvas, cmd);
       } else if (cmd is ZplText) {
@@ -32,10 +34,22 @@ class ZplCanvasPainter extends CustomPainter {
         _drawTextBlock(canvas, cmd);
       } else if (cmd is ZplImage) {
         _drawImagePlaceholder(canvas, cmd);
+      } else if (cmd is ZplRaw) {
+        _drawRawZpl(canvas, size, cmd);
       } else if (cmd is ZplGridRow) {
-        _drawCommands(canvas, size, cmd.children.map((c) => c.child).toList());
+        _drawCommands(
+          canvas,
+          size,
+          cmd.getPositionedChildren(generator.config),
+        );
       } else if (cmd is ZplColumn) {
-        _drawCommands(canvas, size, cmd.children);
+        _drawCommands(
+          canvas,
+          size,
+          cmd.getPositionedChildren(generator.config),
+        );
+      } else if (cmd is ZplTable) {
+        _drawCommands(canvas, size, cmd.getDrawableCommands(generator.config));
       }
     }
   }
@@ -43,6 +57,7 @@ class ZplCanvasPainter extends CustomPainter {
   void _drawBox(Canvas canvas, ZplBox box) {
     final paint = Paint()
       ..color = box.reversePrint ? Colors.white : Colors.black
+      ..blendMode = box.reversePrint ? BlendMode.difference : BlendMode.srcOver
       ..style =
           box.borderThickness >= box.width / 2 &&
               box.borderThickness >= box.height / 2
@@ -50,11 +65,14 @@ class ZplCanvasPainter extends CustomPainter {
           : PaintingStyle.stroke
       ..strokeWidth = box.borderThickness.toDouble();
 
+    final inset = paint.style == PaintingStyle.stroke
+        ? box.borderThickness / 2
+        : 0.0;
     final rect = Rect.fromLTWH(
-      box.x.toDouble(),
-      box.y.toDouble(),
-      box.width.toDouble(),
-      box.height.toDouble(),
+      box.x.toDouble() + inset,
+      box.y.toDouble() + inset,
+      (box.width.toDouble() - (inset * 2)).clamp(0, double.infinity),
+      (box.height.toDouble() - (inset * 2)).clamp(0, double.infinity),
     );
 
     if (box.cornerRounding > 0) {
@@ -69,30 +87,46 @@ class ZplCanvasPainter extends CustomPainter {
   }
 
   void _drawCircle(Canvas canvas, ZplGraphicCircle circle) {
+    final isFilled = circle.borderThickness >= circle.diameter / 2;
     final paint = Paint()
       ..color = Colors.black
-      ..style = PaintingStyle.stroke
+      ..style = isFilled ? PaintingStyle.fill : PaintingStyle.stroke
       ..strokeWidth = circle.borderThickness.toDouble();
 
     final radius = circle.diameter / 2;
-    canvas.drawCircle(
-      Offset(circle.x + radius, circle.y + radius),
-      radius,
-      paint,
-    );
+    if (isFilled) {
+      canvas.drawCircle(
+        Offset(circle.x + radius, circle.y + radius),
+        radius,
+        paint,
+      );
+    } else {
+      final inset = circle.borderThickness / 2;
+      canvas.drawCircle(
+        Offset(circle.x + radius, circle.y + radius),
+        radius - inset,
+        paint,
+      );
+    }
   }
 
   void _drawEllipse(Canvas canvas, ZplGraphicEllipse ellipse) {
+    final isFilled =
+        ellipse.borderThickness >= ellipse.width / 2 &&
+        ellipse.borderThickness >= ellipse.height / 2;
     final paint = Paint()
       ..color = Colors.black
-      ..style = PaintingStyle.stroke
+      ..style = isFilled ? PaintingStyle.fill : PaintingStyle.stroke
       ..strokeWidth = ellipse.borderThickness.toDouble();
 
+    final inset = paint.style == PaintingStyle.stroke
+        ? ellipse.borderThickness / 2
+        : 0.0;
     final rect = Rect.fromLTWH(
-      ellipse.x.toDouble(),
-      ellipse.y.toDouble(),
-      ellipse.width.toDouble(),
-      ellipse.height.toDouble(),
+      ellipse.x.toDouble() + inset,
+      ellipse.y.toDouble() + inset,
+      (ellipse.width.toDouble() - (inset * 2)).clamp(0, double.infinity),
+      (ellipse.height.toDouble() - (inset * 2)).clamp(0, double.infinity),
     );
     canvas.drawOval(rect, paint);
   }
@@ -117,6 +151,139 @@ class ZplCanvasPainter extends CustomPainter {
     }
   }
 
+  void _drawSeparator(Canvas canvas, ZplSeparator separator) {
+    final config = generator.config;
+    final isHorizontal =
+        separator.orientation == ZplOrientation.normal ||
+        separator.orientation == ZplOrientation.inverted180;
+
+    if (separator.type == ZplSeparatorType.character) {
+      _drawCharacterSeparator(canvas, separator, isHorizontal, config);
+    } else {
+      _drawBoxSeparator(canvas, separator, isHorizontal, config);
+    }
+  }
+
+  void _drawBoxSeparator(
+    Canvas canvas,
+    ZplSeparator separator,
+    bool isHorizontal,
+    ZplConfiguration config,
+  ) {
+    final paint = Paint()
+      ..color = Colors.black
+      ..style = PaintingStyle.fill;
+
+    if (isHorizontal) {
+      final startX = (separator.x + separator.paddingLeft).toDouble();
+      final lineLength =
+          separator.length?.toDouble() ??
+          ((separator.maxWidth ?? config.printWidth ?? 406) -
+                  separator.paddingLeft -
+                  separator.paddingRight)
+              .toDouble();
+      canvas.drawRect(
+        Rect.fromLTWH(
+          startX,
+          separator.y.toDouble(),
+          lineLength,
+          separator.thickness.toDouble(),
+        ),
+        paint,
+      );
+    } else {
+      final startY = (separator.y + separator.paddingTop).toDouble();
+      final lineLength =
+          separator.length?.toDouble() ??
+          ((config.labelLength ?? 600) -
+                  separator.paddingTop -
+                  separator.paddingBottom)
+              .toDouble();
+      canvas.drawRect(
+        Rect.fromLTWH(
+          separator.x.toDouble(),
+          startY,
+          separator.thickness.toDouble(),
+          lineLength,
+        ),
+        paint,
+      );
+    }
+  }
+
+  void _drawCharacterSeparator(
+    Canvas canvas,
+    ZplSeparator separator,
+    bool isHorizontal,
+    ZplConfiguration config,
+  ) {
+    final fh = separator.fontHeight.toDouble();
+    final fw = separator.fontWidth.toDouble();
+    final hScale = (fw / fh).clamp(0.5, 1.0);
+
+    if (isHorizontal) {
+      final availableWidth =
+          separator.length?.toDouble() ??
+          ((separator.maxWidth ?? config.printWidth ?? 406) -
+                  separator.paddingLeft -
+                  separator.paddingRight)
+              .toDouble();
+      final charCount = (availableWidth / fw).floor();
+      final text = separator.character * charCount;
+
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: text,
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: fh,
+            fontWeight: FontWeight.w600,
+            height: 1.0,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      textPainter.layout();
+
+      final startX = (separator.x + separator.paddingLeft).toDouble();
+      canvas.save();
+      canvas.translate(startX, separator.y.toDouble());
+      canvas.scale(hScale, 1.0);
+      textPainter.paint(canvas, Offset.zero);
+      canvas.restore();
+    } else {
+      final availableHeight =
+          separator.length?.toDouble() ??
+          ((config.labelLength ?? 600) -
+                  separator.paddingTop -
+                  separator.paddingBottom)
+              .toDouble();
+      final charCount = (availableHeight / fh).floor();
+
+      for (int i = 0; i < charCount; i++) {
+        final charY =
+            separator.y + separator.paddingTop + (i * separator.fontHeight);
+        final textPainter = TextPainter(
+          text: TextSpan(
+            text: separator.character,
+            style: TextStyle(
+              color: Colors.black,
+              fontSize: fh,
+              fontWeight: FontWeight.w600,
+              height: 1.0,
+            ),
+          ),
+          textDirection: TextDirection.ltr,
+        );
+        textPainter.layout();
+        textPainter.paint(
+          canvas,
+          Offset(separator.x.toDouble(), charY.toDouble()),
+        );
+      }
+    }
+  }
+
   void _drawBarcode(Canvas canvas, ZplBarcode zplBarcode) {
     Barcode? barcode;
     if (zplBarcode.type == ZplBarcodeType.code128) {
@@ -125,6 +292,8 @@ class ZplCanvasPainter extends CustomPainter {
       barcode = Barcode.code39();
     } else if (zplBarcode.type == ZplBarcodeType.ean13) {
       barcode = Barcode.ean13();
+    } else if (zplBarcode.type == ZplBarcodeType.upcA) {
+      barcode = Barcode.upcA();
     } else if (zplBarcode.type == ZplBarcodeType.qrCode) {
       barcode = Barcode.qrCode();
     } else if (zplBarcode.type == ZplBarcodeType.dataMatrix) {
@@ -134,81 +303,198 @@ class ZplCanvasPainter extends CustomPainter {
     }
 
     final canvasWidth = generator.config.printWidth?.toDouble() ?? 406.0;
-    // zplBarcode.maxWidth can be null or 0, fallback to a nominal width or remaining canvas width
-    final safeWidth = (zplBarcode.maxWidth != null && zplBarcode.maxWidth! > 0)
-        ? zplBarcode.maxWidth!.toDouble()
-        : (canvasWidth - zplBarcode.x > 50
-              ? canvasWidth - zplBarcode.x
-              : 200.0);
+    final bool is2D =
+        zplBarcode.type == ZplBarcodeType.qrCode ||
+        zplBarcode.type == ZplBarcodeType.dataMatrix;
 
-    final safeHeight = zplBarcode.height > 0
-        ? zplBarcode.height.toDouble()
-        : 50.0;
+    // Use the barcode's calculated width getter (accounts for type, data length, module width)
+    final double renderWidth = zplBarcode.width.toDouble();
+    final double renderHeight = is2D
+        ? renderWidth
+        : (zplBarcode.height > 0 ? zplBarcode.height.toDouble() : 50.0);
 
-    final rect = Rect.fromLTWH(
-      zplBarcode.x.toDouble(),
-      zplBarcode.y.toDouble(),
-      safeWidth,
-      safeHeight,
-    );
+    // X alignment
+    double drawX = zplBarcode.x.toDouble();
+    if (zplBarcode.alignment != null) {
+      final labelWidth = (zplBarcode.maxWidth?.toDouble() ?? canvasWidth);
+      switch (zplBarcode.alignment!) {
+        case ZplAlignment.center:
+          drawX =
+              zplBarcode.x +
+              ((labelWidth - renderWidth) / 2).clamp(0, labelWidth);
+        case ZplAlignment.right:
+          drawX =
+              zplBarcode.x + (labelWidth - renderWidth).clamp(0, labelWidth);
+        case ZplAlignment.left:
+          drawX = zplBarcode.x.toDouble();
+      }
+    }
 
     try {
+      final drawText = zplBarcode.printInterpretationLine;
+      final drawTextAbove = zplBarcode.printInterpretationLineAbove;
+
       final elements = barcode.make(
         zplBarcode.data,
-        width: rect.width,
-        height: rect.height,
-        drawText: zplBarcode.printInterpretationLine,
+        width: renderWidth,
+        height: renderHeight,
+        drawText: drawText,
+        fontHeight: drawText ? 24.0 : null,
       );
 
-      final paint = Paint()..color = Colors.black;
+      canvas.save();
+      final yOffset = (drawText && drawTextAbove) ? 24.0 : 0.0;
+      canvas.translate(drawX, zplBarcode.y.toDouble() + yOffset);
+
+      final paint = Paint()
+        ..style = PaintingStyle.fill
+        ..isAntiAlias = false;
       for (final el in elements) {
         if (el is BarcodeBar) {
+          paint.color = el.black ? Colors.black : Colors.white;
           canvas.drawRect(
-            Rect.fromLTWH(
-              zplBarcode.x + el.left,
-              zplBarcode.y + el.top,
-              el.width,
-              el.height,
-            ),
+            Rect.fromLTWH(el.left, el.top, el.width, el.height),
             paint,
-          );
-        } else if (el is BarcodeText) {
-          _drawFallbackText(
-            canvas,
-            el.text,
-            Offset(zplBarcode.x + el.left, zplBarcode.y + el.top),
           );
         }
       }
+
+      if (drawText) {
+        for (final el in elements) {
+          if (el is BarcodeText) {
+            final textPainter = TextPainter(
+              text: TextSpan(
+                text: el.text,
+                style: const TextStyle(
+                  color: Colors.black,
+                  fontSize: 24,
+                  fontWeight: FontWeight.normal,
+                  fontFamily: 'monospace',
+                ),
+              ),
+              textDirection: TextDirection.ltr,
+              textAlign: TextAlign.center,
+            );
+            textPainter.layout(
+              minWidth: el.width,
+              maxWidth: el.width > 0 ? el.width : double.infinity,
+            );
+
+            final textY = drawTextAbove ? el.top - renderHeight - 24.0 : el.top;
+            textPainter.paint(canvas, Offset(el.left, textY));
+          }
+        }
+      }
+      canvas.restore();
     } catch (e) {
-      final paint = Paint()
-        ..color = const Color(0x809E9E9E); // Colors.grey with 50% opacity
-      canvas.drawRect(rect, paint);
-      _drawFallbackText(canvas, "Barcode [${zplBarcode.type}]", rect.topLeft);
+      final paint = Paint()..color = const Color(0x809E9E9E);
+      canvas.drawRect(
+        Rect.fromLTWH(drawX, zplBarcode.y.toDouble(), 100, 50),
+        paint,
+      );
+      _drawFallbackText(
+        canvas,
+        'Err: $e',
+        Offset(drawX, zplBarcode.y.toDouble()),
+      );
     }
   }
 
   void _drawText(Canvas canvas, ZplText text) {
+    final fh = (text.fontHeight ?? 20).toDouble();
+    final fw = (text.fontWidth ?? (fh * 0.6).round()).toDouble();
+
+    // ZPL fonts render narrower than Flutter's proportional font.
+    // Compress horizontally by the font aspect ratio (always <= 1.0).
+    final hScale = (fw / fh).clamp(0.5, 1.0);
+
+    // Line height: account for lineSpacing when multi-line
+    final lineHeight = text.maxLines > 1 && text.lineSpacing > 0
+        ? (fh + text.lineSpacing) / fh
+        : 1.0;
+
+    TextAlign getTextAlign() {
+      switch (text.alignment) {
+        case ZplAlignment.center:
+          return TextAlign.center;
+        case ZplAlignment.right:
+          return TextAlign.right;
+        default:
+          return TextAlign.left;
+      }
+    }
+
     final textPainter = TextPainter(
       text: TextSpan(
         text: text.text,
         style: TextStyle(
-          color: text.reversePrint ? Colors.white : Colors.black,
-          fontSize: (text.fontHeight ?? 20).toDouble(),
-          height: 1.2,
+          foreground: Paint()
+            ..color = text.reversePrint ? Colors.white : Colors.black
+            ..blendMode = text.reversePrint
+                ? BlendMode.difference
+                : BlendMode.srcOver,
+          fontSize: fh,
+          fontWeight: FontWeight.w600,
+          height: lineHeight,
         ),
       ),
       textDirection: TextDirection.ltr,
+      maxLines: text.maxLines > 1 ? text.maxLines : null,
+      ellipsis: text.maxLines > 1 ? '\u2026' : null,
+      textAlign: getTextAlign(),
     );
-    textPainter.layout(maxWidth: text.maxWidth?.toDouble() ?? double.infinity);
-    textPainter.paint(canvas, Offset(text.x.toDouble(), text.y.toDouble()));
+
+    // When maxWidth is set, use it. Otherwise for multi-line text,
+    // fall back to available width (printWidth - x position).
+    final wrapWidth =
+        text.maxWidth?.toDouble() ??
+        (text.maxLines > 1
+            ? (generator.config.printWidth ?? 406).toDouble() -
+                  text.x.toDouble()
+            : null);
+
+    final effectiveMaxWidth = wrapWidth != null
+        ? wrapWidth / hScale
+        : double.infinity;
+    textPainter.layout(
+      minWidth: wrapWidth != null ? effectiveMaxWidth : 0,
+      maxWidth: effectiveMaxWidth,
+    );
+
+    final scaledWidth = textPainter.width * hScale;
+
+    double drawX = text.x.toDouble();
+    if (text.alignment != null && text.maxWidth == null) {
+      final labelWidth = (generator.config.printWidth ?? 406).toDouble();
+      if (text.x == 0) {
+        switch (text.alignment!) {
+          case ZplAlignment.center:
+            drawX = ((labelWidth - scaledWidth) / 2).clamp(0, labelWidth);
+          case ZplAlignment.right:
+            drawX = (labelWidth - scaledWidth).clamp(0, labelWidth);
+          case ZplAlignment.left:
+            drawX = text.paddingLeft.toDouble();
+        }
+      }
+    }
+
+    canvas.save();
+    canvas.translate(drawX, text.y.toDouble());
+    canvas.scale(hScale, 1.0);
+    textPainter.paint(canvas, Offset.zero);
+    canvas.restore();
   }
 
   void _drawTextBlock(Canvas canvas, ZplTextBlock textBlock) {
     final textPainter = TextPainter(
       text: TextSpan(
         text: textBlock.text,
-        style: const TextStyle(color: Colors.black, fontSize: 24, height: 1.2),
+        style: const TextStyle(
+          color: Colors.black,
+          fontSize: 24,
+          fontWeight: FontWeight.w600,
+          height: 1.2,
+        ),
       ),
       textDirection: TextDirection.ltr,
     );
@@ -220,9 +506,62 @@ class ZplCanvasPainter extends CustomPainter {
   }
 
   void _drawImagePlaceholder(Canvas canvas, ZplImage imageCmd) {
+    try {
+      final monochrome = imageCmd.getMonochromePixels();
+      if (monochrome != null) {
+        final pixels = monochrome.pixels;
+        final w = monochrome.width;
+        final h = monochrome.height;
+        final startX = imageCmd.x.toDouble();
+        final startY = imageCmd.y.toDouble();
+
+        final paint = Paint()
+          ..color = Colors.black
+          ..style = PaintingStyle.fill
+          ..isAntiAlias = false;
+
+        // Draw by coalescing horizontal pixels into rects for performance
+        for (int y = 0; y < h; y++) {
+          int runStartX = -1;
+          for (int x = 0; x < w; x++) {
+            if (pixels[y * w + x]) {
+              if (runStartX == -1) runStartX = x;
+            } else {
+              if (runStartX != -1) {
+                canvas.drawRect(
+                  Rect.fromLTWH(
+                    startX + runStartX,
+                    startY + y.toDouble(),
+                    (x - runStartX).toDouble(),
+                    1,
+                  ),
+                  paint,
+                );
+                runStartX = -1;
+              }
+            }
+          }
+          if (runStartX != -1) {
+            canvas.drawRect(
+              Rect.fromLTWH(
+                startX + runStartX,
+                startY + y.toDouble(),
+                (w - runStartX).toDouble(),
+                1,
+              ),
+              paint,
+            );
+          }
+        }
+        return; // Early return to avoid drawing placeholder
+      }
+    } catch (e) {
+      // Fallback silently to placeholder
+    }
+
     final paint = Paint()
-      ..color =
-          const Color(0x4D00BCD4) // Colors.cyan with 30% opacity
+      // Colors.cyan with 30% opacity
+      ..color = const Color(0x4D00BCD4)
       ..style = PaintingStyle.fill;
 
     // Fallback gracefully since targetWidth may be null or non-null. Let's just use ??
@@ -252,12 +591,75 @@ class ZplCanvasPainter extends CustomPainter {
     final textPainter = TextPainter(
       text: TextSpan(
         text: text,
-        style: const TextStyle(color: Colors.black, fontSize: 12),
+        style: const TextStyle(
+          color: Colors.black,
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
       ),
       textDirection: TextDirection.ltr,
     );
     textPainter.layout();
     textPainter.paint(canvas, offset);
+  }
+
+  void _drawRawZpl(Canvas canvas, Size size, ZplRaw raw) {
+    // A simple regex parser for basic FO, FD, GB, A0 shapes, ONLY for preview purposes
+    final command = raw.command;
+    int currentX = 0;
+    int currentY = 0;
+    int fontHeight = 20;
+    int fontWidth = 20;
+
+    final regex = RegExp(r'\^([A-Z0-9]{2})([^/^~]*)');
+    final matches = regex.allMatches(command);
+
+    for (final match in matches) {
+      final cmd = match.group(1)!;
+      final argsStr = match.group(2) ?? '';
+      final args = argsStr.split(',').map((e) => e.trim()).toList();
+
+      if (cmd == 'FO') {
+        currentX = int.tryParse(args.isNotEmpty ? args[0] : '0') ?? 0;
+        currentY = int.tryParse(args.length > 1 ? args[1] : '0') ?? 0;
+      } else if (cmd == 'A0' ||
+          cmd == 'A@' ||
+          cmd == 'AN' ||
+          cmd.startsWith('A')) {
+        fontHeight = int.tryParse(args.length > 1 ? args[1] : '0') ?? 20;
+        fontWidth = int.tryParse(args.length > 2 ? args[2] : '0') ?? 20;
+      } else if (cmd == 'GB') {
+        // Graphic Box
+        final width = int.tryParse(args.isNotEmpty ? args[0] : '0') ?? 0;
+        final height = int.tryParse(args.length > 1 ? args[1] : '0') ?? 0;
+        final border = int.tryParse(args.length > 2 ? args[2] : '0') ?? 1;
+        _drawBox(
+          canvas,
+          ZplBox(
+            x: currentX,
+            y: currentY,
+            width: width,
+            height: height,
+            borderThickness: border,
+          ),
+        );
+      } else if (cmd == 'FD') {
+        // Field Data
+        _drawText(
+          canvas,
+          ZplText(
+            x: currentX,
+            y: currentY,
+            text: argsStr,
+            fontHeight: fontHeight,
+            fontWidth: fontWidth,
+          ),
+        );
+      } else if (cmd == 'FR') {
+        // Limited support: can't easily affect previous or next blindly here usually without nesting,
+        // but since this is raw escape hatch preview, we just parse the next known nodes if needed.
+      }
+    }
   }
 
   @override

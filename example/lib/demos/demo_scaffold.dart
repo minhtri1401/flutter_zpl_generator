@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 
 /// Reusable scaffold for each demo tab.
-/// Shows the rendered label via ZplPreview + raw ZPL toggle + feature list.
+/// Shows: Features + ZPL toggle -> Online preview -> Native preview.
 class DemoScaffold extends StatefulWidget {
   final String title;
   final ZplGenerator generator;
@@ -45,37 +45,13 @@ class _DemoScaffoldState extends State<DemoScaffold> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Rendered label image
-          Card(
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              children: [
-                Container(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  padding: const EdgeInsets.all(12),
-                  width: double.infinity,
-                  child: Text(
-                    widget.title,
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
-                  ),
-                ),
-                Container(
-                  color: Colors.white,
-                  constraints: const BoxConstraints(minHeight: 100),
-                  child: ZplPreview(generator: widget.generator),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 12),
-
           // Features used
           Card(
             child: Padding(
@@ -164,6 +140,60 @@ class _DemoScaffoldState extends State<DemoScaffold> {
               ),
             ),
           ],
+          const SizedBox(height: 12),
+
+          // Online preview (Labelary API)
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              children: [
+                Container(
+                  color: colorScheme.primaryContainer,
+                  padding: const EdgeInsets.all(12),
+                  width: double.infinity,
+                  child: Text(
+                    'Online Preview (Labelary API)',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ),
+                Container(
+                  color: Colors.white,
+                  constraints: const BoxConstraints(minHeight: 100),
+                  child: ZplPreview(generator: widget.generator),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+
+          // Native offline preview
+          Card(
+            clipBehavior: Clip.antiAlias,
+            child: Column(
+              children: [
+                Container(
+                  color: colorScheme.tertiaryContainer,
+                  width: double.infinity,
+                  child: Text(
+                    'Native Offline Preview (No API)',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: colorScheme.onTertiaryContainer,
+                    ),
+                  ),
+                ),
+                Container(
+                  color: Colors.white,
+                  constraints: const BoxConstraints(minHeight: 100),
+                  child: FittedBox(
+                    fit: BoxFit.contain,
+                    child: ZplNativePreview(generator: widget.generator),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

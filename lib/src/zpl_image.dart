@@ -204,65 +204,103 @@ class ZplImage extends ZplCommand {
     return result;
   }
 
+  Float32List? _generateLuminanceMap(img.Image src) {
+    if (ditheringAlgorithm == ZplDitheringAlgorithm.threshold) return null;
+
+    final srcWidth = src.width;
+    final srcHeight = src.height;
+    final luminanceMap = Float32List(srcWidth * srcHeight);
+
+    for (int y = 0; y < srcHeight; y++) {
+      for (int x = 0; x < srcWidth; x++) {
+        luminanceMap[y * srcWidth + x] = img
+            .getLuminance(src.getPixel(x, y))
+            .toDouble();
+      }
+    }
+
+    for (int y = 0; y < srcHeight; y++) {
+      for (int x = 0; x < srcWidth; x++) {
+        final int index = y * srcWidth + x;
+        final double oldPixel = luminanceMap[index];
+        final double newPixel = oldPixel < 128.0 ? 0.0 : 255.0;
+        luminanceMap[index] = newPixel;
+        final double quantError = oldPixel - newPixel;
+
+        if (ditheringAlgorithm == ZplDitheringAlgorithm.floydSteinberg) {
+          if (x + 1 < srcWidth) {
+            luminanceMap[index + 1] += quantError * 7 / 16;
+          }
+          if (y + 1 < srcHeight) {
+            if (x - 1 >= 0) {
+              luminanceMap[(y + 1) * srcWidth + (x - 1)] += quantError * 3 / 16;
+            }
+            luminanceMap[(y + 1) * srcWidth + x] += quantError * 5 / 16;
+            if (x + 1 < srcWidth) {
+              luminanceMap[(y + 1) * srcWidth + (x + 1)] += quantError * 1 / 16;
+            }
+          }
+        } else if (ditheringAlgorithm == ZplDitheringAlgorithm.atkinson) {
+          final double fraction = quantError / 8.0;
+          if (x + 1 < srcWidth) luminanceMap[index + 1] += fraction;
+          if (x + 2 < srcWidth) luminanceMap[index + 2] += fraction;
+          if (y + 1 < srcHeight) {
+            if (x - 1 >= 0) {
+              luminanceMap[(y + 1) * srcWidth + (x - 1)] += fraction;
+            }
+            luminanceMap[(y + 1) * srcWidth + x] += fraction;
+            if (x + 1 < srcWidth) {
+              luminanceMap[(y + 1) * srcWidth + (x + 1)] += fraction;
+            }
+          }
+          if (y + 2 < srcHeight) {
+            luminanceMap[(y + 2) * srcWidth + x] += fraction;
+          }
+        }
+      }
+    }
+    return luminanceMap;
+  }
+
+  /// Public wrapper to retrieve monochrome boolean pixels suitable for offline canvas rendering.
+  /// Returns a record of (width, height, pixels) where true is a black dot.
+  ({int width, int height, List<bool> pixels})? getMonochromePixels() {
+    var decodedImage = img.decodeImage(image);
+    if (decodedImage == null) return null;
+
+    if (targetWidth != null || targetHeight != null) {
+      decodedImage = img.copyResize(
+        decodedImage,
+        width: targetWidth,
+        height: targetHeight,
+        maintainAspect: maintainAspect,
+      );
+    }
+
+    final srcWidth = decodedImage.width;
+    final srcHeight = decodedImage.height;
+    final luminanceMap = _generateLuminanceMap(decodedImage);
+
+    final pixels = List<bool>.filled(srcWidth * srcHeight, false);
+    for (int h = 0; h < srcHeight; h++) {
+      for (int w = 0; w < srcWidth; w++) {
+        if (luminanceMap != null) {
+          pixels[h * srcWidth + w] = luminanceMap[h * srcWidth + w] < 128.0;
+        } else {
+          final pixel = decodedImage.getPixel(w, h);
+          pixels[h * srcWidth + w] = img.getLuminance(pixel) < 128;
+        }
+      }
+    }
+    return (width: srcWidth, height: srcHeight, pixels: pixels);
+  }
+
   /// Converts an image to a list of ZPL-compatible monochrome hexadecimal string rows.
   List<String> _toMonochromeHexRows(img.Image src) {
     final srcWidth = src.width;
     final srcHeight = src.height;
 
-    Float32List? luminanceMap;
-    if (ditheringAlgorithm != ZplDitheringAlgorithm.threshold) {
-      luminanceMap = Float32List(srcWidth * srcHeight);
-      for (int y = 0; y < srcHeight; y++) {
-        for (int x = 0; x < srcWidth; x++) {
-          luminanceMap[y * srcWidth + x] = img
-              .getLuminance(src.getPixel(x, y))
-              .toDouble();
-        }
-      }
-
-      for (int y = 0; y < srcHeight; y++) {
-        for (int x = 0; x < srcWidth; x++) {
-          final int index = y * srcWidth + x;
-          final double oldPixel = luminanceMap[index];
-          final double newPixel = oldPixel < 128.0 ? 0.0 : 255.0;
-          luminanceMap[index] = newPixel;
-          final double quantError = oldPixel - newPixel;
-
-          if (ditheringAlgorithm == ZplDitheringAlgorithm.floydSteinberg) {
-            if (x + 1 < srcWidth) {
-              luminanceMap[index + 1] += quantError * 7 / 16;
-            }
-            if (y + 1 < srcHeight) {
-              if (x - 1 >= 0) {
-                luminanceMap[(y + 1) * srcWidth + (x - 1)] +=
-                    quantError * 3 / 16;
-              }
-              luminanceMap[(y + 1) * srcWidth + x] += quantError * 5 / 16;
-              if (x + 1 < srcWidth) {
-                luminanceMap[(y + 1) * srcWidth + (x + 1)] +=
-                    quantError * 1 / 16;
-              }
-            }
-          } else if (ditheringAlgorithm == ZplDitheringAlgorithm.atkinson) {
-            final double fraction = quantError / 8.0;
-            if (x + 1 < srcWidth) luminanceMap[index + 1] += fraction;
-            if (x + 2 < srcWidth) luminanceMap[index + 2] += fraction;
-            if (y + 1 < srcHeight) {
-              if (x - 1 >= 0) {
-                luminanceMap[(y + 1) * srcWidth + (x - 1)] += fraction;
-              }
-              luminanceMap[(y + 1) * srcWidth + x] += fraction;
-              if (x + 1 < srcWidth) {
-                luminanceMap[(y + 1) * srcWidth + (x + 1)] += fraction;
-              }
-            }
-            if (y + 2 < srcHeight) {
-              luminanceMap[(y + 2) * srcWidth + x] += fraction;
-            }
-          }
-        }
-      }
-    }
+    final Float32List? luminanceMap = _generateLuminanceMap(src);
 
     final rows = <String>[];
 

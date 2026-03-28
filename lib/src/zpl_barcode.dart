@@ -99,7 +99,7 @@ class ZplBarcode extends ZplCommand {
   @override
   String toZpl(ZplConfiguration context) {
     final sb = StringBuffer();
-    final alignedX = _calculateAlignedX(context);
+    final alignedX = getAlignedX(context);
     sb.writeln('^FO$alignedX,$y');
 
     if (moduleWidth != null || wideBarToNarrowBarRatio != null) {
@@ -181,22 +181,20 @@ class ZplBarcode extends ZplCommand {
   }
 
   /// Calculate the X position based on alignment and available width.
-  int _calculateAlignedX(ZplConfiguration context) {
-    if (alignment == null) return x;
+  int getAlignedX(ZplConfiguration context) {
+    if (alignment == null) {
+      return x;
+    }
 
     final labelWidth = maxWidth ?? context.printWidth ?? 406;
 
-    if (x == 0) {
-      switch (alignment!) {
-        case ZplAlignment.center:
-          return ((labelWidth - width) ~/ 2).clamp(0, labelWidth - 1);
-        case ZplAlignment.right:
-          return (labelWidth - width).clamp(0, labelWidth - 1);
-        case ZplAlignment.left:
-          return 0;
-      }
+    switch (alignment!) {
+      case ZplAlignment.center:
+        return x + ((labelWidth - width) ~/ 2).clamp(0, labelWidth - 1).toInt();
+      case ZplAlignment.right:
+        return x + (labelWidth - width).clamp(0, labelWidth - 1).toInt();
+      case ZplAlignment.left:
+        return x;
     }
-
-    return x;
   }
 }

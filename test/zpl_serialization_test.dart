@@ -48,7 +48,7 @@ void main() {
       final result = text.toZpl(const ZplConfiguration());
       expect(result, contains('^SN999,-1,Y^FS'));
     });
-    
+
     test('serialization retains formatting properties', () {
       final text = ZplText(
         x: 10,

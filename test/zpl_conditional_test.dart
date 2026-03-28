@@ -44,34 +44,31 @@ void main() {
 
       final zpl = await generator.build();
       print(zpl);
-      
+
       expect(zpl, contains('Item 1'));
       expect(zpl, isNot(contains('Item 2 (Hidden)')));
       expect(zpl, contains('Item 3'));
-      
+
       final item1Match = zpl.contains('^FO0,0\n^A0N,,\n^FDItem 1^FS');
       final item3Match = zpl.contains('^FO0,32\n^A0N,,\n^FDItem 3^FS');
-      
+
       expect(item1Match, isTrue, reason: 'Item 1 should be at y=0');
       expect(item3Match, isTrue, reason: 'Item 3 should be at y=32');
     });
 
     test('inside ZplGridRow skips height calculations when false', () async {
-       final row = ZplGridRow(
-         y: 100,
-         children: [
-           ZplGridCol(
-             width: 12, 
-             child: ZplConditional(
-               condition: false,
-               child: ZplText(text: 'Hidden Grid Child', fontHeight: 50),
-             ),
-           )
-         ]
-       );
+      final row = ZplGridRow(y: 100, children: [
+        ZplGridCol(
+          width: 12,
+          child: ZplConditional(
+            condition: false,
+            child: ZplText(text: 'Hidden Grid Child', fontHeight: 50),
+          ),
+        )
+      ]);
 
-       final height = row.calculateHeight(const ZplConfiguration());
-       expect(height, equals(0)); // Height must be exactly 0, not 50.
+      final height = row.calculateHeight(const ZplConfiguration());
+      expect(height, equals(0)); // Height must be exactly 0, not 50.
     });
   });
 }

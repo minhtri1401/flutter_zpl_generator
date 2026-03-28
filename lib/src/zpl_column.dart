@@ -68,7 +68,9 @@ class ZplColumn extends ZplCommand {
     }
     if (element is ZplSeparator) return element.calculateHeight(context);
     if (element is ZplConditional) {
-      return element.condition ? _calculateElementHeight(element.child, context) : 0;
+      return element.condition
+          ? _calculateElementHeight(element.child, context)
+          : 0;
     }
     return 20;
   }

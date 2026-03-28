@@ -2,8 +2,6 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 
-
-
 class TemplatingDemo extends StatefulWidget {
   const TemplatingDemo({super.key});
 
@@ -14,10 +12,10 @@ class TemplatingDemo extends StatefulWidget {
 class _TemplatingDemoState extends State<TemplatingDemo> {
   late ZplTemplate _template;
   bool _isTemplateReady = false;
-  
+
   Uint8List? _previewBytes;
   bool _isLoadingPreview = false;
-  
+
   // Example looping data to swap easily
   final List<Map<String, dynamic>> _mockDatabase = [
     {
@@ -64,9 +62,11 @@ class _TemplatingDemoState extends State<TemplatingDemo> {
         ZplText(x: 20, y: 20, text: 'SHIP TO: {{name}}', fontHeight: 22),
         ZplText(x: 20, y: 50, text: '{{address}}', fontHeight: 18),
         ZplSeparator(y: 80, thickness: 2),
-        ZplText(x: 20, y: 100, text: 'Item: {{sku}}   \${{price}}', fontHeight: 20),
+        ZplText(
+            x: 20, y: 100, text: 'Item: {{sku}}   \${{price}}', fontHeight: 20),
         ZplBarcode(
-          x: 20, y: 130, 
+          x: 20,
+          y: 130,
           height: 40,
           type: ZplBarcodeType.code128,
           data: '{{barcode}}',
@@ -75,14 +75,14 @@ class _TemplatingDemoState extends State<TemplatingDemo> {
     );
 
     _template = ZplTemplate(generator);
-    
+
     // Compile fonts, imagery, and grid geometry ONCE globally
     await _template.init();
-    
+
     setState(() {
       _isTemplateReady = true;
     });
-    
+
     _generatePreview();
   }
 
@@ -136,12 +136,14 @@ class _TemplatingDemoState extends State<TemplatingDemo> {
                   child: Text(
                     'Data Binding Engine',
                     style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
+                          color:
+                              Theme.of(context).colorScheme.onPrimaryContainer,
+                        ),
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 20.0),
                   child: const Text(
                     'Using ZplTemplate, we initialize the layout once to cache raw string geometries, and then inject Maps synchronously. \n\nSwitch personas below to dynamically regenerate ZPL with zero AST evaluation overhead.',
                     style: TextStyle(fontSize: 14),
@@ -154,7 +156,8 @@ class _TemplatingDemoState extends State<TemplatingDemo> {
                     final active = _currentIndex == index;
                     return ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: active ? Colors.indigo : Colors.grey[300],
+                        backgroundColor:
+                            active ? Colors.indigo : Colors.grey[300],
                         foregroundColor: active ? Colors.white : Colors.black,
                       ),
                       onPressed: () {
@@ -185,7 +188,7 @@ class _TemplatingDemoState extends State<TemplatingDemo> {
             ),
           ),
           const SizedBox(height: 12),
-          
+
           // Features used
           Card(
             child: Padding(
@@ -202,16 +205,18 @@ class _TemplatingDemoState extends State<TemplatingDemo> {
                     'Synchronous map binding (bindSync())',
                     'Flat string replacement injection parsing',
                   ].map((f) => Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Icon(Icons.check_circle_outline, size: 16),
-                        const SizedBox(width: 8),
-                        Expanded(child: Text(f, style: const TextStyle(fontSize: 13))),
-                      ],
-                    ),
-                  )),
+                        padding: const EdgeInsets.only(bottom: 4),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(Icons.check_circle_outline, size: 16),
+                            const SizedBox(width: 8),
+                            Expanded(
+                                child: Text(f,
+                                    style: const TextStyle(fontSize: 13))),
+                          ],
+                        ),
+                      )),
                 ],
               ),
             ),

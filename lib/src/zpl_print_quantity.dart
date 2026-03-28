@@ -32,7 +32,8 @@ class ZplPrintQuantity extends ZplCommand {
     this.replicatesPerSerial,
     this.overridePause = false,
     this.cutOnRfidVoid = false,
-  }) : assert(quantity >= 1 && quantity <= 99999999, 'Quantity must be between 1 and 99999999');
+  }) : assert(quantity >= 1 && quantity <= 99999999,
+            'Quantity must be between 1 and 99999999');
 
   @override
   String toZpl(ZplConfiguration context) {
@@ -40,18 +41,18 @@ class ZplPrintQuantity extends ZplCommand {
 
     // To prevent sending unnecessary parameters, we only append commas
     // if subsequent parameters have non-default/explicitly specified values.
-    if (pauseInterval != null || 
-        replicatesPerSerial != null || 
-        overridePause || 
+    if (pauseInterval != null ||
+        replicatesPerSerial != null ||
+        overridePause ||
         cutOnRfidVoid) {
       zpl += ',${pauseInterval ?? 0}';
-      
+
       if (replicatesPerSerial != null || overridePause || cutOnRfidVoid) {
         zpl += ',${replicatesPerSerial ?? 0}';
-        
+
         if (overridePause || cutOnRfidVoid) {
           zpl += ',${overridePause ? 'Y' : 'N'}';
-          
+
           if (cutOnRfidVoid) {
             zpl += ',${cutOnRfidVoid ? 'Y' : 'N'}';
           }

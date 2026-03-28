@@ -9,28 +9,27 @@ void main() {
         commands: [
           ZplText(text: 'Hello {{name}}', x: 10, y: 10),
           ZplText(text: 'Price: \${{price}}', x: 10, y: 50),
-          ZplBarcode(data: '{{barcode}}', x: 10, y: 90, height: 50, type: ZplBarcodeType.code128),
+          ZplBarcode(
+              data: '{{barcode}}',
+              x: 10,
+              y: 90,
+              height: 50,
+              type: ZplBarcodeType.code128),
         ],
       );
 
       final template = ZplTemplate(generator);
-      
-      final result1 = await template.bind({
-        'name': 'John Doe',
-        'price': '19.99',
-        'barcode': '123456789'
-      });
+
+      final result1 = await template
+          .bind({'name': 'John Doe', 'price': '19.99', 'barcode': '123456789'});
 
       expect(result1, contains('^FDHello John Doe^FS'));
       expect(result1, contains('^FDPrice: \$19.99^FS'));
       expect(result1, contains('^FD123456789^FS'));
 
       // Validate that it can bind again safely
-      final result2 = await template.bind({
-        'name': 'Jane Doe',
-        'price': '42.00',
-        'barcode': '987654321'
-      });
+      final result2 = await template
+          .bind({'name': 'Jane Doe', 'price': '42.00', 'barcode': '987654321'});
 
       expect(result2, contains('^FDHello Jane Doe^FS'));
       expect(result2, contains('^FDPrice: \$42.00^FS'));
@@ -59,13 +58,16 @@ void main() {
         ],
       );
       final template = ZplTemplate(generator);
-      
+
       await template.init();
-      
+
       final result = template.bindSync({'sku': 'ABC-123'});
-      
+
       expect(result, contains('^FDSKU: ABC-123^FS'));
-      expect(result, contains('^GB100,100,1,B,0^FS')); // Ensures normal geometry wasn't impacted
+      expect(
+          result,
+          contains(
+              '^GB100,100,1,B,0^FS')); // Ensures normal geometry wasn't impacted
     });
   });
 }

@@ -66,12 +66,12 @@ class ZplFontAsset {
     required this.assetPath,
     required this.identifier,
     this.displayName,
-  }) : assert(
-         RegExp(r'^[A-Z]$').hasMatch(identifier),
-         'Font identifier must be a single uppercase letter (A-Z). '
-         'Got: "$identifier"',
-       ),
-       assert(assetPath.isNotEmpty, 'Asset path cannot be empty');
+  })  : assert(
+          RegExp(r'^[A-Z]$').hasMatch(identifier),
+          'Font identifier must be a single uppercase letter (A-Z). '
+          'Got: "$identifier"',
+        ),
+        assert(assetPath.isNotEmpty, 'Asset path cannot be empty');
 
   /// Returns the filename that will be used when the font is stored on the printer.
   ///

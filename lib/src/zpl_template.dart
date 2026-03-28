@@ -8,7 +8,7 @@ import 'zpl_generator.dart';
 class ZplTemplate {
   /// The base layout generator defining the label's static visual structure.
   final ZplGenerator generator;
-  
+
   /// The cached Raw ZPL string (generated once upon initialization).
   String? _cachedZpl;
 
@@ -22,39 +22,40 @@ class ZplTemplate {
   }
 
   /// Injects data into the pre-built template safely using asynchronous fallbacks.
-  /// 
+  ///
   /// Variables inside the [Map] correspond to `{{key}}` in the ZPL output.
   /// Automatically calls [init] if the template has not been cached yet.
   Future<String> bind(Map<String, dynamic> data) async {
     if (_cachedZpl == null) {
       await init();
     }
-    
+
     return _replaceVariables(data);
   }
-  
+
   /// Synchronous data binding designed perfectly for high-speed loops.
-  /// 
+  ///
   /// Requires [init] to have been successfully completed beforehand. Throws
   /// a [StateError] if you forget to cache the template before binding synchronously.
   String bindSync(Map<String, dynamic> data) {
     if (_cachedZpl == null) {
-      throw StateError('ZplTemplate must be initialized with await init() before bindSync is called.');
+      throw StateError(
+          'ZplTemplate must be initialized with await init() before bindSync is called.');
     }
-    
+
     return _replaceVariables(data);
   }
 
   /// Internal function encapsulating standard string substitution mapping.
   String _replaceVariables(Map<String, dynamic> data) {
     String output = _cachedZpl!;
-    
-    // Instead of looping characters or complex AST evaluation, 
+
+    // Instead of looping characters or complex AST evaluation,
     // ZPL is a flat string rendering format so direct replaceAll is heavily optimized natively.
     data.forEach((key, value) {
       output = output.replaceAll('{{$key}}', value.toString());
     });
-    
+
     return output;
   }
 }

@@ -24,7 +24,7 @@ class ZplGridCol {
   final int offset;
 
   ZplGridCol({required this.child, required this.width, this.offset = 0})
-    : assert(width >= 1 && width <= 12, 'Width must be between 1 and 12'),
-      assert(offset >= 0 && offset <= 11, 'Offset must be between 0 and 11'),
-      assert(width + offset <= 12, 'Width + offset cannot exceed 12');
+      : assert(width >= 1 && width <= 12, 'Width must be between 1 and 12'),
+        assert(offset >= 0 && offset <= 11, 'Offset must be between 0 and 11'),
+        assert(width + offset <= 12, 'Width + offset cannot exceed 12');
 }

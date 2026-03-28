@@ -102,7 +102,8 @@ class ZplImage extends ZplCommand {
     }
   }
 
-  String _toUncompressedZpl(List<String> hexRows, int totalBytes, int widthBytes) {
+  String _toUncompressedZpl(
+      List<String> hexRows, int totalBytes, int widthBytes) {
     final sb = StringBuffer();
 
     // Download graphic command
@@ -118,11 +119,12 @@ class ZplImage extends ZplCommand {
     return sb.toString();
   }
 
-  String _toCompressedZpl(List<String> hexRows, int totalBytes, int widthBytes) {
+  String _toCompressedZpl(
+      List<String> hexRows, int totalBytes, int widthBytes) {
     final sb = StringBuffer();
     sb.writeln('^FO$x,$y');
     sb.write('^GFA,$totalBytes,$totalBytes,$widthBytes,');
-    
+
     String? previousRow;
     for (final row in hexRows) {
       if (row == previousRow) {
@@ -133,7 +135,7 @@ class ZplImage extends ZplCommand {
       }
     }
     sb.writeln('^FS');
-    
+
     return sb.toString();
   }
 
@@ -154,13 +156,13 @@ class ZplImage extends ZplCommand {
       while (i + count < hexRow.length && hexRow[i + count] == char) {
         count++;
       }
-      
+
       final originalCount = count;
 
       while (count > 0) {
         if (count >= 20) {
           int multiples = (count ~/ 20).clamp(1, 20);
-          sb.write(String.fromCharCode('g'.codeUnitAt(0) - 1 + multiples)); 
+          sb.write(String.fromCharCode('g'.codeUnitAt(0) - 1 + multiples));
           count -= multiples * 20;
         } else if (count >= 2) {
           sb.write(String.fromCharCode('G'.codeUnitAt(0) - 2 + count));
@@ -180,17 +182,17 @@ class ZplImage extends ZplCommand {
       int lastNonZero = result.lastIndexOf(RegExp(r'[1-9A-Ea-z]'));
       if (lastNonZero != -1 && lastNonZero < result.length - 2) {
         // Strip out the zero repetition encoding and just use comma
-        // E.g., 'K0' -> ',' at end. 
+        // E.g., 'K0' -> ',' at end.
         final trailingZerosMatch = RegExp(r'[g-zG-Y]*0+$').firstMatch(result);
-         if (trailingZerosMatch != null) {
-            result = '${result.substring(0, trailingZerosMatch.start)},';
-         }
+        if (trailingZerosMatch != null) {
+          result = '${result.substring(0, trailingZerosMatch.start)},';
+        }
       }
     } else if (result.endsWith('F') && result.length >= 2) {
-       final trailingFsMatch = RegExp(r'[g-zG-Y]*F+$').firstMatch(result);
-       if (trailingFsMatch != null) {
-          result = '${result.substring(0, trailingFsMatch.start)}!';
-       }
+      final trailingFsMatch = RegExp(r'[g-zG-Y]*F+$').firstMatch(result);
+      if (trailingFsMatch != null) {
+        result = '${result.substring(0, trailingFsMatch.start)}!';
+      }
     }
 
     return result;
@@ -206,7 +208,8 @@ class ZplImage extends ZplCommand {
       luminanceMap = Float32List(srcWidth * srcHeight);
       for (int y = 0; y < srcHeight; y++) {
         for (int x = 0; x < srcWidth; x++) {
-          luminanceMap[y * srcWidth + x] = img.getLuminance(src.getPixel(x, y)).toDouble();
+          luminanceMap[y * srcWidth + x] =
+              img.getLuminance(src.getPixel(x, y)).toDouble();
         }
       }
 
@@ -224,11 +227,13 @@ class ZplImage extends ZplCommand {
             }
             if (y + 1 < srcHeight) {
               if (x - 1 >= 0) {
-                luminanceMap[(y + 1) * srcWidth + (x - 1)] += quantError * 3 / 16;
+                luminanceMap[(y + 1) * srcWidth + (x - 1)] +=
+                    quantError * 3 / 16;
               }
               luminanceMap[(y + 1) * srcWidth + x] += quantError * 5 / 16;
               if (x + 1 < srcWidth) {
-                luminanceMap[(y + 1) * srcWidth + (x + 1)] += quantError * 1 / 16;
+                luminanceMap[(y + 1) * srcWidth + (x + 1)] +=
+                    quantError * 1 / 16;
               }
             }
           } else if (ditheringAlgorithm == ZplDitheringAlgorithm.atkinson) {
@@ -236,9 +241,11 @@ class ZplImage extends ZplCommand {
             if (x + 1 < srcWidth) luminanceMap[index + 1] += fraction;
             if (x + 2 < srcWidth) luminanceMap[index + 2] += fraction;
             if (y + 1 < srcHeight) {
-              if (x - 1 >= 0) luminanceMap[(y + 1) * srcWidth + (x - 1)] += fraction;
+              if (x - 1 >= 0)
+                luminanceMap[(y + 1) * srcWidth + (x - 1)] += fraction;
               luminanceMap[(y + 1) * srcWidth + x] += fraction;
-              if (x + 1 < srcWidth) luminanceMap[(y + 1) * srcWidth + (x + 1)] += fraction;
+              if (x + 1 < srcWidth)
+                luminanceMap[(y + 1) * srcWidth + (x + 1)] += fraction;
             }
             if (y + 2 < srcHeight) {
               luminanceMap[(y + 2) * srcWidth + x] += fraction;

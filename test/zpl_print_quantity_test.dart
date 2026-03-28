@@ -28,9 +28,10 @@ void main() {
       final cmd = ZplPrintQuantity(quantity: 50, overridePause: true);
       expect(cmd.toZpl(config), '^PQ50,0,0,Y');
     });
-    
+
     test('Format with pause and override', () {
-      final cmd = ZplPrintQuantity(quantity: 50, pauseInterval: 10, overridePause: true);
+      final cmd = ZplPrintQuantity(
+          quantity: 50, pauseInterval: 10, overridePause: true);
       expect(cmd.toZpl(config), '^PQ50,10,0,Y');
     });
 
@@ -39,7 +40,7 @@ void main() {
         quantity: 100,
         pauseInterval: 15,
         replicatesPerSerial: 2,
-        overridePause: false, // Default false is rendered as "N" if full length 
+        overridePause: false, // Default false is rendered as "N" if full length
         cutOnRfidVoid: true,
       );
       expect(cmd.toZpl(config), '^PQ100,15,2,N,Y');
@@ -50,7 +51,7 @@ void main() {
         () => ZplPrintQuantity(quantity: 0),
         throwsA(isA<AssertionError>()),
       );
-      
+
       expect(
         () => ZplPrintQuantity(quantity: 100000000),
         throwsA(isA<AssertionError>()),

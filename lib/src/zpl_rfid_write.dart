@@ -42,7 +42,8 @@ class ZplRfidWrite extends ZplCommand {
   @override
   String toZpl(ZplConfiguration context) {
     // 1. Data Type Validation Safety Check (runs in ALL build modes)
-    if (format == RfidDataFormat.hex && !RegExp(r'^[0-9A-Fa-f]+$').hasMatch(data)) {
+    if (format == RfidDataFormat.hex &&
+        !RegExp(r'^[0-9A-Fa-f]+$').hasMatch(data)) {
       throw ArgumentError(
         'ZplRfidWrite: hex format requires valid hex characters (0-9, A-F) only, got "$data"',
       );

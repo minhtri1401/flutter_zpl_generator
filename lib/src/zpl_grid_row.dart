@@ -184,7 +184,7 @@ class ZplGridRow extends ZplCommand {
         maxWidth: availableWidth,
       );
     }
-    
+
     if (child is ZplConditional) {
       return ZplConditional(
         condition: child.condition,

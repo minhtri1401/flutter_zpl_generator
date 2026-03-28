@@ -38,9 +38,11 @@ class TextDemo extends StatelessWidget {
     return [
       // Title
       ZplText(
-        x: 0, y: 20,
+        x: 0,
+        y: 20,
         text: 'TEXT FEATURES',
-        fontHeight: 40, fontWidth: 36,
+        fontHeight: 40,
+        fontWidth: 36,
         alignment: ZplAlignment.center,
       ),
 
@@ -49,24 +51,30 @@ class TextDemo extends StatelessWidget {
 
       // Left-aligned (default)
       ZplText(
-        x: 20, y: 100,
+        x: 20,
+        y: 100,
         text: 'Left aligned (default)',
-        fontHeight: 24, fontWidth: 20,
+        fontHeight: 24,
+        fontWidth: 20,
       ),
 
       // Center-aligned
       ZplText(
-        x: 0, y: 140,
+        x: 0,
+        y: 140,
         text: 'Center aligned',
-        fontHeight: 24, fontWidth: 20,
+        fontHeight: 24,
+        fontWidth: 20,
         alignment: ZplAlignment.center,
       ),
 
       // Right-aligned
       ZplText(
-        x: 0, y: 180,
+        x: 0,
+        y: 180,
         text: 'Right aligned',
-        fontHeight: 24, fontWidth: 20,
+        fontHeight: 24,
+        fontWidth: 20,
         alignment: ZplAlignment.right,
       ),
 
@@ -75,7 +83,8 @@ class TextDemo extends StatelessWidget {
 
       // Font sizes showcase
       ZplText(x: 20, y: 245, text: 'Small font', fontHeight: 18, fontWidth: 14),
-      ZplText(x: 20, y: 275, text: 'Medium font', fontHeight: 28, fontWidth: 24),
+      ZplText(
+          x: 20, y: 275, text: 'Medium font', fontHeight: 28, fontWidth: 24),
       ZplText(x: 20, y: 315, text: 'Large font', fontHeight: 42, fontWidth: 38),
 
       // Separator
@@ -83,16 +92,20 @@ class TextDemo extends StatelessWidget {
 
       // Multi-line text
       ZplText(
-        x: 20, y: 395,
+        x: 20,
+        y: 395,
         text: 'Multi-line:',
-        fontHeight: 22, fontWidth: 18,
+        fontHeight: 22,
+        fontWidth: 18,
       ),
       ZplText(
-        x: 20, y: 430,
+        x: 20,
+        y: 430,
         text: 'This is a longer text that demonstrates multi-line '
             'wrapping with lineSpacing. The text will wrap based on '
             'the available label width and maxLines setting.',
-        fontHeight: 20, fontWidth: 18,
+        fontHeight: 20,
+        fontWidth: 18,
         maxLines: 4,
         lineSpacing: 4,
       ),
@@ -102,26 +115,33 @@ class TextDemo extends StatelessWidget {
 
       // Reverse print (white on black)
       ZplText(
-        x: 20, y: 585,
+        x: 20,
+        y: 585,
         text: 'Reverse print:',
-        fontHeight: 22, fontWidth: 18,
+        fontHeight: 22,
+        fontWidth: 18,
       ),
       // Black background box
       ZplBox(x: 20, y: 620, width: 772, height: 50, borderThickness: 50),
       // White text on black background
       ZplText(
-        x: 20, y: 630,
+        x: 20,
+        y: 630,
         text: 'WHITE ON BLACK (reversePrint: true)',
-        fontHeight: 28, fontWidth: 22,
+        fontHeight: 28,
+        fontWidth: 22,
         reversePrint: true,
       ),
 
       // Padded text
       ZplText(
-        x: 0, y: 700,
+        x: 0,
+        y: 700,
         text: 'Padded text (L:50, R:50)',
-        fontHeight: 22, fontWidth: 18,
-        paddingLeft: 50, paddingRight: 50,
+        fontHeight: 22,
+        fontWidth: 18,
+        paddingLeft: 50,
+        paddingRight: 50,
         alignment: ZplAlignment.center,
       ),
 
@@ -129,7 +149,12 @@ class TextDemo extends StatelessWidget {
       ZplSeparator(y: 740, thickness: 1),
 
       // Character separator demo
-      ZplText(x: 20, y: 765, text: 'Character separator:', fontHeight: 20, fontWidth: 16),
+      ZplText(
+          x: 20,
+          y: 765,
+          text: 'Character separator:',
+          fontHeight: 20,
+          fontWidth: 16),
       ZplSeparator(
         y: 800,
         type: ZplSeparatorType.character,
@@ -139,7 +164,12 @@ class TextDemo extends StatelessWidget {
       ),
 
       // Box separator demo
-      ZplText(x: 20, y: 835, text: 'Box separator (thick):', fontHeight: 20, fontWidth: 16),
+      ZplText(
+          x: 20,
+          y: 835,
+          text: 'Box separator (thick):',
+          fontHeight: 20,
+          fontWidth: 16),
       ZplSeparator(y: 870, thickness: 4),
     ];
   }

@@ -10,7 +10,8 @@ void main() {
           x: 10,
           y: 10,
           text: '001',
-          serialization: const ZplSerialConfig(increment: 1, leadingZeros: true),
+          serialization:
+              const ZplSerialConfig(increment: 1, leadingZeros: true),
         ),
       ],
     );

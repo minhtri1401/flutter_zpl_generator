@@ -204,11 +204,12 @@ void _printMultiLabelExample() async {
   );
 
   final generator1 = ZplGenerator(config: labelConfig, commands: []);
-  final generator2 = ZplGenerator(config: labelConfig, commands: [ZplText(x: 50, y: 50, text: 'Label 2')]);
-  final generator3 = ZplGenerator(config: labelConfig, commands: [ZplText(x: 50, y: 50, text: 'Label 3')]);
+  final generator2 = ZplGenerator(
+      config: labelConfig, commands: [ZplText(x: 50, y: 50, text: 'Label 2')]);
+  final generator3 = ZplGenerator(
+      config: labelConfig, commands: [ZplText(x: 50, y: 50, text: 'Label 3')]);
 
-  final multipleZpl =
-      (await generator1.build()) +
+  final multipleZpl = (await generator1.build()) +
       (await generator2.build()) +
       (await generator3.build());
 

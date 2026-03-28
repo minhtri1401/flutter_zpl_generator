@@ -357,6 +357,58 @@ final generator = ZplGenerator(
 
 ---
 
+## 🛜 Network & Infrastructure Commands
+
+Zebra printers operating in warehouses and production environments often require programmatic network configuration (Wi-Fi, Bluetooth, SMTP, SNMP). `flutter_zpl_generator` exposes a complete suite of network administration commands that gracefully format ZPL configurations without interfering with visual layout math.
+
+These commands physically configure the hardware state. They seamlessly return `0` for layout calculations, meaning you can place them anywhere in the `commands` list!
+
+```dart
+final generator = ZplGenerator(
+  config: ZplConfiguration(printWidth: 406, labelLength: 203),
+  commands: [
+    // 1. Establish printer networking rules on boot
+    ZplNetworkSettings(
+      device: 1, 
+      ip: '192.168.1.100', 
+      mask: '255.255.255.0', 
+      gateway: '192.168.1.1',
+      timeout: 300,
+      arp: 'Y',
+    ),
+    
+    // 2. Configure standard SNMP telemetry
+    ZplNetworkSnmp(
+      name: 'DockDoor_Printer_01',
+      location: 'Warehouse_A',
+      getCommunity: 'public',
+    ),
+    
+    // 3. Connect safely to a target network ID
+    ZplNetworkConnect(networkId: 'WLAN_INT_01'),
+
+    // Print regular graphics below...
+    ZplText(x: 10, y: 10, text: 'Hello ZPL Networking!'),
+  ],
+);
+```
+
+Available Configuration Classes:
+* `ZplNetworkBoot` (`^NB`) — Check interval for boot blocks.
+* `ZplNetworkDevice` (`^NC`) — Set primary network device.
+* `ZplNetworkConnect` (`~NC`) — Connect to a secondary network.
+* `ZplNetworkSettings` (`^ND`) — Change network parameters.
+* `ZplNetworkId` (`^NI`) — Assign a Network ID number string.
+* `ZplNetworkSnmp` (`^NN`) — Configure SNMP params.
+* `ZplNetworkPrimaryDevice` (`^NP`) — Set primary connection physical device.
+* `ZplNetworkPrintersTransparentAll` (`~NR`) — Set all network printers transparent.
+* `ZplNetworkWiredSettings` (`^NS`) — Wired network settings fallback.
+* `ZplNetworkPrinterTransparentCurrent` (`~NT`) — Set current printer transparent.
+* `ZplNetworkSmtp` (`^NT`) — Configure SMTP email rules.
+* `ZplNetworkPasswordTimeout` (`^NW`) — Password active countdown timer.
+
+---
+
 ## 🌟 TTF Font & Image Conversion
 
 ### Import Custom Fonts to Your Printer

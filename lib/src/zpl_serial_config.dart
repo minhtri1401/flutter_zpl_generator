@@ -4,11 +4,11 @@
 /// on a multi-label print job (when used alongside ZplPrintQuantity).
 class ZplSerialConfig {
   /// The increment or decrement step value (e.g., 1 or -1).
-  /// ZPL will automatically find the right-most numeric substring 
+  /// ZPL will automatically find the right-most numeric substring
   /// in the text/barcode data and apply this step.
   final int increment;
 
-  /// Whether to pad the incremented number with leading zeros 
+  /// Whether to pad the incremented number with leading zeros
   /// to maintain the original string length.
   final bool leadingZeros;
 

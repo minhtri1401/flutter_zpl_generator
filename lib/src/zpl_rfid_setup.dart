@@ -31,19 +31,21 @@ class ZplRfidSetup extends ZplCommand {
   @override
   String toZpl(ZplConfiguration context) {
     String zpl = '^RS$tagType';
-    
-    if (readWritePosition != null || voidPrintLength != null || labelsPerForm != null) {
+
+    if (readWritePosition != null ||
+        voidPrintLength != null ||
+        labelsPerForm != null) {
       zpl += ',${readWritePosition ?? ''}';
-      
+
       if (voidPrintLength != null || labelsPerForm != null) {
         zpl += ',${voidPrintLength ?? ''}';
-        
+
         if (labelsPerForm != null) {
           zpl += ',$labelsPerForm';
         }
       }
     }
-    
+
     return zpl;
   }
 

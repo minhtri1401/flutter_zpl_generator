@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2026-04-19
+
+### BREAKING CHANGES
+
+- Deleted `ZplImage` — replaced by three explicit commands:
+  - `ZplImageDownload` (emits `~DG`; new `ZplControlCommand` base).
+  - `ZplImageRecall` (emits `^FO` + `^XG`).
+  - `ZplImageInline` (emits `^FO` + `^GFA`, one-shot ACS).
+- Deleted `ZplFontAsset` — replaced by `ZplFontUpload` (also a
+  `ZplControlCommand`). Load via `await ZplFontUpload.fromAsset(...)`.
+- Removed `ZplGenerator.fonts` and `ZplGenerator.assetService`
+  parameters. Pass `ZplFontUpload` instances inline in `commands:`.
+- Removed `ZplAssetService.getFontUploadCommand()`. `loadFontBytes()`
+  replaces its role as the low-level asset read.
+- `ZplText.customFont` type changed from `ZplFontAsset?` to
+  `ZplFontUpload?`.
+
+See `doc/migration-v1-to-v2.md` for per-pattern migration recipes.
+
+### Fixed
+
+- **Bug 1 (critical):** `~DG` and `~DY` now emit before `^XA` as
+  Zebra's ZPL II Programming Guide recommends. Link-OS mobile printers
+  (ZQ620 V85.20 etc.) print reliably; previously the tilde-inside-
+  format layout caused blank labels or silently discarded jobs.
+- **Bug 2:** `ZplImageDownload.width` / `.height` (and matching getters
+  on `ZplImageInline`) now return POST-resize dimensions, including
+  aspect-preserving scale when only one axis is specified. Unblocks
+  `^LL = image.height` for every caller.
+- **Bug 4:** ACS run-length encoder dropped the trailing `1` count after
+  a multi-of-20 chunk (runs of 21, 41, …, 401). Fix localised in
+  `image_payload_builder.dart::compressRow`.
+
+### Added
+
+- `ZplControlCommand` abstract subclass of `ZplCommand`; subclass it
+  to author any tilde-prefixed command.
+- `ZplGenerator.autoLabelLengthFromFirstImage: bool` — when enabled
+  and no explicit `ZplConfiguration.labelLength` is set, emits
+  `^LL<firstDownload.height>` inside the format. (Bug 3)
+- ACS encoder round-trip test suite with boundary and fuzz coverage.
+- `doc/migration-v1-to-v2.md`.
+- `doc/mobile-printer-guide.md` — Link-OS firmware caveats, thermal
+  protection advisory, observed-working ZPL reference.
+
 ## [1.5.1] - 2026-03-28
 
 ### Fixed

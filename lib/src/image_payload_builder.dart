@@ -185,19 +185,25 @@ mixin ImagePayloadBuilder {
         count++;
       }
       final original = count;
-      while (count > 0) {
-        if (count >= 20) {
-          final multiples = (count ~/ 20).clamp(1, 20);
-          sb.write(String.fromCharCode('g'.codeUnitAt(0) - 1 + multiples));
-          count -= multiples * 20;
-        } else if (count >= 2) {
-          sb.write(String.fromCharCode('G'.codeUnitAt(0) - 2 + count));
-          count = 0;
-        } else {
-          count = 0;
-        }
+
+      // Emit big chunks via g..z (each g..z code consumes one data char).
+      while (count >= 20) {
+        final multiples = (count ~/ 20).clamp(1, 20);
+        sb.write(String.fromCharCode('g'.codeUnitAt(0) - 1 + multiples));
+        sb.write(ch);
+        count -= multiples * 20;
       }
-      sb.write(ch);
+      // Emit remaining 2..19 via G..Y (consumes one data char).
+      if (count >= 2) {
+        sb.write(String.fromCharCode('G'.codeUnitAt(0) - 2 + count));
+        sb.write(ch);
+        count = 0;
+      }
+      // A leftover of 1 is a standalone data char (no repeat code).
+      if (count == 1) {
+        sb.write(ch);
+      }
+
       i += original;
     }
     String result = sb.toString();

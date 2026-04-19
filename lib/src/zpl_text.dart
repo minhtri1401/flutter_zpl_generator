@@ -1,6 +1,6 @@
 import 'zpl_command_base.dart';
 import 'zpl_configuration.dart';
-import 'zpl_font_asset.dart';
+import 'zpl_font_upload.dart';
 import 'enums.dart';
 import 'zpl_serial_config.dart';
 
@@ -47,7 +47,7 @@ class ZplText extends ZplCommand {
   final int lineSpacing;
 
   /// Optional custom TrueType font to use for this text.
-  final ZplFontAsset? customFont;
+  final ZplFontUpload? customFont;
 
   /// Maximum width constraint (set by layout containers like ZplGridRow).
   /// When set, alignment uses this width instead of the full label width.

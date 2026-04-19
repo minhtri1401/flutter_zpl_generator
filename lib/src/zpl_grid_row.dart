@@ -4,7 +4,8 @@ import 'zpl_grid_col.dart';
 import 'zpl_configuration.dart';
 import 'zpl_text.dart';
 import 'zpl_barcode.dart';
-import 'zpl_image.dart';
+import 'zpl_image_inline.dart';
+import 'zpl_image_recall.dart';
 import 'zpl_box.dart';
 import 'zpl_separator.dart';
 import 'zpl_conditional.dart';
@@ -151,17 +152,30 @@ class ZplGridRow extends ZplCommand {
       );
     }
 
-    if (child is ZplImage) {
-      return ZplImage(
+    if (child is ZplImageRecall) {
+      return ZplImageRecall(
+        x: newX,
+        y: newY,
+        graphicName: child.graphicName,
+        magnificationX: child.magnificationX,
+        magnificationY: child.magnificationY,
+        width: child.width,
+        height: child.height,
+      );
+    }
+
+    if (child is ZplImageInline) {
+      return ZplImageInline(
         x: newX,
         y: newY,
         image: child.image,
-        graphicName: child.graphicName,
         targetWidth: child.targetWidth,
         targetHeight: child.targetHeight,
         maintainAspect: child.maintainAspect,
+        ditheringAlgorithm: child.ditheringAlgorithm,
       );
     }
+
 
     if (child is ZplBox) {
       return ZplBox(
@@ -260,13 +274,8 @@ class ZplGridRow extends ZplCommand {
     if (child is ZplText) return child.fontHeight ?? 12;
     if (child is ZplBarcode) return child.height;
     if (child is ZplBox) return child.height;
-    if (child is ZplImage) {
-      try {
-        return child.height;
-      } catch (e) {
-        return 60;
-      }
-    }
+    if (child is ZplImageInline) return child.height;
+    if (child is ZplImageRecall) return child.height ?? 60;
     if (child is ZplSeparator) return child.calculateHeight(config);
     if (child is ZplColumn) {
       int totalHeight = 0;

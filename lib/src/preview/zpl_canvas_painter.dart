@@ -32,8 +32,35 @@ class ZplCanvasPainter extends CustomPainter {
         _drawText(canvas, cmd);
       } else if (cmd is ZplTextBlock) {
         _drawTextBlock(canvas, cmd);
-      } else if (cmd is ZplImage) {
-        _drawImagePlaceholder(canvas, cmd);
+      } else if (cmd is ZplImageInline) {
+        _drawMonochromeFromPixels(
+          canvas,
+          cmd.x,
+          cmd.y,
+          cmd.getMonochromePixels(),
+          placeholderWidth: cmd.width,
+          placeholderHeight: cmd.height,
+          label: 'ZplImageInline',
+        );
+      } else if (cmd is ZplImageRecall) {
+        final download = _findDownload(commands, cmd.graphicName);
+        if (download != null) {
+          _drawMonochromeFromPixels(
+            canvas,
+            cmd.x,
+            cmd.y,
+            download.getMonochromePixels(),
+            placeholderWidth: cmd.width ?? download.width,
+            placeholderHeight: cmd.height ?? download.height,
+            label: 'ZplImageRecall(${cmd.graphicName})',
+          );
+        } else {
+          _drawFallbackText(
+            canvas,
+            'ZplImageRecall(${cmd.graphicName}?)',
+            Offset(cmd.x.toDouble(), cmd.y.toDouble()),
+          );
+        }
       } else if (cmd is ZplRaw) {
         _drawRawZpl(canvas, size, cmd);
       } else if (cmd is ZplGridRow) {
@@ -505,86 +532,81 @@ class ZplCanvasPainter extends CustomPainter {
     );
   }
 
-  void _drawImagePlaceholder(Canvas canvas, ZplImage imageCmd) {
-    try {
-      final monochrome = imageCmd.getMonochromePixels();
-      if (monochrome != null) {
-        final pixels = monochrome.pixels;
-        final w = monochrome.width;
-        final h = monochrome.height;
-        final startX = imageCmd.x.toDouble();
-        final startY = imageCmd.y.toDouble();
-
-        final paint = Paint()
-          ..color = Colors.black
-          ..style = PaintingStyle.fill
-          ..isAntiAlias = false;
-
-        // Draw by coalescing horizontal pixels into rects for performance
-        for (int y = 0; y < h; y++) {
-          int runStartX = -1;
-          for (int x = 0; x < w; x++) {
-            if (pixels[y * w + x]) {
-              if (runStartX == -1) runStartX = x;
-            } else {
-              if (runStartX != -1) {
-                canvas.drawRect(
-                  Rect.fromLTWH(
-                    startX + runStartX,
-                    startY + y.toDouble(),
-                    (x - runStartX).toDouble(),
-                    1,
-                  ),
-                  paint,
-                );
-                runStartX = -1;
-              }
+  /// Shared pixel-grid renderer used by ZplImage (legacy), ZplImageInline and
+  /// ZplImageRecall. When [monochrome] is null falls back to a cyan
+  /// placeholder rectangle sized by [placeholderWidth]/[placeholderHeight].
+  void _drawMonochromeFromPixels(
+    Canvas canvas,
+    int x,
+    int y,
+    ({int width, int height, List<bool> pixels})? monochrome, {
+    required int placeholderWidth,
+    required int placeholderHeight,
+    required String label,
+  }) {
+    if (monochrome != null) {
+      final pixels = monochrome.pixels;
+      final w = monochrome.width;
+      final h = monochrome.height;
+      final startX = x.toDouble();
+      final startY = y.toDouble();
+      final paint = Paint()
+        ..color = Colors.black
+        ..style = PaintingStyle.fill
+        ..isAntiAlias = false;
+      for (int py = 0; py < h; py++) {
+        int runStartX = -1;
+        for (int px = 0; px < w; px++) {
+          if (pixels[py * w + px]) {
+            if (runStartX == -1) runStartX = px;
+          } else {
+            if (runStartX != -1) {
+              canvas.drawRect(
+                Rect.fromLTWH(
+                  startX + runStartX,
+                  startY + py.toDouble(),
+                  (px - runStartX).toDouble(),
+                  1,
+                ),
+                paint,
+              );
+              runStartX = -1;
             }
           }
-          if (runStartX != -1) {
-            canvas.drawRect(
-              Rect.fromLTWH(
-                startX + runStartX,
-                startY + y.toDouble(),
-                (w - runStartX).toDouble(),
-                1,
-              ),
-              paint,
-            );
-          }
         }
-        return; // Early return to avoid drawing placeholder
+        if (runStartX != -1) {
+          canvas.drawRect(
+            Rect.fromLTWH(
+              startX + runStartX,
+              startY + py.toDouble(),
+              (w - runStartX).toDouble(),
+              1,
+            ),
+            paint,
+          );
+        }
       }
-    } catch (e) {
-      // Fallback silently to placeholder
+      return;
     }
 
     final paint = Paint()
-      // Colors.cyan with 30% opacity
       ..color = const Color(0x4D00BCD4)
       ..style = PaintingStyle.fill;
-
-    // Fallback gracefully since targetWidth may be null or non-null. Let's just use ??
-    final width =
-        (imageCmd.targetWidth != null && imageCmd.targetWidth! > 0
-                ? imageCmd.targetWidth!
-                : 100)
-            .toDouble();
-    final height =
-        (imageCmd.targetHeight != null && imageCmd.targetHeight! > 0
-                ? imageCmd.targetHeight!
-                : 100)
-            .toDouble();
-
     final rect = Rect.fromLTWH(
-      imageCmd.x.toDouble(),
-      imageCmd.y.toDouble(),
-      width,
-      height,
+      x.toDouble(),
+      y.toDouble(),
+      placeholderWidth > 0 ? placeholderWidth.toDouble() : 100,
+      placeholderHeight > 0 ? placeholderHeight.toDouble() : 100,
     );
     canvas.drawRect(rect, paint);
+    _drawFallbackText(canvas, label, rect.topLeft + const Offset(5, 5));
+  }
 
-    _drawFallbackText(canvas, "ZplImage", rect.topLeft + const Offset(5, 5));
+  ZplImageDownload? _findDownload(List<ZplCommand> all, String name) {
+    for (final c in all) {
+      if (c is ZplImageDownload && c.graphicName == name) return c;
+    }
+    return null;
   }
 
   void _drawFallbackText(Canvas canvas, String text, Offset offset) {

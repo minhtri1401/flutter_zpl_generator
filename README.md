@@ -201,85 +201,74 @@ final zplGraphics = await LabelaryService.convertImageToGraphic(
 ```
 
 ### Advanced Image Dithering (Pristine Graphics)
-`ZplImage` now supports advanced image dithering natively in Dart. This converts continuous-tone photographs and colorful gradients into meticulously balanced dot patterns that print beautifully on 203 DPI devices.
+v2.0 splits image commands into three explicit shapes. Use `ZplImageDownload` + `ZplImageRecall` for the Link-OS-safe flow (`~DG` before `^XA`, `^XG` inside). All three dithering algorithms are supported on the `ZplImageDownload`.
 
 ```dart
-// 1. Floyd-Steinberg (Default) - Smoothly disperses dots for natural gradients
-ZplImage(
-  x: 20, y: 20,
-  image: bytes,
-  ditheringAlgorithm: ZplDitheringAlgorithm.floydSteinberg,
-)
+// v2.0 Link-OS-safe: download pre-^XA, recall in-format.
+commands: [
+  ZplImageDownload(
+    image: bytes,
+    graphicName: 'LOGO_FS',
+    ditheringAlgorithm: ZplDitheringAlgorithm.floydSteinberg,
+  ),
+  const ZplImageRecall(x: 20, y: 20, graphicName: 'LOGO_FS'),
 
-// 2. Atkinson - High contrast dot pattern without washing out (vintage print look)
-ZplImage(
-  x: 20, y: 150,
-  image: bytes,
-  ditheringAlgorithm: ZplDitheringAlgorithm.atkinson,
-)
+  ZplImageDownload(
+    image: bytes,
+    graphicName: 'LOGO_ATK',
+    ditheringAlgorithm: ZplDitheringAlgorithm.atkinson,
+  ),
+  const ZplImageRecall(x: 20, y: 150, graphicName: 'LOGO_ATK'),
 
-// 3. Threshold - Hard black & white clipping (Legacy behavior)
-ZplImage(
-  x: 20, y: 280,
-  image: bytes,
-  ditheringAlgorithm: ZplDitheringAlgorithm.threshold,
-)
+  ZplImageDownload(
+    image: bytes,
+    graphicName: 'LOGO_THR',
+    ditheringAlgorithm: ZplDitheringAlgorithm.threshold,
+  ),
+  const ZplImageRecall(x: 20, y: 280, graphicName: 'LOGO_THR'),
+]
 ```
 
-### ACS Image Compression (^GFA)
-ZPL payloads containing high-resolution images can grow massive, taking several seconds to transmit to the printer over Bluetooth or Serial connections. 
+Use `autoLabelLengthFromFirstImage: true` on `ZplGenerator` to auto-emit `^LL` equal to the first download's rendered height.
 
-You can compress the payload using `ZplImageCompression.acs`, which mathematically encodes the byte layout (Run-length Encoding). This routinely shrinks image payloads by **60-90%**, slashing transmission delays!
+### ACS Image Compression (^GFA, one-shot desktop firmware)
+For desktop / stationary firmware and single-use images, `ZplImageInline` emits `^FO` + `^GFA` inside the format with ACS run-length encoding (~60-90% smaller wire). Not recommended on Link-OS mobile; see `doc/mobile-printer-guide.md`.
 
 ```dart
-ZplImage(
-  x: 20, y: 20,
-  image: highResPhotoBytes,
-  compression: ZplImageCompression.acs, // Emits ^GFA instead of ~DG
-)
+commands: [
+  ZplImageInline(
+    x: 20, y: 20,
+    image: highResPhotoBytes, // emits ^GFA with ACS body
+  ),
+]
 ```
 
 ### Import Custom Fonts to Your Printer
-Convert TrueType fonts (TTF) to ZPL format and upload them directly to your Zebra printer's RAM.
+Upload TrueType fonts to the printer's memory via the control-phase `ZplFontUpload`. Reference the font on any `ZplText` via `customFont:`.
 
-#### Step 1: Convert TTF Font to ZPL
 ```dart
-import 'dart:io';
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 
-// Load your TTF font file
-final fontFile = File('assets/fonts/Roboto-Regular.ttf');
-final fontBytes = await fontFile.readAsBytes();
-
-// Convert TTF to ZPL format
-final zplFontData = await LabelaryService.convertFontToZpl(
-  fontBytes,
-  'Roboto-Regular.ttf',
-  name: 'R', // Single letter alias for the font
+// Load the TTF once.
+final roboto = await ZplFontUpload.fromAsset(
+  'assets/fonts/Roboto-Regular.ttf',
+  'R', // single letter identifier
 );
-// Sends output to printer memory: ~DU...
-```
 
-#### Step 2: Use the Font Asset in Your Labels
-```dart
 final generator = ZplGenerator(
-  config: ZplConfiguration(printWidth: 406, labelLength: 609),
+  config: const ZplConfiguration(printWidth: 406, labelLength: 609),
   commands: [
-    ZplFontAsset(
-      alias: 'R',
-      fileName: 'ROBOTO.TTF',
-      fontData: fontBytes,
-    ),
-    const ZplText(
+    roboto, // ~DY upload emitted BEFORE ^XA
+    ZplText(
       x: 50, y: 100,
       text: 'Custom Font Text!',
-      fontAlias: 'R', // Use your custom font
+      customFont: roboto,
       fontHeight: 25,
     ),
-  ]
+  ],
 );
 
-final zplNetworkString = await generator.build();
+final zpl = await generator.build();
 ```
 
 ---

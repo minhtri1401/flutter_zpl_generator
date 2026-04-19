@@ -42,26 +42,33 @@ Check out these files for more advanced usage:
 You can test the three different image dithering algorithms in the **Images** tab. Here is how you use each mode natively:
 
 ```dart
+// v2.0: Download (pre-^XA control) + Recall (in-format). Safe on Link-OS mobile.
+
 // 1. Floyd-Steinberg (Default) - Smoothly disperses dots for natural gradients
-ZplImage(
-  x: 20, y: 20,
-  image: myImageBytes,
-  ditheringAlgorithm: ZplDitheringAlgorithm.floydSteinberg,
-)
+commands: [
+  ZplImageDownload(
+    image: myImageBytes,
+    graphicName: 'FS',
+    ditheringAlgorithm: ZplDitheringAlgorithm.floydSteinberg,
+  ),
+  const ZplImageRecall(x: 20, y: 20, graphicName: 'FS'),
 
-// 2. Atkinson - High contrast dot pattern without washing out (excellent for 203 DPI)
-ZplImage(
-  x: 20, y: 150,
-  image: myImageBytes,
-  ditheringAlgorithm: ZplDitheringAlgorithm.atkinson,
-)
+  // 2. Atkinson - High contrast dot pattern (excellent for 203 DPI)
+  ZplImageDownload(
+    image: myImageBytes,
+    graphicName: 'ATK',
+    ditheringAlgorithm: ZplDitheringAlgorithm.atkinson,
+  ),
+  const ZplImageRecall(x: 20, y: 150, graphicName: 'ATK'),
 
-// 3. Threshold - Hard black & white clipping (Legacy behavior)
-ZplImage(
-  x: 20, y: 280,
-  image: myImageBytes,
-  ditheringAlgorithm: ZplDitheringAlgorithm.threshold,
-)
+  // 3. Threshold - Hard black & white clipping
+  ZplImageDownload(
+    image: myImageBytes,
+    graphicName: 'THR',
+    ditheringAlgorithm: ZplDitheringAlgorithm.threshold,
+  ),
+  const ZplImageRecall(x: 20, y: 280, graphicName: 'THR'),
+]
 ```
 
 ## Learn More

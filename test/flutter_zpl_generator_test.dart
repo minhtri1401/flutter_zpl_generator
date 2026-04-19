@@ -282,47 +282,30 @@ void main() {
     });
   });
 
-  group('ZplFontAsset Tests', () {
-    test('should download a font and then use it in a ZplText command', () async {
-      // 1. Define the font asset (asset loading won't work in test context)
-      final font = ZplFontAsset(
-        assetPath: 'assets/fonts/Roboto-Regular.ttf',
+  group('ZplFontUpload Tests', () {
+    test('should include a font upload and use it in a ZplText command', () async {
+      final font = ZplFontUpload(
         identifier: 'R',
+        fontBytes: Uint8List.fromList([0xDE, 0xAD, 0xBE, 0xEF]),
       );
 
-      // 2. Define the commands for the label
       final commands = <ZplCommand>[
-        // Command to use the downloaded font
+        font,
         ZplText(
           x: 50,
           y: 50,
           text: 'This is Roboto Font',
-          fontAlias: 'R', // Use the alias 'R'
+          customFont: font,
           fontHeight: 40,
         ),
       ];
 
-      // 3. Generate the ZPL script
-      // Note: asset loading won't succeed in test context (no real Flutter asset bundle)
-      // but the generator structure and command generation can still be verified.
-      final generator = ZplGenerator(commands: commands, fonts: [font]);
-      String? zpl;
-      try {
-        zpl = await generator.build();
-      } catch (e) {
-        // Asset loading expected to fail in test context — that's acceptable
-        print('Font asset loading skipped in test context: $e');
-      }
+      final zpl = await ZplGenerator(commands: commands).build();
 
-      print('\n=== ZPL FONT USAGE EXAMPLE ===');
-      print('================================\n');
-
-      // 4. If build succeeded, verify the output contains basic structure
-      if (zpl != null) {
-        expect(zpl, contains('^XA'));
-        expect(zpl, contains('^XZ'));
-        expect(zpl, contains('^FDThis is Roboto Font^FS'));
-      }
+      expect(zpl, contains('^XA'));
+      expect(zpl, contains('^XZ'));
+      expect(zpl, contains('^FDThis is Roboto Font^FS'));
+      expect(zpl, contains('~DYE:RFONT.TTF,B,T,4,,DEADBEEF'));
     });
   });
 
@@ -1044,13 +1027,14 @@ void main() {
     test('Generator should build a complex label with all ZPL types', () async {
       final imageData = await getTestImage(); // Load actual JPEG
 
-      // Font asset uses new API (asset loading won't work in test context)
-      final font = ZplFontAsset(
-        assetPath: 'assets/fonts/Roboto-Regular.ttf',
+      // Font asset via v2.0 ZplFontUpload (inline in commands).
+      final font = ZplFontUpload(
         identifier: 'T',
+        fontBytes: Uint8List.fromList([0xDE, 0xAD, 0xBE, 0xEF]),
       );
 
       final commands = <ZplCommand>[
+        font, // ~DY upload (pre-^XA after Phase 05)
         // Header
         ZplBox(x: 10, y: 10, width: 780, height: 100, borderThickness: 2),
         ZplImage(x: 20, y: 20, image: imageData, graphicName: 'CERT.GRF'),
@@ -1107,7 +1091,7 @@ void main() {
           x: 10,
           y: 300,
           text: 'Product ID (with Roboto font)',
-          fontAlias: 'T', // Use the downloaded font
+          customFont: font,
           fontHeight: 25,
         ),
         ZplBarcode(x: 10, y: 340, height: 70, data: 'PROD-12345'),
@@ -1116,19 +1100,19 @@ void main() {
       final generator = ZplGenerator(
         config: const ZplConfiguration(labelLength: 812, printSpeed: 3),
         commands: commands,
-        fonts: [font],
       );
       String? rawZpl;
       try {
         rawZpl = await generator.build();
       } catch (e) {
-        // Asset loading expected to fail in test context — that's acceptable
-        print('Font asset loading skipped in test context: $e');
+        // Legacy ZplImage may fail on the fallback PNG in test context;
+        // that's acceptable here — Phase 07 migrates this assertion to the
+        // new ZplImageDownload/Recall API with a guaranteed-decodable fixture.
+        print('Legacy image decoding skipped in test context: $e');
       }
 
       print('\n=== COMPLEX INTEGRATION EXAMPLE ===');
       print('A complete label with all ZPL features:');
-      // Check for key components (only when build succeeded)
       if (rawZpl != null) {
         final zpl = normalizeZpl(rawZpl);
         print(zpl);
@@ -1140,11 +1124,12 @@ void main() {
         expect(zpl, contains('~DGCERT.GRF,'));
         expect(zpl, contains('^XGCERT.GRF,1,1^FS'));
         expect(zpl, contains('^AGN,50,40'));
-        expect(zpl, contains('^ATN,25,')); // Custom font check
+        expect(zpl, contains('^ATN,25,'));
         expect(zpl, contains('^BCN,70,Y,N,N,A'));
         expect(zpl, contains('^XZ'));
+        expect(zpl, contains('~DYE:TFONT.TTF,B,T,4,,DEADBEEF'));
       } else {
-        print('(build skipped due to test context limitations)');
+        print('(build skipped due to image fixture decoding)');
         print('==================================\n');
       }
     });

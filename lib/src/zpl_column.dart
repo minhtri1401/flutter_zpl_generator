@@ -1,7 +1,6 @@
 import 'zpl_command_base.dart';
 import 'zpl_text.dart';
 import 'zpl_barcode.dart';
-import 'zpl_image.dart';
 import 'zpl_image_inline.dart';
 import 'zpl_image_recall.dart';
 import 'zpl_box.dart';
@@ -64,13 +63,6 @@ class ZplColumn extends ZplCommand {
     if (element is ZplBox) return element.height;
     if (element is ZplImageInline) return element.height;
     if (element is ZplImageRecall) return element.height ?? 60;
-    if (element is ZplImage) {
-      try {
-        return element.height;
-      } catch (e) {
-        return 60;
-      }
-    }
     if (element is ZplSeparator) return element.calculateHeight(context);
     if (element is ZplConditional) {
       return element.condition
@@ -166,17 +158,6 @@ class ZplColumn extends ZplCommand {
         targetHeight: child.targetHeight,
         maintainAspect: child.maintainAspect,
         ditheringAlgorithm: child.ditheringAlgorithm,
-      );
-    }
-    if (child is ZplImage) {
-      return ZplImage(
-        x: newX,
-        y: newY,
-        image: child.image,
-        graphicName: child.graphicName,
-        targetWidth: child.targetWidth,
-        targetHeight: child.targetHeight,
-        maintainAspect: child.maintainAspect,
       );
     }
     if (child is ZplBox) {

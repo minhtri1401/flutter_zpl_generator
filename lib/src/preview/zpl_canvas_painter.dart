@@ -61,8 +61,6 @@ class ZplCanvasPainter extends CustomPainter {
             Offset(cmd.x.toDouble(), cmd.y.toDouble()),
           );
         }
-      } else if (cmd is ZplImage) {
-        _drawImagePlaceholder(canvas, cmd);
       } else if (cmd is ZplRaw) {
         _drawRawZpl(canvas, size, cmd);
       } else if (cmd is ZplGridRow) {
@@ -609,88 +607,6 @@ class ZplCanvasPainter extends CustomPainter {
       if (c is ZplImageDownload && c.graphicName == name) return c;
     }
     return null;
-  }
-
-  void _drawImagePlaceholder(Canvas canvas, ZplImage imageCmd) {
-    try {
-      final monochrome = imageCmd.getMonochromePixels();
-      if (monochrome != null) {
-        final pixels = monochrome.pixels;
-        final w = monochrome.width;
-        final h = monochrome.height;
-        final startX = imageCmd.x.toDouble();
-        final startY = imageCmd.y.toDouble();
-
-        final paint = Paint()
-          ..color = Colors.black
-          ..style = PaintingStyle.fill
-          ..isAntiAlias = false;
-
-        // Draw by coalescing horizontal pixels into rects for performance
-        for (int y = 0; y < h; y++) {
-          int runStartX = -1;
-          for (int x = 0; x < w; x++) {
-            if (pixels[y * w + x]) {
-              if (runStartX == -1) runStartX = x;
-            } else {
-              if (runStartX != -1) {
-                canvas.drawRect(
-                  Rect.fromLTWH(
-                    startX + runStartX,
-                    startY + y.toDouble(),
-                    (x - runStartX).toDouble(),
-                    1,
-                  ),
-                  paint,
-                );
-                runStartX = -1;
-              }
-            }
-          }
-          if (runStartX != -1) {
-            canvas.drawRect(
-              Rect.fromLTWH(
-                startX + runStartX,
-                startY + y.toDouble(),
-                (w - runStartX).toDouble(),
-                1,
-              ),
-              paint,
-            );
-          }
-        }
-        return; // Early return to avoid drawing placeholder
-      }
-    } catch (e) {
-      // Fallback silently to placeholder
-    }
-
-    final paint = Paint()
-      // Colors.cyan with 30% opacity
-      ..color = const Color(0x4D00BCD4)
-      ..style = PaintingStyle.fill;
-
-    // Fallback gracefully since targetWidth may be null or non-null. Let's just use ??
-    final width =
-        (imageCmd.targetWidth != null && imageCmd.targetWidth! > 0
-                ? imageCmd.targetWidth!
-                : 100)
-            .toDouble();
-    final height =
-        (imageCmd.targetHeight != null && imageCmd.targetHeight! > 0
-                ? imageCmd.targetHeight!
-                : 100)
-            .toDouble();
-
-    final rect = Rect.fromLTWH(
-      imageCmd.x.toDouble(),
-      imageCmd.y.toDouble(),
-      width,
-      height,
-    );
-    canvas.drawRect(rect, paint);
-
-    _drawFallbackText(canvas, "ZplImage", rect.topLeft + const Offset(5, 5));
   }
 
   void _drawFallbackText(Canvas canvas, String text, Offset offset) {

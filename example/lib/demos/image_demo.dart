@@ -36,6 +36,28 @@ class _ImageDemoState extends State<ImageDemo> {
       return const Center(child: CircularProgressIndicator());
     }
 
+    // v2.0 pattern: explicit Download (control, pre-^XA) + Recall (format, in ^XA…^XZ).
+    final downloads = <ZplImageDownload>[
+      ZplImageDownload(
+        targetWidth: 300,
+        image: _gradientBytes!,
+        graphicName: 'LOGO_THR',
+        ditheringAlgorithm: ZplDitheringAlgorithm.threshold,
+      ),
+      ZplImageDownload(
+        targetWidth: 300,
+        image: _gradientBytes!,
+        graphicName: 'LOGO_FS',
+        ditheringAlgorithm: ZplDitheringAlgorithm.floydSteinberg,
+      ),
+      ZplImageDownload(
+        targetWidth: 300,
+        image: _gradientBytes!,
+        graphicName: 'LOGO_ATK',
+        ditheringAlgorithm: ZplDitheringAlgorithm.atkinson,
+      ),
+    ];
+
     final generator = ZplGenerator(
       config: const ZplConfiguration(
         printWidth: 812,
@@ -43,6 +65,7 @@ class _ImageDemoState extends State<ImageDemo> {
         printDensity: ZplPrintDensity.d8,
       ),
       commands: [
+        ...downloads,
         ZplText(
           x: 0,
           y: 20,
@@ -61,14 +84,7 @@ class _ImageDemoState extends State<ImageDemo> {
           fontHeight: 20,
           fontWidth: 16,
         ),
-        ZplImage(
-          x: 400,
-          y: 90,
-          targetWidth: 300,
-          image: _gradientBytes!,
-          graphicName: 'LOGO_THR',
-          ditheringAlgorithm: ZplDitheringAlgorithm.threshold,
-        ),
+        const ZplImageRecall(x: 400, y: 90, graphicName: 'LOGO_THR'),
 
         // Floyd-Steinberg
         ZplText(
@@ -78,14 +94,7 @@ class _ImageDemoState extends State<ImageDemo> {
           fontHeight: 20,
           fontWidth: 16,
         ),
-        ZplImage(
-          x: 400,
-          y: 370,
-          targetWidth: 300,
-          image: _gradientBytes!,
-          graphicName: 'LOGO_FS',
-          ditheringAlgorithm: ZplDitheringAlgorithm.floydSteinberg,
-        ),
+        const ZplImageRecall(x: 400, y: 370, graphicName: 'LOGO_FS'),
 
         // Atkinson
         ZplText(
@@ -95,14 +104,7 @@ class _ImageDemoState extends State<ImageDemo> {
           fontHeight: 20,
           fontWidth: 16,
         ),
-        ZplImage(
-          x: 400,
-          y: 650,
-          targetWidth: 300,
-          image: _gradientBytes!,
-          graphicName: 'LOGO_ATK',
-          ditheringAlgorithm: ZplDitheringAlgorithm.atkinson,
-        ),
+        const ZplImageRecall(x: 400, y: 650, graphicName: 'LOGO_ATK'),
       ],
     );
 
@@ -110,7 +112,7 @@ class _ImageDemoState extends State<ImageDemo> {
       title: 'Image Dithering Algorithms',
       generator: generator,
       features: const [
-        'ZplImage - prints graphics via ~DG',
+        'ZplImageDownload + ZplImageRecall - v2.0 Link-OS-safe image flow',
         'ZplDitheringAlgorithm.threshold - hard contrast clip',
         'ZplDitheringAlgorithm.floydSteinberg - standard error diffusion',
         'ZplDitheringAlgorithm.atkinson - high contrast error diffusion',

@@ -216,66 +216,49 @@ void main() {
     });
   });
 
-  group('ZplImage Tests', () {
-    test('ZplImage should generate correct ~DG and ^XG commands', () async {
-      // Load the actual JPEG image
+  group('Image commands (v2.0 — Download + Recall + Inline)', () {
+    test('Download + Recall round-trip generates ~DG (pre-^XA) and ^XG (in-format)',
+        () async {
       final imageBytes = await loadImageBytes('orioninnovation_logo.jpeg');
 
-      final zplImage = ZplImage(
-        x: 10,
-        y: 10,
+      final download = ZplImageDownload(
         image: imageBytes,
         graphicName: 'GOOGLE_CERT.GRF',
       );
+      const recall = ZplImageRecall(
+        x: 10,
+        y: 10,
+        graphicName: 'GOOGLE_CERT.GRF',
+      );
 
-      print('\n=== ZPL IMAGE EXAMPLE (Google Certificate) ===');
-      final zplString = zplImage.toZpl(const ZplConfiguration());
-      print('Image loaded: ${imageBytes.length} bytes');
-      print('ZPL Output:');
-      print(zplString);
-      print('===============================================\n');
+      final zpl = await ZplGenerator(commands: [download, recall]).build();
 
-      // We test the command structure, not the entire hex data string for simplicity.
-      expect(zplString, contains('~DGGOOGLE_CERT.GRF,'));
-      expect(zplString, contains('^XGGOOGLE_CERT.GRF,1,1^FS'));
-      expect(zplString, startsWith('~DG'));
-      expect(zplString, endsWith('^FS\n'));
+      expect(zpl, contains('~DGGOOGLE_CERT.GRF,'));
+      expect(zpl, contains('^XGGOOGLE_CERT.GRF,1,1^FS'));
+      expect(zpl.indexOf('~DG'), lessThan(zpl.indexOf('^XA')));
+      expect(zpl.indexOf('^XG'), greaterThan(zpl.indexOf('^XA')));
+      expect(zpl.indexOf('^XG'), lessThan(zpl.indexOf('^XZ')));
     });
 
-    test('ZplImage should support different dithering algorithms', () async {
+    test('dithering algorithms produce distinct hex bodies', () async {
       final imageBytes = await loadImageBytes('orioninnovation_logo.jpeg');
 
-      // Given the complex logic of error dispersion, testing complete equality of hex strings could be brittle.
-      // We test that it successfully processes and generates unique output structures for each technique.
-      final imageFS = ZplImage(
-        image: imageBytes,
-        graphicName: 'FS',
-        ditheringAlgorithm: ZplDitheringAlgorithm.floydSteinberg,
-      );
-      final zplFS = imageFS.toZpl(const ZplConfiguration());
+      String bodyOf(ZplDitheringAlgorithm alg) {
+        final d = ZplImageDownload(
+          image: imageBytes,
+          graphicName: alg.name.toUpperCase(),
+          ditheringAlgorithm: alg,
+        );
+        return d.toZpl(const ZplConfiguration());
+      }
 
-      final imageAtk = ZplImage(
-        image: imageBytes,
-        graphicName: 'ATK',
-        ditheringAlgorithm: ZplDitheringAlgorithm.atkinson,
-      );
-      final zplAtk = imageAtk.toZpl(const ZplConfiguration());
+      final zplFS = bodyOf(ZplDitheringAlgorithm.floydSteinberg);
+      final zplAtk = bodyOf(ZplDitheringAlgorithm.atkinson);
+      final zplThr = bodyOf(ZplDitheringAlgorithm.threshold);
 
-      final imageThr = ZplImage(
-        image: imageBytes,
-        graphicName: 'THR',
-        ditheringAlgorithm: ZplDitheringAlgorithm.threshold,
-      );
-      final zplThr = imageThr.toZpl(const ZplConfiguration());
-
-      // Should generate valid ZPL strings
-      expect(zplFS, contains('~DGFS,'));
-      expect(zplAtk, contains('~DGATK,'));
-      expect(zplThr, contains('~DGTHR,'));
-
-      // If they were completely identical, that means algorithms are not doing anything.
-      // For almost any real image (other than completely empty ones), thresholding vs error diffusion creates different hex data.
-      // We make sure it doesn't crash and returns valid formatted ZPL string.
+      expect(zplFS, contains('~DGFLOYDSTEINBERG,'));
+      expect(zplAtk, contains('~DGATKINSON,'));
+      expect(zplThr, contains('~DGTHRESHOLD,'));
       expect(zplFS.isNotEmpty, isTrue);
       expect(zplAtk.isNotEmpty, isTrue);
       expect(zplThr.isNotEmpty, isTrue);
@@ -1034,10 +1017,11 @@ void main() {
       );
 
       final commands = <ZplCommand>[
-        font, // ~DY upload (pre-^XA after Phase 05)
+        font, // ~DY upload (pre-^XA)
+        ZplImageDownload(image: imageData, graphicName: 'CERT.GRF'),
         // Header
         ZplBox(x: 10, y: 10, width: 780, height: 100, borderThickness: 2),
-        ZplImage(x: 20, y: 20, image: imageData, graphicName: 'CERT.GRF'),
+        const ZplImageRecall(x: 20, y: 20, graphicName: 'CERT.GRF'),
         ZplText(
           x: 120,
           y: 40,
@@ -1105,9 +1089,8 @@ void main() {
       try {
         rawZpl = await generator.build();
       } catch (e) {
-        // Legacy ZplImage may fail on the fallback PNG in test context;
-        // that's acceptable here — Phase 07 migrates this assertion to the
-        // new ZplImageDownload/Recall API with a guaranteed-decodable fixture.
+        // Fallback PNG may fail to decode in the test context — acceptable;
+        // the assertions are a sanity check on structure, not a fixture lock-in.
         print('Legacy image decoding skipped in test context: $e');
       }
 

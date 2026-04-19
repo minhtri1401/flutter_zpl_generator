@@ -32,6 +32,35 @@ class ZplCanvasPainter extends CustomPainter {
         _drawText(canvas, cmd);
       } else if (cmd is ZplTextBlock) {
         _drawTextBlock(canvas, cmd);
+      } else if (cmd is ZplImageInline) {
+        _drawMonochromeFromPixels(
+          canvas,
+          cmd.x,
+          cmd.y,
+          cmd.getMonochromePixels(),
+          placeholderWidth: cmd.width,
+          placeholderHeight: cmd.height,
+          label: 'ZplImageInline',
+        );
+      } else if (cmd is ZplImageRecall) {
+        final download = _findDownload(commands, cmd.graphicName);
+        if (download != null) {
+          _drawMonochromeFromPixels(
+            canvas,
+            cmd.x,
+            cmd.y,
+            download.getMonochromePixels(),
+            placeholderWidth: cmd.width ?? download.width,
+            placeholderHeight: cmd.height ?? download.height,
+            label: 'ZplImageRecall(${cmd.graphicName})',
+          );
+        } else {
+          _drawFallbackText(
+            canvas,
+            'ZplImageRecall(${cmd.graphicName}?)',
+            Offset(cmd.x.toDouble(), cmd.y.toDouble()),
+          );
+        }
       } else if (cmd is ZplImage) {
         _drawImagePlaceholder(canvas, cmd);
       } else if (cmd is ZplRaw) {
@@ -503,6 +532,83 @@ class ZplCanvasPainter extends CustomPainter {
       canvas,
       Offset(textBlock.x.toDouble(), textBlock.y.toDouble()),
     );
+  }
+
+  /// Shared pixel-grid renderer used by ZplImage (legacy), ZplImageInline and
+  /// ZplImageRecall. When [monochrome] is null falls back to a cyan
+  /// placeholder rectangle sized by [placeholderWidth]/[placeholderHeight].
+  void _drawMonochromeFromPixels(
+    Canvas canvas,
+    int x,
+    int y,
+    ({int width, int height, List<bool> pixels})? monochrome, {
+    required int placeholderWidth,
+    required int placeholderHeight,
+    required String label,
+  }) {
+    if (monochrome != null) {
+      final pixels = monochrome.pixels;
+      final w = monochrome.width;
+      final h = monochrome.height;
+      final startX = x.toDouble();
+      final startY = y.toDouble();
+      final paint = Paint()
+        ..color = Colors.black
+        ..style = PaintingStyle.fill
+        ..isAntiAlias = false;
+      for (int py = 0; py < h; py++) {
+        int runStartX = -1;
+        for (int px = 0; px < w; px++) {
+          if (pixels[py * w + px]) {
+            if (runStartX == -1) runStartX = px;
+          } else {
+            if (runStartX != -1) {
+              canvas.drawRect(
+                Rect.fromLTWH(
+                  startX + runStartX,
+                  startY + py.toDouble(),
+                  (px - runStartX).toDouble(),
+                  1,
+                ),
+                paint,
+              );
+              runStartX = -1;
+            }
+          }
+        }
+        if (runStartX != -1) {
+          canvas.drawRect(
+            Rect.fromLTWH(
+              startX + runStartX,
+              startY + py.toDouble(),
+              (w - runStartX).toDouble(),
+              1,
+            ),
+            paint,
+          );
+        }
+      }
+      return;
+    }
+
+    final paint = Paint()
+      ..color = const Color(0x4D00BCD4)
+      ..style = PaintingStyle.fill;
+    final rect = Rect.fromLTWH(
+      x.toDouble(),
+      y.toDouble(),
+      placeholderWidth > 0 ? placeholderWidth.toDouble() : 100,
+      placeholderHeight > 0 ? placeholderHeight.toDouble() : 100,
+    );
+    canvas.drawRect(rect, paint);
+    _drawFallbackText(canvas, label, rect.topLeft + const Offset(5, 5));
+  }
+
+  ZplImageDownload? _findDownload(List<ZplCommand> all, String name) {
+    for (final c in all) {
+      if (c is ZplImageDownload && c.graphicName == name) return c;
+    }
+    return null;
   }
 
   void _drawImagePlaceholder(Canvas canvas, ZplImage imageCmd) {

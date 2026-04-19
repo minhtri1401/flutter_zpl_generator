@@ -1,32 +1,10 @@
 import 'dart:typed_data';
 import 'zpl_command_base.dart';
 import 'zpl_configuration.dart';
+import 'zpl_image_enums.dart';
 import 'package:image/image.dart' as img;
 
-/// Represents the algorithm used to convert continuous-tone images to monochrome.
-enum ZplDitheringAlgorithm {
-  /// Simple thresholding: pixels with luminance < 128 become black.
-  /// Result: Hard separations between black and white, zero gradients.
-  threshold,
-
-  /// Floyd-Steinberg dithering: disperses error to neighboring pixels.
-  /// Result: Smooth distributions of dots creating natural-looking gradients.
-  floydSteinberg,
-
-  /// Atkinson dithering: disperses error to a further range of neighboring pixels.
-  /// Result: High contrast, distinct "newspaper print" dot patterns without washing out.
-  atkinson,
-}
-
-/// Represents the compression algorithm used for the image data.
-enum ZplImageCompression {
-  /// No compression. Uses ~DG with raw hex. Maximum compatibility.
-  none,
-
-  /// ACS run-length encoding. Uses ^GFA with compressed data.
-  /// Typically 60-90% smaller. Supported on all Zebra printers.
-  acs,
-}
+export 'zpl_image_enums.dart';
 
 /// A class to handle image-related commands, primarily for downloading graphics (~DG).
 class ZplImage extends ZplCommand {

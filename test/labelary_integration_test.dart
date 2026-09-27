@@ -7,6 +7,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
+import 'package:image/image.dart' as img;
 
 void main() {
   group('LabelaryService Integration Tests', () {
@@ -222,6 +223,72 @@ void main() {
         );
         print('  ZPL generated: ${await generator.build()}');
       }, skip: shouldSkip);
+
+      test(
+        'renderFromGenerator - Z64 image and new symbologies render',
+        () async {
+          // 32x32 checkerboard PNG so deflate has something to compress.
+          final checker = img.Image(width: 32, height: 32);
+          for (int y = 0; y < 32; y++) {
+            for (int x = 0; x < 32; x++) {
+              final v = (x + y).isEven ? 0 : 255;
+              checker.setPixel(x, y, img.ColorRgb8(v, v, v));
+            }
+          }
+          final png = Uint8List.fromList(img.encodePng(checker));
+
+          final generator = ZplGenerator(
+            config: const ZplConfiguration(
+              printWidth: 406,
+              labelLength: 406,
+              printDensity: ZplPrintDensity.d8,
+            ),
+            commands: [
+              ZplImageDownload(
+                image: png,
+                graphicName: 'CHK',
+                compression: ZplImageCompression.z64,
+              ),
+              const ZplImageRecall(x: 10, y: 10, graphicName: 'CHK'),
+              ZplBarcode(
+                x: 10,
+                y: 60,
+                data: '(01)09501101530003',
+                type: ZplBarcodeType.gs1_128,
+                height: 50,
+              ),
+              ZplBarcode(
+                x: 10,
+                y: 150,
+                data: 'https://labelary.com',
+                type: ZplBarcodeType.qrCode,
+                height: 0,
+                magnification: 4,
+                qrErrorCorrection: ZplQrErrorCorrection.high,
+              ),
+              ZplBarcode(
+                x: 200,
+                y: 150,
+                data: 'PDF417',
+                type: ZplBarcodeType.pdf417,
+                height: 6,
+              ),
+              ZplBarcode(
+                x: 200,
+                y: 280,
+                data: 'AZTEC',
+                type: ZplBarcodeType.aztec,
+                height: 0,
+              ),
+            ],
+          );
+
+          final result = await LabelaryService.renderFromGenerator(generator);
+          expect(result.data.sublist(0, 4), equals([137, 80, 78, 71]));
+          expect(result.warnings, isEmpty, reason: result.warnings.join('\n'));
+        },
+        skip: shouldSkip,
+      );
 
       test('renderZpl - JSON output for data extraction', () async {
         const zpl =

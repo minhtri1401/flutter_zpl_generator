@@ -8,7 +8,7 @@ class BarcodeDemo extends StatelessWidget {
 
   static const _config = ZplConfiguration(
     printWidth: 812,
-    labelLength: 1400,
+    labelLength: 1720,
     printDensity: ZplPrintDensity.d8,
   );
 
@@ -26,6 +26,9 @@ class BarcodeDemo extends StatelessWidget {
         'DataMatrix - 2D compact matrix (^BX)',
         'EAN-13 - European Article Number (^BE)',
         'UPC-A - Universal Product Code (^BU)',
+        'GS1-128 (^BC mode D), PDF417 (^B7), Aztec (^BO) - v2.1',
+        'Code 93 (^BA), I2of5 (^B2), EAN-8 (^B8), UPC-E (^B9) - v2.1',
+        'magnification / qrErrorCorrection - QR & Aztec sizing',
         'moduleWidth - controls bar thickness',
         'printInterpretationLine - human-readable text below',
         'alignment - center/right aligned barcodes',
@@ -175,6 +178,84 @@ class BarcodeDemo extends StatelessWidget {
         height: 60,
         moduleWidth: 2,
         printInterpretationLineAbove: true,
+      ),
+
+      ZplSeparator(y: 1230, thickness: 1),
+
+      // v2.1 symbologies
+      ZplText(x: 20, y: 1255, text: 'GS1-128:', fontHeight: 20, fontWidth: 16),
+      ZplBarcode(
+        x: 20,
+        y: 1285,
+        data: '(01)09501101530003(17)261231',
+        type: ZplBarcodeType.gs1_128,
+        height: 70,
+        moduleWidth: 2,
+      ),
+      ZplText(x: 420, y: 1255, text: 'PDF417:', fontHeight: 20, fontWidth: 16),
+      ZplBarcode(
+        x: 420,
+        y: 1285,
+        data: 'Stacked 2D payload',
+        type: ZplBarcodeType.pdf417,
+        height: 6,
+        pdf417Columns: 4,
+        pdf417SecurityLevel: 2,
+      ),
+      ZplText(x: 20, y: 1410, text: 'Aztec:', fontHeight: 20, fontWidth: 16),
+      ZplBarcode(
+        x: 20,
+        y: 1440,
+        data: 'AZTEC-2026',
+        type: ZplBarcodeType.aztec,
+        height: 0,
+        magnification: 4,
+      ),
+      ZplText(
+        x: 420,
+        y: 1410,
+        text: 'EAN-8 / UPC-E:',
+        fontHeight: 20,
+        fontWidth: 16,
+      ),
+      ZplBarcode(
+        x: 420,
+        y: 1440,
+        data: '9638507',
+        type: ZplBarcodeType.ean8,
+        height: 60,
+        moduleWidth: 2,
+      ),
+      ZplBarcode(
+        x: 620,
+        y: 1440,
+        data: '1234567',
+        type: ZplBarcodeType.upcE,
+        height: 60,
+        moduleWidth: 2,
+      ),
+      ZplText(
+        x: 20,
+        y: 1560,
+        text: 'Code 93 / I2of5:',
+        fontHeight: 20,
+        fontWidth: 16,
+      ),
+      ZplBarcode(
+        x: 20,
+        y: 1590,
+        data: 'CODE93',
+        type: ZplBarcodeType.code93,
+        height: 60,
+        moduleWidth: 2,
+      ),
+      ZplBarcode(
+        x: 420,
+        y: 1590,
+        data: '12345678',
+        type: ZplBarcodeType.interleaved2of5,
+        height: 60,
+        moduleWidth: 2,
       ),
     ];
   }

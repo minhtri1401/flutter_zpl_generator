@@ -1,8 +1,16 @@
+import 'enums.dart';
+import 'zpl_barcode_enums.dart';
+import 'zpl_barcode_symbology_emitter.dart';
+import 'zpl_barcode_width_estimator.dart';
 import 'zpl_command_base.dart';
 import 'zpl_configuration.dart';
-import 'enums.dart';
 
-/// A class to handle barcode-related commands (^BC, ^B3, ^BQ, ^BX, ^BE, ^BU).
+/// A barcode field. Symbology-specific ZPL lives in
+/// `zpl_barcode_symbology_emitter.dart`; width estimates in
+/// `zpl_barcode_width_estimator.dart`.
+///
+/// Supported: Code 128, GS1-128, Code 39, Code 93, Interleaved 2 of 5,
+/// EAN-13, EAN-8, UPC-A, UPC-E, QR Code, Data Matrix, PDF417, Aztec.
 class ZplBarcode extends ZplCommand {
   /// The x-axis position of the barcode.
   final int x;
@@ -13,10 +21,11 @@ class ZplBarcode extends ZplCommand {
   /// The data to be encoded in the barcode.
   final String data;
 
-  /// The type of barcode to generate. Defaults to Code 128.
+  /// The symbology. Defaults to Code 128.
   final ZplBarcodeType type;
 
-  /// The height of the barcode in dots.
+  /// Bar height in dots for 1D codes; module/row height for Data Matrix
+  /// and PDF417. Ignored by QR and Aztec (see [magnification]).
   final int height;
 
   /// The orientation of the barcode. Defaults to normal.
@@ -40,6 +49,18 @@ class ZplBarcode extends ZplCommand {
   /// Maximum width constraint (set by layout containers like ZplGridRow).
   final int? maxWidth;
 
+  /// Module size (1–10) for QR Code and Aztec. Defaults to 3.
+  final int magnification;
+
+  /// QR Code error-correction level. Defaults to [ZplQrErrorCorrection.medium].
+  final ZplQrErrorCorrection qrErrorCorrection;
+
+  /// PDF417 security (error-correction) level 0–8. Defaults to 0.
+  final int pdf417SecurityLevel;
+
+  /// PDF417 data columns 1–30. `null` lets the printer choose.
+  final int? pdf417Columns;
+
   ZplBarcode({
     this.x = 0,
     this.y = 0,
@@ -53,54 +74,23 @@ class ZplBarcode extends ZplCommand {
     this.wideBarToNarrowBarRatio,
     this.alignment,
     this.maxWidth,
-  });
+    this.magnification = 3,
+    this.qrErrorCorrection = ZplQrErrorCorrection.medium,
+    this.pdf417SecurityLevel = 0,
+    this.pdf417Columns,
+  }) : assert(magnification >= 1 && magnification <= 10),
+       assert(pdf417SecurityLevel >= 0 && pdf417SecurityLevel <= 8),
+       assert(
+         pdf417Columns == null || (pdf417Columns >= 1 && pdf417Columns <= 30),
+       );
 
-  /// Calculate the approximate width of the barcode in dots.
-  int get width {
-    final baseModuleWidth = moduleWidth ?? 2;
-
-    switch (type) {
-      case ZplBarcodeType.code128:
-        final baseWidth = ((data.length * 11) + 35) * baseModuleWidth;
-        final quietZones = 20 * baseModuleWidth;
-        return baseWidth + quietZones;
-
-      case ZplBarcodeType.code39:
-        final ratio = wideBarToNarrowBarRatio ?? 2.5;
-        final baseWidth =
-            ((data.length * (9 * ratio).round()) + 30) * baseModuleWidth;
-        final quietZones = 20 * baseModuleWidth;
-        return baseWidth + quietZones;
-
-      case ZplBarcodeType.qrCode:
-        if (data.length <= 25) return 84;
-        if (data.length <= 47) return 100;
-        if (data.length <= 77) return 116;
-        if (data.length <= 114) return 132;
-        return 148;
-
-      case ZplBarcodeType.dataMatrix:
-        // Data Matrix size estimate based on data length
-        if (data.length <= 6) return 40;
-        if (data.length <= 12) return 60;
-        if (data.length <= 18) return 80;
-        return 100;
-
-      case ZplBarcodeType.ean13:
-        // EAN-13: fixed 13 digits, standard width
-        return (95 + 20) * baseModuleWidth; // 95 modules + quiet zones
-
-      case ZplBarcodeType.upcA:
-        // UPC-A: fixed 12 digits, standard width
-        return (95 + 20) * baseModuleWidth; // 95 modules + quiet zones
-    }
-  }
+  /// Approximate printed width in dots (see [estimateBarcodeWidth]).
+  int get width => estimateBarcodeWidth(this);
 
   @override
   String toZpl(ZplConfiguration context) {
     final sb = StringBuffer();
-    final alignedX = getAlignedX(context);
-    sb.writeln('^FO$alignedX,$y');
+    sb.writeln('^FO${getAlignedX(context)},$y');
 
     if (moduleWidth != null || wideBarToNarrowBarRatio != null) {
       final w = moduleWidth ?? '';
@@ -108,93 +98,23 @@ class ZplBarcode extends ZplCommand {
       sb.writeln('^BY$w,$r');
     }
 
-    switch (type) {
-      case ZplBarcodeType.code128:
-        final orientationCode = _getOrientationCode();
-        final printLine = printInterpretationLine ? 'Y' : 'N';
-        final printLineAbove = printInterpretationLineAbove ? 'Y' : 'N';
-        sb.writeln(
-          '^BC$orientationCode,$height,$printLine,$printLineAbove,N,A',
-        );
-        sb.writeln('^FD$data^FS');
-        break;
-
-      case ZplBarcodeType.code39:
-        final orientationCode = _getOrientationCode();
-        final printLine = printInterpretationLine ? 'Y' : 'N';
-        final printLineAbove = printInterpretationLineAbove ? 'Y' : 'N';
-        sb.writeln('^B3$orientationCode,N,$height,$printLine,$printLineAbove');
-        sb.writeln('^FD$data^FS');
-        break;
-
-      case ZplBarcodeType.qrCode:
-        final orientationCode = _getOrientationCode();
-        sb.writeln('^BQ$orientationCode,2,3');
-        sb.writeln('^FD$data^FS');
-        break;
-
-      case ZplBarcodeType.dataMatrix:
-        final orientationCode = _getOrientationCode();
-        // ^BXo,h,q — orientation, height per module, quality level
-        sb.writeln('^BX$orientationCode,$height,200');
-        sb.writeln('^FD$data^FS');
-        break;
-
-      case ZplBarcodeType.ean13:
-        final orientationCode = _getOrientationCode();
-        final printLine = printInterpretationLine ? 'Y' : 'N';
-        final printLineAbove = printInterpretationLineAbove ? 'Y' : 'N';
-        // ^BEo,h,f,g
-        sb.writeln('^BE$orientationCode,$height,$printLine,$printLineAbove');
-        sb.writeln('^FD$data^FS');
-        break;
-
-      case ZplBarcodeType.upcA:
-        final orientationCode = _getOrientationCode();
-        final printLine = printInterpretationLine ? 'Y' : 'N';
-        final printLineAbove = printInterpretationLineAbove ? 'Y' : 'N';
-        // ^BUo,h,f,g,e
-        sb.writeln('^BU$orientationCode,$height,$printLine,$printLineAbove,N');
-        sb.writeln('^FD$data^FS');
-        break;
-    }
-
+    sb.write(emitBarcodeSymbology(this));
     return sb.toString();
   }
 
-  String _getOrientationCode() {
-    switch (orientation) {
-      case ZplOrientation.normal:
-        return 'N';
-      case ZplOrientation.rotated90:
-        return 'R';
-      case ZplOrientation.inverted180:
-        return 'I';
-      case ZplOrientation.readFromBottomUp270:
-        return 'B';
-    }
-  }
-
   @override
-  int calculateWidth(ZplConfiguration config) {
-    return width;
-  }
+  int calculateWidth(ZplConfiguration config) => width;
 
   /// Calculate the X position based on alignment and available width.
   int getAlignedX(ZplConfiguration context) {
-    if (alignment == null) {
-      return x;
-    }
+    if (alignment == null) return x;
 
     final labelWidth = maxWidth ?? context.printWidth ?? 406;
-
-    switch (alignment!) {
-      case ZplAlignment.center:
-        return x + ((labelWidth - width) ~/ 2).clamp(0, labelWidth - 1).toInt();
-      case ZplAlignment.right:
-        return x + (labelWidth - width).clamp(0, labelWidth - 1).toInt();
-      case ZplAlignment.left:
-        return x;
-    }
+    return switch (alignment!) {
+      ZplAlignment.center =>
+        x + ((labelWidth - width) ~/ 2).clamp(0, labelWidth - 1),
+      ZplAlignment.right => x + (labelWidth - width).clamp(0, labelWidth - 1),
+      ZplAlignment.left => x,
+    };
   }
 }

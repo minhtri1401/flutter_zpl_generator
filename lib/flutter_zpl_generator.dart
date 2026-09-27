@@ -6,6 +6,7 @@ export 'src/zpl_command_base.dart';
 export 'src/zpl_configuration.dart';
 export 'src/zpl_text.dart';
 export 'src/zpl_barcode.dart';
+export 'src/zpl_barcode_enums.dart';
 export 'src/zpl_image_download.dart';
 export 'src/zpl_image_enums.dart';
 export 'src/zpl_image_inline.dart';

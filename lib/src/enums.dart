@@ -42,6 +42,28 @@ enum ZplBarcodeType {
 
   /// UPC-A Barcode - ^BU
   upcA,
+
+  /// PDF417 (2D stacked) - ^B7. `height` is the row height in dots.
+  pdf417,
+
+  /// Aztec Code (2D) - ^BO. Sized by `magnification`.
+  aztec,
+
+  /// Code 93 - ^BA
+  code93,
+
+  /// Interleaved 2 of 5 (numeric, even digit count) - ^B2
+  interleaved2of5,
+
+  /// EAN-8 - ^B8
+  ean8,
+
+  /// UPC-E (6-digit compressed UPC) - ^B9
+  upcE,
+
+  /// GS1-128 (UCC/EAN-128) - ^BC in mode D. Data uses application
+  /// identifiers in parentheses, e.g. `(01)09501101530003(17)250101`.
+  gs1_128,
 }
 
 /// Enum for different print modes.

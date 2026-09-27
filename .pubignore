@@ -1,0 +1,27 @@
+# Mirrors .gitignore (pub stops consulting .gitignore once .pubignore exists)
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+pubspec.lock
+**/doc/api/
+*.iml
+.idea/
+.DS_Store
+*.log
+
+# Development-only material that must not ship in the pub archive
+.agent/
+.claude/
+CLAUDE.md
+.fvm/
+.fvmrc
+.github/
+.vscode/
+.metadata
+plans/
+specs/
+zpl-document/
+labelary_docs_summary.md
+Roboto-Regular.ttf
+orioninnovation_logo.jpeg

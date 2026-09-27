@@ -1,6 +1,6 @@
 name: flutter_zpl_generator
 description: A comprehensive Flutter package for generating ZPL (Zebra Programming Language) labels with Labelary API integration and live preview capabilities.
-version: 2.0.0
+version: 2.1.0
 homepage: https://github.com/minhtri1401/flutter_zpl_generator
 repository: https://github.com/minhtri1401/flutter_zpl_generator
 issue_tracker: https://github.com/minhtri1401/flutter_zpl_generator/issues
@@ -17,6 +17,8 @@ dependencies:
   hex: ^0.2.0
   barcode_widget: ^2.0.4
   barcode: ^2.2.9
+  qr: ^3.0.0
+  archive: ^4.3.0
 
 dev_dependencies:
   flutter_test:
@@ -29,6 +31,12 @@ dev_dependencies:
 flutter:
   # This package contains widgets that can be used in Flutter apps
   uses-material-design: false
+  # Stand-in for Zebra's font 0 in ZplNativePreview (SIL OFL 1.1, see
+  # fonts/OFL-archivo-narrow.txt). Variable weight axis 400–700.
+  fonts:
+    - family: ArchivoNarrow
+      fonts:
+        - asset: fonts/archivo-narrow-variable.ttf
 
 topics:
   - zpl

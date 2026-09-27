@@ -33,11 +33,11 @@ class ZplFontUpload extends ZplControlCommand {
   final Uint8List fontBytes;
 
   ZplFontUpload({required this.identifier, required this.fontBytes})
-      : assert(
-          RegExp(r'^[A-Z]$').hasMatch(identifier),
-          'Font identifier must be a single uppercase letter (A-Z). '
-          'Got: "$identifier"',
-        );
+    : assert(
+        RegExp(r'^[A-Z]$').hasMatch(identifier),
+        'Font identifier must be a single uppercase letter (A-Z). '
+        'Got: "$identifier"',
+      );
 
   /// Loads the font bytes from a Flutter asset and returns a ready-to-use
   /// [ZplFontUpload]. Pass the result into [ZplGenerator.commands].

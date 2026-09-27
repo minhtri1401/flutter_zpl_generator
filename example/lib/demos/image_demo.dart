@@ -49,12 +49,15 @@ class _ImageDemoState extends State<ImageDemo> {
         image: _gradientBytes!,
         graphicName: 'LOGO_FS',
         ditheringAlgorithm: ZplDitheringAlgorithm.floydSteinberg,
+        // v2.2: zlib + base64 body — smallest wire size on Z64-capable firmware.
+        compression: ZplImageCompression.z64,
       ),
       ZplImageDownload(
         targetWidth: 300,
         image: _gradientBytes!,
         graphicName: 'LOGO_ATK',
         ditheringAlgorithm: ZplDitheringAlgorithm.atkinson,
+        compression: ZplImageCompression.acs,
       ),
     ];
 
@@ -116,6 +119,7 @@ class _ImageDemoState extends State<ImageDemo> {
         'ZplDitheringAlgorithm.threshold - hard contrast clip',
         'ZplDitheringAlgorithm.floydSteinberg - standard error diffusion',
         'ZplDitheringAlgorithm.atkinson - high contrast error diffusion',
+        'ZplImageCompression.z64 / acs / b64 / none - body encoding per image',
       ],
     );
   }

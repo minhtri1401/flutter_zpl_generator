@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:image/image.dart' as img;
+import 'zpl_graphic_compression_encoder.dart';
 import 'zpl_image_enums.dart';
 
 /// Shared image pipeline mixin for [ZplImageDownload] and [ZplImageInline].
@@ -151,6 +152,18 @@ mixin ImagePayloadBuilder {
       rows.add(sb.toString());
     }
     return rows;
+  }
+
+  /// Graphic data body for the current bitmap in the requested
+  /// [compression]. Caller emits the `~DG`/`^GFA` header.
+  String graphicBody(ZplImageCompression compression) {
+    final rows = monochromeHexRows();
+    return switch (compression) {
+      ZplImageCompression.none => rawHexGraphicBody(rows),
+      ZplImageCompression.acs => acsEncode(rows),
+      ZplImageCompression.b64 => b64GraphicBody(rows),
+      ZplImageCompression.z64 => z64GraphicBody(rows),
+    };
   }
 
   /// ACS-encodes a list of hex rows, with `:` shortcut for duplicate rows.

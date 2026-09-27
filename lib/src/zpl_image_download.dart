@@ -27,8 +27,9 @@ class ZplImageDownload extends ZplControlCommand with ImagePayloadBuilder {
   @override
   final ZplDitheringAlgorithm ditheringAlgorithm;
 
-  /// `none` → raw ASCII hex body; `acs` → ACS run-length encoded body.
-  /// Both are legal inside `~DG` per the ZPL II Programming Guide.
+  /// Body encoding: `none` (raw hex), `acs` (run-length hex), `b64`
+  /// (base64 + CRC) or `z64` (zlib + base64 + CRC, smallest). All four are
+  /// legal inside `~DG`; `b64`/`z64` need B64/Z64-capable firmware.
   final ZplImageCompression compression;
 
   ZplImageDownload({
@@ -54,18 +55,7 @@ class ZplImageDownload extends ZplControlCommand with ImagePayloadBuilder {
   @override
   String toZpl(ZplConfiguration context) {
     if (resizedImage() == null) return '';
-    final rows = monochromeHexRows();
-    final body = compression == ZplImageCompression.acs
-        ? acsEncode(rows)
-        : _rawHexBody(rows);
+    final body = graphicBody(compression);
     return '~DG$graphicName,$totalBytes,$widthBytes,$body';
-  }
-
-  String _rawHexBody(List<String> rows) {
-    final sb = StringBuffer();
-    for (final row in rows) {
-      sb.writeln(row);
-    }
-    return sb.toString();
   }
 }

@@ -8,9 +8,9 @@ import 'zpl_image_enums.dart';
 /// `^GFA`. No `~DG` separate-download step — the bitmap travels inside the
 /// active format. Best when you print the image once and never reuse.
 ///
-/// ACS compression is always applied; uncompressed inline emission is not
-/// supported (uncompressed `^GFA` is ~3× larger than raw `~DG` and has no
-/// legitimate use case).
+/// [compression] defaults to ACS (the 2.0 behaviour). Use
+/// [ZplImageCompression.z64] for the smallest payload on firmware that
+/// supports it.
 ///
 /// Use [ZplImageDownload] + [ZplImageRecall] instead on Link-OS mobile
 /// firmware (ZQ620 etc.) — inline `^GFA` works on desktop firmware but has
@@ -31,6 +31,9 @@ class ZplImageInline extends ZplCommand with ImagePayloadBuilder {
   @override
   final ZplDitheringAlgorithm ditheringAlgorithm;
 
+  /// Body encoding; see [ZplImageCompression]. Defaults to `acs`.
+  final ZplImageCompression compression;
+
   ZplImageInline({
     this.x = 0,
     this.y = 0,
@@ -39,6 +42,7 @@ class ZplImageInline extends ZplCommand with ImagePayloadBuilder {
     this.targetHeight,
     this.maintainAspect = true,
     this.ditheringAlgorithm = ZplDitheringAlgorithm.floydSteinberg,
+    this.compression = ZplImageCompression.acs,
   });
 
   /// Post-resize width in dots (Bug 2 fix).
@@ -53,11 +57,10 @@ class ZplImageInline extends ZplCommand with ImagePayloadBuilder {
   @override
   String toZpl(ZplConfiguration context) {
     if (resizedImage() == null) return '';
-    final rows = monochromeHexRows();
     final sb = StringBuffer();
     sb.writeln('^FO$x,$y');
     sb.write('^GFA,$totalBytes,$totalBytes,$widthBytes,');
-    sb.write(acsEncode(rows));
+    sb.write(graphicBody(compression));
     sb.writeln('^FS');
     return sb.toString();
   }

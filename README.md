@@ -54,8 +54,7 @@ The library boasts an unparalleled set of components, beautifully simulated insi
 - The `ZplPreview` widget hooks up directly to Labelary endpoints recursively respecting the `generator` state for immediate real-time feedback visually in Flutter while you code.
 - Alternatively, you can run the **`ZplNativePreview`** widget which operates completely 100% offline leveraging `CustomPainter` to natively reconstruct elements! 
 
-> **Important Disclosure**: 
-> The native preview (`ZplNativePreview`) provides a highly performant offline UI mapping capability. However, ZPL is ultimately a hardware execution language. Thus, while it maps boundaries correctly, it will incredibly rarely map **100% visually identically** to the final printer firmware output due to nuances in built-in Zebra TTF rendering logic, line kerning, dot inflation, and physical ribbon tracking.
+> **How accurate is it?** The native preview is calibrated against Labelary renders (see `test/native_preview_fidelity_harness_test.dart`). Since v2.1: 1D barcodes are drawn from the real module count (Code 128 with Zebra's subset switching, Code 39 at the `^BY` ratio), QR and Data Matrix at the exact version and size, and text with a bundled condensed bold face (Archivo Narrow, SIL OFL) sized to Zebra's font 0 metrics. Boxes, Data Matrix and alphanumeric QR are pixel-identical; 1D barcodes overlap 90–95 %; text boxes land within a few dots but glyph shapes still differ from Zebra's CG Triumvirate, and the QR mask pattern can differ (same size and content).
 
 ---
 
@@ -164,6 +163,35 @@ ZplText(
 ZplRaw(command: '^FO20,880^A0N,24,20^FDInject anything directly!^FS')
 ```
 
+### Barcode Symbologies (`ZplBarcode`)
+Thirteen symbologies via `type:`; the offline `ZplNativePreview` renders all of them.
+
+| 1D | 2D |
+| :--- | :--- |
+| `code128` (^BC), `gs1_128` (^BC mode D, `(AI)` data), `code39` (^B3), `code93` (^BA), `interleaved2of5` (^B2), `ean13` (^BE), `ean8` (^B8), `upcA` (^BU), `upcE` (^B9) | `qrCode` (^BQ), `dataMatrix` (^BX), `pdf417` (^B7), `aztec` (^BO) |
+
+```dart
+ZplBarcode(
+  data: 'https://example.com',
+  type: ZplBarcodeType.qrCode,
+  height: 0,                                   // QR/Aztec size by magnification
+  magnification: 5,
+  qrErrorCorrection: ZplQrErrorCorrection.high, // L / M / Q / H
+),
+ZplBarcode(
+  data: '(01)09501101530003(17)261231',
+  type: ZplBarcodeType.gs1_128,
+  height: 80,
+),
+ZplBarcode(
+  data: 'Stacked payload',
+  type: ZplBarcodeType.pdf417,
+  height: 8,             // row height
+  pdf417SecurityLevel: 3,
+  pdf417Columns: 4,
+),
+```
+
 ### Conditional Printing (`ZplConditional`)
 Sometimes you want to show or hide entire layout sections natively based on condition flags (e.g. `hasDiscount`, `showSerialNumber`).
 
@@ -195,8 +223,7 @@ Transform any image (PNG, JPEG, GIF) into ZPL graphics that can be embedded dire
 final zplGraphics = await LabelaryService.convertImageToGraphic(
   imageBytes,
   'logo.png',
-  outputFormat: LabelaryGraphicOutputFormat.zpl,
-  blackThreshold: 128 // Auto-Dithering
+  outputFormat: LabelaryOutputFormat.zpl,
 );
 ```
 
@@ -231,17 +258,33 @@ commands: [
 
 Use `autoLabelLengthFromFirstImage: true` on `ZplGenerator` to auto-emit `^LL` equal to the first download's rendered height.
 
-### ACS Image Compression (^GFA, one-shot desktop firmware)
-For desktop / stationary firmware and single-use images, `ZplImageInline` emits `^FO` + `^GFA` inside the format with ACS run-length encoding (~60-90% smaller wire). Not recommended on Link-OS mobile; see `doc/mobile-printer-guide.md`.
+### Image Compression (ACS, B64, Z64)
+Both `ZplImageDownload` (`~DG`) and `ZplImageInline` (`^GFA`) accept a `compression:` mode:
+
+| Mode | Body | Typical size vs raw hex | Firmware |
+| :--- | :--- | :--- | :--- |
+| `none` | ASCII hex | 100 % | all |
+| `acs` | run-length hex | 10–40 % | all |
+| `b64` | `:B64:` base64 + CRC-16 | ~67 % | B64/Z64-capable (all Link-OS) |
+| `z64` | `:Z64:` zlib + base64 + CRC-16 | **5–30 %** | B64/Z64-capable (all Link-OS) |
 
 ```dart
 commands: [
+  ZplImageDownload(
+    image: logoBytes,
+    graphicName: 'LOGO',
+    compression: ZplImageCompression.z64, // smallest wire size
+  ),
+  const ZplImageRecall(x: 20, y: 20, graphicName: 'LOGO'),
   ZplImageInline(
-    x: 20, y: 20,
-    image: highResPhotoBytes, // emits ^GFA with ACS body
+    x: 20, y: 400,
+    image: highResPhotoBytes,          // defaults to ACS
+    compression: ZplImageCompression.z64,
   ),
 ]
 ```
+
+Z64 runs on web too (pure-Dart deflate via `package:archive`). `ZplImageInline` is not recommended on Link-OS mobile; see `doc/mobile-printer-guide.md`.
 
 ### Import Custom Fonts to Your Printer
 Upload TrueType fonts to the printer's memory via the control-phase `ZplFontUpload`. Reference the font on any `ZplText` via `customFont:`.

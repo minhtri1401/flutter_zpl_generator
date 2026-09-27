@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ZplSeparator class from the flutter_zpl_generator library, for the Dart programming language.">
+  <title>ZplSeparator class - flutter_zpl_generator library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">flutter_zpl_generator</a></li>
+    <li><a href="../flutter_zpl_generator/">flutter_zpl_generator.dart</a></li>
+    <li class="self-crumb">ZplSeparator class</li>
+  </ol>
+  <div class="self-name">ZplSeparator</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="flutter_zpl_generator&#47;flutter_zpl_generator-library-sidebar.html"
+    data-below-sidebar="flutter_zpl_generator&#47;ZplSeparator-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">ZplSeparator</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>A widget that creates separator lines using either box drawing or repeated characters.</p>
+<p>Supports both horizontal and vertical orientations, custom characters,
+padding control, and automatic width/height calculation based on configuration.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="../flutter_zpl_generator/ZplCommand-class.html">ZplCommand</a></li>
+      <li>ZplSeparator</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="ZplSeparator.new" class="callable">
+          <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/ZplSeparator.html">ZplSeparator.new</a></span><span class="signature">({<span class="parameter" id="-param-x"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">x</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-y"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">y</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-type"><span class="type-annotation"><a href="../flutter_zpl_generator/ZplSeparatorType.html">ZplSeparatorType</a></span> <span class="parameter-name">type</span> = <span class="default-value">ZplSeparatorType.box</span>, </span><span class="parameter" id="-param-character"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">character</span> = <span class="default-value">&#39;-&#39;</span>, </span><span class="parameter" id="-param-thickness"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">thickness</span> = <span class="default-value">1</span>, </span><span class="parameter" id="-param-orientation"><span class="type-annotation"><a href="../flutter_zpl_generator/ZplOrientation.html">ZplOrientation</a></span> <span class="parameter-name">orientation</span> = <span class="default-value">ZplOrientation.normal</span>, </span><span class="parameter" id="-param-paddingLeft"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">paddingLeft</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-paddingRight"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">paddingRight</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-paddingTop"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">paddingTop</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-paddingBottom"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">paddingBottom</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-length"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">length</span>, </span><span class="parameter" id="-param-fontHeight"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">fontHeight</span> = <span class="default-value">12</span>, </span><span class="parameter" id="-param-fontWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">fontWidth</span> = <span class="default-value">10</span>, </span><span class="parameter" id="-param-maxWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">maxWidth</span></span>})</span>
+        </dt>
+        <dd>
+          
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="character" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/character.html">character</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  
+
+</dt>
+<dd>
+  The character to repeat (only used when type is character).
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="fontHeight" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/fontHeight.html">fontHeight</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Font height for character-based separators.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="fontWidth" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/fontWidth.html">fontWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Font width for character-based separators.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="length" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/length.html">length</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span>
+  
+
+</dt>
+<dd>
+  Optional fixed length. If null, uses full available width/height minus padding.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="maxWidth" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/maxWidth.html">maxWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span>
+  
+
+</dt>
+<dd>
+  Maximum width constraint (set by layout containers like ZplGridRow).
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="orientation" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/orientation.html">orientation</a></span>
+  <span class="signature">&#8594; <a href="../flutter_zpl_generator/ZplOrientation.html">ZplOrientation</a></span>
+  
+
+</dt>
+<dd>
+  The orientation of the separator.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="paddingBottom" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/paddingBottom.html">paddingBottom</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Padding from the bottom edge (reduces length for vertical separators).
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="paddingLeft" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/paddingLeft.html">paddingLeft</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Padding from the left edge (reduces length for horizontal separators).
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="paddingRight" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/paddingRight.html">paddingRight</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Padding from the right edge (reduces length for horizontal separators).
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="paddingTop" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/paddingTop.html">paddingTop</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Padding from the top edge (reduces length for vertical separators).
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="thickness" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/thickness.html">thickness</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The thickness of the line in dots (only used when type is box).
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="type" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/type.html">type</a></span>
+  <span class="signature">&#8594; <a href="../flutter_zpl_generator/ZplSeparatorType.html">ZplSeparatorType</a></span>
+  
+
+</dt>
+<dd>
+  The type of separator to create.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="x" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/x.html">x</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The x-axis position of the separator.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="y" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/y.html">y</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  The y-axis position of the separator.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="calculateHeight" class="callable">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/calculateHeight.html">calculateHeight</a></span><span class="signature">(<wbr><span class="parameter" id="calculateHeight-param-config"><span class="type-annotation"><a href="../flutter_zpl_generator/ZplConfiguration-class.html">ZplConfiguration</a></span> <span class="parameter-name">config</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Calculate the height of the separator.
+  
+
+</dd>
+
+        <dt id="calculateWidth" class="callable">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/calculateWidth.html">calculateWidth</a></span><span class="signature">(<wbr><span class="parameter" id="calculateWidth-param-config"><span class="type-annotation"><a href="../flutter_zpl_generator/ZplConfiguration-class.html">ZplConfiguration</a></span> <span class="parameter-name">config</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Calculates the approximate width of this command in dots.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toZpl" class="callable">
+  <span class="name"><a href="../flutter_zpl_generator/ZplSeparator/toZpl.html">toZpl</a></span><span class="signature">(<wbr><span class="parameter" id="toZpl-param-context"><span class="type-annotation"><a href="../flutter_zpl_generator/ZplConfiguration-class.html">ZplConfiguration</a></span> <span class="parameter-name">context</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Converts the command to its ZPL representation.
+The <code>context</code> provides label configuration (dimensions, density, etc.).
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">flutter_zpl_generator</a></li>
+    <li><a href="../flutter_zpl_generator/">flutter_zpl_generator</a></li>
+    <li class="self-crumb">ZplSeparator class</li>
+</ol>
+
+    <h5>flutter_zpl_generator library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    flutter_zpl_generator
+      1.5.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

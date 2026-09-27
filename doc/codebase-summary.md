@@ -6,11 +6,11 @@ A comprehensive overview of the `flutter_zpl_generator` package structure, modul
 
 - **Language**: Dart/Flutter
 - **Package**: flutter_zpl_generator
-- **Version**: 1.5.1 (March 2026)
+- **Version**: 2.1.0 (Compression & Barcode Expansion, September 2026)
 - **License**: MIT
-- **Main Files**: 32 Dart modules
-- **Test Coverage**: > 85%
-- **Documentation**: Inline comments + external guides
+- **Main Files**: 40+ Dart modules + GitHub Actions workflows
+- **Test Coverage**: > 90% (125+ unit tests)
+- **Documentation**: Inline comments + external guides + comprehensive doc/ files
 
 ## Directory Structure
 
@@ -23,15 +23,22 @@ flutter_zpl_generator/
 │   │   ├── zpl_configuration.dart     # Configuration value class
 │   │   ├── zpl_generator.dart         # Main orchestrator
 │   │   ├── enums.dart                 # All enum definitions
-│   │   ├── zpl_font_asset.dart        # Font asset descriptor
-│   │   ├── zpl_asset_service.dart     # Asset-to-ZPL converter
+│   │   ├── zpl_font_upload.dart       # Font upload control (~DY)
+│   │   ├── zpl_asset_service.dart     # Asset loader helper
 │   │   ├── labelary_service.dart      # API integration
 │   │   │
 │   │   ├── zpl_text.dart              # Text rendering
 │   │   ├── zpl_text_block.dart        # Text block rendering (^TB)
-│   │   ├── zpl_barcode.dart           # Barcode rendering
+│   │   ├── zpl_barcode.dart           # Barcode rendering (13 types)
+│   │   ├── zpl_barcode_enums.dart     # Barcode type & param enums
+│   │   ├── zpl_barcode_symbology_emitter.dart # Barcode ZPL generation
+│   │   ├── zpl_barcode_width_estimator.dart   # Barcode width calculation
 │   │   ├── zpl_box.dart               # Box drawing
-│   │   ├── zpl_image.dart             # Image rendering with compression
+│   │   ├── zpl_image_enums.dart       # Image compression & dithering enums
+│   │   ├── zpl_graphic_compression_encoder.dart # Z64/B64 compression
+│   │   ├── zpl_image_download.dart    # Image download (~DG)
+│   │   ├── zpl_image_recall.dart      # Image recall (^XG)
+│   │   ├── zpl_image_inline.dart      # Inline image (^GFA)
 │   │   ├── zpl_separator.dart         # Separator lines
 │   │   ├── zpl_raw.dart               # Raw ZPL injection
 │   │   ├── zpl_template.dart          # Templating and data binding
@@ -55,11 +62,12 @@ flutter_zpl_generator/
 │   │   └── zpl_serial_config.dart     # Auto-serialization (^SN)
 │   │
 │   └── preview/
-│       ├── zpl_native_preview.dart    # Offline Flutter Widget preview
-│       └── zpl_canvas_painter.dart    # Core rendering canvas logic
+│       ├── zpl_native_preview.dart       # Offline Flutter Widget preview
+│       ├── zpl_canvas_painter.dart       # Core rendering canvas logic
+│       └── zpl_barcode_preview_mapping.dart # Barcode preview params mapping
 │
-│   └── widgets/
-│       └── zpl_preview.dart           # Legacy Labelary preview widget
+└── widgets/
+    └── zpl_preview.dart                # Legacy Labelary preview widget
 │
 ├── test/
 │   └── flutter_zpl_generator_test.dart # Comprehensive test suite
@@ -67,18 +75,28 @@ flutter_zpl_generator/
 ├── example/
 │   └── lib/main.dart                  # Example application
 │
+├── fonts/
+│   └── archivo-narrow-variable.ttf         # Condensed bold face (SIL OFL 1.1) for native preview
+│
 ├── pubspec.yaml                       # Package metadata & dependencies
 ├── pubspec.lock                       # Locked dependency versions
 ├── CHANGELOG.md                       # Version history
 ├── README.md                          # User guide
 ├── CLAUDE.md                          # Development guidance
-└── docs/                              # Documentation
+├── .pubignore                         # Pub publishing exclusions (plans, ZPL manual PDFs, dev files; fonts/ ships)
+├── .github/
+│   ├── workflows/
+│   │   ├── ci.yml                     # Format, analyze, test, publish dry-run
+│   │   └── security-scan.yml          # OSV, gitleaks, SARIF, Dependabot
+│   └── dependabot.yml                 # Automated dependency updates
+└── doc/                               # Documentation
     ├── system-architecture.md         # Architecture overview
     ├── code-standards.md              # Implementation patterns
     ├── development-roadmap.md         # Feature roadmap
     ├── project-changelog.md           # Detailed change history
     ├── project-overview-pdr.md        # PDR & requirements
-    └── codebase-summary.md            # This file
+    ├── codebase-summary.md            # This file
+    └── ...                            # Other guides
 ```
 
 ## Core Modules
@@ -116,25 +134,23 @@ abstract class ZplCommand {
 ### 3. zpl_generator.dart
 **Purpose**: Main orchestrator that aggregates commands and generates ZPL script
 
-**Constructor** (v1.1.0):
+**Constructor** (v2.0.0+):
 ```dart
 ZplGenerator({
-  this.config = const ZplConfiguration(),
-  required this.commands,
-  this.fonts = const [],
-  this.assetService,
+  ZplConfiguration config = const ZplConfiguration(),
+  required List<ZplCommand> commands,
+  bool autoLabelLengthFromFirstImage = false,
 })
 ```
 
 **Key Methods**:
-- `build()` — Async method that generates complete ZPL script
+- `build()` — Async method using two-pass approach
 
-**Workflow**:
-1. Wrap with `^XA` (start)
-2. Upload custom fonts (if provided)
-3. Emit configuration
-4. Generate all command ZPL strings
-5. Wrap with `^XZ` (end)
+**Two-Pass Workflow** (Link-OS compatible):
+1. **Phase 1:** Emit all `ZplControlCommand` instances (fonts, images, network configs) BEFORE `^XA`
+2. **Phase 2:** Emit `^XA` → config → regular commands → `^XZ`
+
+This ordering is required on Link-OS mobile printers (ZQ620, etc.)
 
 ### 4. enums.dart
 **Purpose**: Central location for all enumeration types
@@ -166,45 +182,45 @@ ZplGenerator({
 - `x`, `y` — Position in dots
 - `text` — Content to print
 - `font` — Built-in font selection
-- `fontAlias` — Reference to uploaded custom font
+- `fontAlias` — Reference to uploaded custom font (A-Z)
 - `fontHeight`, `fontWidth` — Font sizing
 - `orientation` — Text rotation
 - `alignment` — Horizontal alignment (left, center, right)
 - `maxLines`, `lineSpacing` — Multi-line support
-- `customFont` — TTF font asset reference
+- `customFont` — `ZplFontUpload` instance (v2.0.0+)
 - `maxWidth` — Width constraint from layout container
-- `reversePrint` — White on black (v1.1.0)
+- `reversePrint` — White on black
 
 **Key Methods**:
 - `toZpl(ZplConfiguration context)` — Generates `^FO`, `^A`, `^FB`, `^FD`, `^FS` commands
 - `calculateWidth()` — Estimates text width in dots
 
-### 6. zpl_barcode.dart
-**Purpose**: Barcode rendering (6 types)
+### 6. zpl_barcode.dart & Related Modules
+**Purpose**: Barcode rendering (13 symbologies via v2.1.0)
 
-**Supported Types** (v1.1.0):
-- `code128` — Linear barcode, high density
-- `code39` — Linear barcode, alphanumeric
-- `qrCode` — 2D barcode, large capacity
-- `dataMatrix` — 2D barcode (v1.1.0), compact
-- `ean13` — Linear barcode, 13-digit retail
-- `upcA` — Linear barcode, 12-digit North American retail
+**Supported Types** (v2.1.0):
+- 1D: `code128`, `code39`, `code93`, `interleaved2of5`, `ean8`, `ean13`, `upcA`, `upcE`, `gs1_128`
+- 2D: `qrCode` (with error correction & magnification), `dataMatrix`, `aztec`, `pdf417` (with security level & column params)
 
 **Key Properties**:
-- `x`, `y` — Position
-- `data` — Barcode content
-- `type` — Barcode type
-- `height` — Barcode height in dots
-- `moduleWidth` — Bar width
-- `wideBarToNarrowBarRatio` — For 1D barcodes
-- `printInterpretationLine` — Show human-readable text
-- `alignment` — Horizontal alignment
-- `maxWidth` — Layout constraint
+- `x`, `y` — Position; `data` — Barcode content; `type` — Symbology
+- `height` — Module/row height in dots (ignored by QR/Aztec)
+- `moduleWidth` — Bar width (1D only)
+- `wideBarToNarrowBarRatio` — Wide-to-narrow ratio (v2.0.0+, 1D only)
+- `printInterpretationLine`, `printInterpretationLineAbove` — HRI text
+- `alignment` — Horizontal alignment; `maxWidth` — Layout constraint
+- **QR Parameters (v2.1.0):** `magnification` (1–10), `qrErrorCorrection` (low/medium/quartile/high)
+- **PDF417 Parameters (v2.1.0):** `pdf417SecurityLevel` (0–5), `pdf417Columns` (1–30)
+
+**Related Files**:
+- `zpl_barcode_enums.dart` — `ZplBarcodeType`, `ZplQrErrorCorrection`, etc.
+- `zpl_barcode_symbology_emitter.dart` (~150 LOC) — ZPL generation for each symbology
+- `zpl_barcode_width_estimator.dart` (~80 LOC) — Width calculation per symbology
 
 **Key Methods**:
-- `toZpl(ZplConfiguration context)` — Generates `^BC`, `^B3`, `^BQ`, `^BX`, `^BE`, `^BU` commands
-- `width` getter — Calculates barcode width
-- `calculateWidth()` — Width in dots
+- `toZpl(ZplConfiguration context)` — Delegates to symbology emitter; generates `^B*` commands
+- `calculateWidth()` — Width in dots (via estimator)
+- `width` getter — Calculated barcode width
 
 ### 7. zpl_box.dart
 **Purpose**: Rectangular box and line drawing
@@ -220,20 +236,7 @@ ZplGenerator({
 - `toZpl(ZplConfiguration context)` — Generates `^GB` command
 - `calculateWidth()` — Returns box width
 
-### 8. zpl_image.dart
-**Purpose**: Image rendering as ZPL graphics
-
-**Key Properties**:
-- `x`, `y` — Position
-- `imageData` — Raw or file path
-- `width`, `height` — Image dimensions
-- `maxWidth` — Layout constraint
-
-**Key Methods**:
-- `toZpl(ZplConfiguration context)` — Generates hex-encoded graphic command
-- `calculateWidth()` — Returns image width
-
-### 9. zpl_separator.dart
+### 8. zpl_separator.dart
 **Purpose**: Horizontal and vertical separator lines
 
 **Key Properties**:
@@ -322,19 +325,59 @@ Zero-overhead synchronous bulk label generator utilizing `{{variables}}` injecte
 - `spacing` — Inter-cell spacing
 - `borders` — Border styling
 
-### 12. Services
+### 12. Image Commands (v2.0.0+, v2.1.0 compression)
+
+Three strategies for different use cases:
+
+#### zpl_image_download.dart
+`ZplImageDownload` extends `ZplControlCommand`, emits `~DG` to cache image before format opens.
+**v2.1.0**: Supports `ZplImageCompression` modes (none, acs, b64, z64).
+
+#### zpl_image_recall.dart
+`ZplImageRecall` extends `ZplCommand`, emits `^XG` to recall cached image at position (x, y).
+
+#### zpl_image_inline.dart
+`ZplImageInline` extends `ZplCommand`, emits `^GFA` inline inside format.
+**v2.1.0**: `compression:` parameter (default `acs`); supports none, acs, b64, z64 modes.
+
+#### zpl_image_enums.dart (v2.1.0)
+Enumerations for image processing:
+- `ZplImageCompression` — none (raw hex), acs (70–90% smaller), b64 (33% overhead), z64 (70–90% reduction)
+- `ZplDitheringAlgorithm` — threshold, floydSteinberg (default), atkinson
+
+#### zpl_graphic_compression_encoder.dart (v2.1.0)
+Pure-Dart Z64/B64 encoder using `package:archive` for zlib deflate (works on web):
+- `crc16Xmodem()` — CRC-16 per Zebra spec (polynomial 0x1021, no XOR)
+- `packHexRows()` — Monochrome bitmap packing
+- Z64 body generation (`:Z64:<base64>:<crc>`) with ~70–90% reduction
+- B64 body generation (`:B64:<base64>:<crc>`) with ~33% reduction
+
+### 13. Font System (v2.0.0+)
+
+#### zpl_font_upload.dart
+**Purpose**: Control command for TTF font upload via `~DY`
+
+```dart
+class ZplFontUpload extends ZplControlCommand {
+  final String identifier;      // A-Z
+  final Uint8List fontBytes;
+
+  static Future<ZplFontUpload> fromAsset(String assetPath, String id)
+}
+```
+
+**Usage**:
+```dart
+final font = await ZplFontUpload.fromAsset('assets/Roboto.ttf', 'R');
+final gen = ZplGenerator(commands: [font, ZplText(..., customFont: font)]);
+```
 
 #### zpl_asset_service.dart
-**Purpose**: Convert Flutter assets to ZPL font commands
+**Purpose**: Helper for loading binary assets from Flutter bundle
 
 **Key Methods**:
-- `getFontUploadCommand(ZplFontAsset)` — Async method that loads TTF asset and generates `~DY` command
-
-**Workflow**:
-1. Load asset from Flutter bundle
-2. Convert binary data to hex string
-3. Generate ZPL `~DY{fontId}` command
-4. Return complete upload command
+- `loadFontBytes(String assetPath)` — Load TTF asset (used by `ZplFontUpload.fromAsset()`)
+- `validateAssetPath(String assetPath)` — Check asset exists
 
 #### labelary_service.dart
 **Purpose**: Labelary API integration for rendering and conversion
@@ -344,27 +387,77 @@ Zero-overhead synchronous bulk label generator utilizing `{{variables}}` injecte
 - `renderZplFile(File file)` — Render from file (multipart)
 - `convertImageToGraphic(File imageFile)` — Image to ZPL graphic
 - `convertFontToZpl(File fontFile, String fontId)` — Font to ZPL format
-- `renderFromGeneratorSimple(ZplGenerator)` — Convenience method (v1.1.0)
+- `renderFromGeneratorSimple(ZplGenerator)` — Convenience method
 
 **Error Handling**:
 - Returns `LabelaryResponse` with data and warnings
 - Handles API errors and timeouts
 - Provides meaningful error messages
 
-### 13. zpl_font_asset.dart
-**Purpose**: Descriptor for custom TTF fonts
+## Preview Layer
 
-```dart
-class ZplFontAsset {
-  final String id;              // A-Z identifier
-  final String assetPath;       // Asset path in pubspec.yaml
-}
-```
+### Native Preview (v1.5.0+, v2.1.0: Labelary-Calibrated)
 
-## Widget Layer
+#### zpl_native_preview.dart
+Offline Flutter widget rendering without network. Delegates to modular painters.
+
+#### zpl_canvas_painter.dart (v2.1.0: Delegation)
+High-performance rendering dispatcher:
+- Delegates barcode rendering to `zpl_barcode_painter.dart`
+- Delegates text rendering to `zpl_text_painter.dart`
+- Manages image dithering (Floyd-Steinberg, Atkinson)
+- Anti-aliasing edge-bleeding fixes (v1.5.1)
+
+#### zpl_barcode_painter.dart (v2.1.0)
+Barcode rendering with calibrated metrics:
+- Uses `zpl_barcode_symbol_metrics.dart` for dimension calcs
+- Uses `zpl_code128_zebra_encoder.dart` for Code 128 subset reproduction
+- 1D: Real module count × `^BY` width, interpretation line below (formula: 7·mw+6 dots)
+- QR: Numeric/alphanumeric/byte mode selection, ECC upgrade rule, 10-dot vertical offset
+- Data Matrix: Scales by `^BX` module height
+- Barcode-Labelary overlap: 90–95% (measured against Labelary renders)
+
+#### zpl_text_painter.dart (v2.1.0)
+Text rendering with bundled font:
+- Archivo Narrow (SIL OFL 1.1) from `fonts/` directory
+- Cap height = 75% of `^A` height (Labelary measured)
+- Width defaults to height for font 0
+- `^FB` alignment mirrors `ZplGenerator`
+- Bounding boxes within 2–3 dots of Labelary
+
+#### zpl_barcode_symbol_metrics.dart (v2.1.0)
+Symbology-specific dimension calculations:
+- Module count encoding per symbology
+- Width/height estimation for all 13 types
+- Interpretation line height formula
+- QR version sizing with ECC mode selection
+
+#### zpl_code128_zebra_encoder.dart (v2.1.0)
+Zebra Code 128 subset switching replication:
+- Reproduces automatic switch between Code Set A/B/C
+- Matches firmware behavior for optimal density
+- Used by `zpl_barcode_painter.dart` for preview accuracy
+
+#### zpl_barcode_preview_mapping.dart (v2.1.0)
+Maps `ZplBarcode` properties to barcode library parameters:
+- Symbology → barcode type mapping
+- Width/height → module/row sizing
+- QR error correction & magnification
+- PDF417 security level & columns
+- Passes all parameters to barcode library
+
+#### Fidelity Regression Harness (v2.1.0)
+**File:** `test/native_preview_fidelity_harness_test.dart`
+- Renders same label via Labelary API and native preview
+- Compares bitmaps pixel-by-pixel
+- Outputs diffs to `FIDELITY_OUT` directory for visual inspection
+- Run: `fvm flutter test test/native_preview_fidelity_harness_test.dart --dart-define=SKIP_INTEGRATION_TESTS=false --dart-define FIDELITY_OUT=/path/to/diffs`
+- Gates: Barcode overlap >90%, text bounding box <3 dots drift, image dither matching
+
+### Legacy Preview
 
 ### zpl_preview.dart
-**Purpose**: Flutter widget for live label preview
+**Purpose**: Flutter widget for live label preview via Labelary API
 
 ```dart
 class ZplPreview extends StatefulWidget {
@@ -483,6 +576,11 @@ External operations abstracted:
 - `flutter` — Framework
 - `http` — HTTP client for API
 - `image` — Image processing
+- `barcode` — Barcode generation (all 13 symbologies)
+- `archive` — Pure-Dart zlib deflate for Z64 compression (v2.1.0)
+
+### Bundled Assets
+- `fonts/archivo-narrow-variable.ttf` (v2.1.0) — Condensed bold face (SIL OFL 1.1 license) used by `ZplTextPainter` in native preview for accurate text rendering
 
 ### Transitive Dependencies
 - `dart:async` — Futures, streams

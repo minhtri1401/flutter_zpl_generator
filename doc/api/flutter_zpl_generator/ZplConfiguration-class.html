@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ZplConfiguration class from the flutter_zpl_generator library, for the Dart programming language.">
+  <title>ZplConfiguration class - flutter_zpl_generator library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">flutter_zpl_generator</a></li>
+    <li><a href="../flutter_zpl_generator/">flutter_zpl_generator.dart</a></li>
+    <li class="self-crumb">ZplConfiguration class</li>
+  </ol>
+  <div class="self-name">ZplConfiguration</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="flutter_zpl_generator&#47;flutter_zpl_generator-library-sidebar.html"
+    data-below-sidebar="flutter_zpl_generator&#47;ZplConfiguration-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">ZplConfiguration</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Represents global ZPL configuration settings for a label.
+Passed as context to all commands via <code>toZpl(context)</code>.</p>
+</section>
+
+
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="ZplConfiguration.new" class="callable">
+          <span class="name"><a href="../flutter_zpl_generator/ZplConfiguration/ZplConfiguration.html">ZplConfiguration.new</a></span><span class="signature">({<span class="parameter" id="-param-darkness"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">darkness</span>, </span><span class="parameter" id="-param-labelLength"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">labelLength</span>, </span><span class="parameter" id="-param-labelHomeX"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">labelHomeX</span>, </span><span class="parameter" id="-param-labelHomeY"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">labelHomeY</span>, </span><span class="parameter" id="-param-printWidth"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">printWidth</span>, </span><span class="parameter" id="-param-printSpeed"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">printSpeed</span>, </span><span class="parameter" id="-param-printMode"><span class="type-annotation"><a href="../flutter_zpl_generator/ZplPrintMode.html">ZplPrintMode</a>?</span> <span class="parameter-name">printMode</span>, </span><span class="parameter" id="-param-mediaType"><span class="type-annotation"><a href="../flutter_zpl_generator/ZplMediaType.html">ZplMediaType</a>?</span> <span class="parameter-name">mediaType</span>, </span><span class="parameter" id="-param-printOrientation"><span class="type-annotation"><a href="../flutter_zpl_generator/ZplPrintOrientation.html">ZplPrintOrientation</a>?</span> <span class="parameter-name">printOrientation</span>, </span><span class="parameter" id="-param-internationalEncoding"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">internationalEncoding</span>, </span><span class="parameter" id="-param-printDensity"><span class="type-annotation"><a href="../flutter_zpl_generator/ZplPrintDensity.html">ZplPrintDensity</a>?</span> <span class="parameter-name">printDensity</span></span>})</span>
+        </dt>
+        <dd>
+          
+            <div class="constructor-modifier features">const</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="darkness" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplConfiguration/darkness.html">darkness</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span>
+  
+
+</dt>
+<dd>
+  The print darkness level. A value between 0 and 30.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="internationalEncoding" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplConfiguration/internationalEncoding.html">internationalEncoding</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span>
+  
+
+</dt>
+<dd>
+  The international character set for encoding. A value between 0 and 27.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="labelHomeX" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplConfiguration/labelHomeX.html">labelHomeX</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span>
+  
+
+</dt>
+<dd>
+  The x-axis position of the label home.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="labelHomeY" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplConfiguration/labelHomeY.html">labelHomeY</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span>
+  
+
+</dt>
+<dd>
+  The y-axis position of the label home.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="labelLength" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplConfiguration/labelLength.html">labelLength</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span>
+  
+
+</dt>
+<dd>
+  The label length in dots.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="mediaType" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplConfiguration/mediaType.html">mediaType</a></span>
+  <span class="signature">&#8594; <a href="../flutter_zpl_generator/ZplMediaType.html">ZplMediaType</a>?</span>
+  
+
+</dt>
+<dd>
+  The media type.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="printDensity" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplConfiguration/printDensity.html">printDensity</a></span>
+  <span class="signature">&#8594; <a href="../flutter_zpl_generator/ZplPrintDensity.html">ZplPrintDensity</a>?</span>
+  
+
+</dt>
+<dd>
+  The print density (resolution).
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="printMode" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplConfiguration/printMode.html">printMode</a></span>
+  <span class="signature">&#8594; <a href="../flutter_zpl_generator/ZplPrintMode.html">ZplPrintMode</a>?</span>
+  
+
+</dt>
+<dd>
+  The print mode.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="printOrientation" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplConfiguration/printOrientation.html">printOrientation</a></span>
+  <span class="signature">&#8594; <a href="../flutter_zpl_generator/ZplPrintOrientation.html">ZplPrintOrientation</a>?</span>
+  
+
+</dt>
+<dd>
+  Inverts the label format 180 degrees.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="printSpeed" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplConfiguration/printSpeed.html">printSpeed</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span>
+  
+
+</dt>
+<dd>
+  The print speed. Values can range from 2 to 12 inches per second.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="printWidth" class="property">
+  <span class="name"><a href="../flutter_zpl_generator/ZplConfiguration/printWidth.html">printWidth</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span>
+  
+
+</dt>
+<dd>
+  The print width in dots.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toZpl" class="callable">
+  <span class="name"><a href="../flutter_zpl_generator/ZplConfiguration/toZpl.html">toZpl</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Generates the ZPL config commands (<code>~SD</code>, <code>^LL</code>, <code>^PW</code>, etc.).
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://api.flutter.dev/flutter/dart-core/Object/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">flutter_zpl_generator</a></li>
+    <li><a href="../flutter_zpl_generator/">flutter_zpl_generator</a></li>
+    <li class="self-crumb">ZplConfiguration class</li>
+</ol>
+
+    <h5>flutter_zpl_generator library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    flutter_zpl_generator
+      1.5.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

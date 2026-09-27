@@ -27,8 +27,8 @@ Think of `flutter_zpl_generator` like a Flutter Widget tree, but tailored for pr
 There are three main components you handle in every script:
 
 1. **`ZplConfiguration`**: Defines the physical boundaries of your label (width, length) and the resolution of the printer (DPI/dpmm). This is passed dynamically.
-2. **`ZplCommand`**: The visual building blocks (e.g., `ZplText`, `ZplBarcode`, `ZplImage`, `ZplBox`).
-3. **`ZplGenerator`**: The orchestrator that takes your configuration and your list of commands, and combines them into a valid, printable ZPL string.
+2. **`ZplCommand`**: The visual building blocks (e.g., `ZplText`, `ZplBarcode`, `ZplBox`). Image commands: `ZplImageDownload`, `ZplImageRecall`, `ZplImageInline`.
+3. **`ZplGenerator`**: The orchestrator that takes your configuration and your list of commands, and combines them into a valid, printable ZPL string. Uses a two-pass build (control commands first, then format block).
 
 ## 3. Your First Label
 
@@ -140,4 +140,4 @@ You now know how to:
 * Layout items automatically using `ZplGridRow` and `ZplAlignment`
 * Utilize `ZplPreview` to debug your graphics visually without a printer
 
-**Next Steps**: Check out the rich support for importing Custom Fonts (`ZplFontAsset`), generating Tables (`ZplTable`), drawing Graphics (`ZplBox`, `ZplGraphicCircle`), and native caching engines in the codebase.
+**Next Steps**: Check out the rich support for custom fonts via `await ZplFontUpload.fromAsset()`, generating Tables (`ZplTable`), drawing Graphics (`ZplBox`, `ZplGraphicCircle`), and image strategies (`ZplImageDownload`, `ZplImageRecall`, `ZplImageInline`) in the documentation.

@@ -4,12 +4,13 @@
 
 ### Naming Conventions
 
-- **File Names:** Use kebab-case with descriptive names (e.g., `zpl-command-base.dart`, `labelary-service.dart`)
+- **File Names:** Use kebab-case with descriptive names (e.g., `zpl_command_base.dart`, `labelary_service.dart`)
   - This enables LLM tools to understand file purpose immediately
 - **Class Names:** Use PascalCase (e.g., `ZplText`, `ZplGenerator`)
 - **Method/Function Names:** Use camelCase (e.g., `toZpl()`, `calculateWidth()`)
 - **Constants:** Use camelCase (e.g., `defaultWidth = 812`)
 - **Enum Values:** Use camelCase (e.g., `code128`, `printFromBottomUp270`)
+- **Tilde Commands**: New control commands (tilde-prefixed `~*`) extend `ZplControlCommand` base class (v2.1.0+)
 
 ### File Size Management
 
@@ -17,6 +18,12 @@
 - Split large files into smaller, focused components
 - Extract utility functions into separate modules
 - Create dedicated service classes for business logic
+- **Emitter/Estimator Pattern (v2.1.0+):** Complex commands with multi-symbol support split logic into separate files:
+  - `zpl_{command}.dart` — Main command class with properties and `toZpl()`
+  - `zpl_{command}_symbology_emitter.dart` — Symbol-specific ZPL generation logic
+  - `zpl_{command}_width_estimator.dart` — Symbol-specific width calculation
+  - `zpl_{command}_enums.dart` — Enum types for symbols and parameters
+  - Example: `ZplBarcode` (13 symbologies) uses emitter (~150 LOC) + estimator (~80 LOC) + enums
 
 ### Directory Structure
 
@@ -179,13 +186,13 @@ class ZplText extends ZplCommand {
 Use try-catch for external operations:
 
 ```dart
-Future<String> getFontUploadCommand(ZplFontAsset font) async {
+// v2.0.0+: Font uploads use ZplFontUpload.fromAsset()
+Future<ZplFontUpload> loadFont() async {
   try {
-    final byteData = await rootBundle.load(font.assetPath);
-    final hexData = _bytesToHex(byteData.buffer.asUint8List());
-    return '~DY${font.id},${hexData.length}^XA$hexData^XZ';
+    final roboto = await ZplFontUpload.fromAsset('assets/fonts/Roboto.ttf', 'R');
+    return roboto;
   } catch (e) {
-    throw Exception('Failed to load font asset ${font.assetPath}: $e');
+    throw Exception('Failed to load font asset: $e');
   }
 }
 ```
@@ -345,6 +352,24 @@ import 'zpl_configuration.dart';
 - **Coordinates:** Use `x`, `y` for position; `width`, `height` for dimensions
 - **ZPL Commands:** When referencing raw ZPL, use full notation (e.g., "^FO field origin", "^FD field data")
 
+## Preview Calibration Constants (v2.1.0+)
+
+Any numeric constant used in `lib/src/preview/` modules for barcode/text/image rendering must include a comment citing its origin (Labelary measurement or ZPL spec reference):
+
+```dart
+// Example: Labelary measurement shows cap height = 75% of ^A height
+const double capHeightRatio = 0.75;
+
+// Example: ZPL spec Code 128 interpretation line = 7 × module width + 6 dots
+const int interpretationLineHeight = 7; // times module width, plus 6
+const int interpretationLineBaseline = 6;
+
+// Example: QR vertical offset from printer measurements
+const int qrVerticalOffset = 10; // dots (measured on ZQ620)
+```
+
+Cite source in jira/comment format: `// Labelary measured: ...` or `// ZPL II Programming Guide §X.Y: ...` or `// Zebra firmware ZQ620 V85.20: ...`.
+
 ## Property Naming
 
 For rectangular elements, use standard dimension names:
@@ -388,34 +413,37 @@ class ZplText extends ZplCommand {
 - **Flutter:** Minimum 3.0
 - **Platform:** All Flutter platforms (iOS, Android, Web, Desktop)
 
-## v1.1.0 Breaking Changes
+## v2.0.0 Breaking Changes
 
-These changes affect how code is structured:
+Link-OS compatible version with two-pass build system:
 
-1. **`toZpl()` Signature:** Now requires `ZplConfiguration context` parameter
-   - Old: `String toZpl()`
-   - New: `String toZpl(ZplConfiguration context)`
+1. **`ZplImage` Removed:** Split into three strategies
+   - Old: `ZplImage(image: bytes)`
+   - New: `ZplImageDownload` (~DG) + `ZplImageRecall` (^XG) OR `ZplImageInline` (^GFA)
 
-2. **`ZplGenerator` Constructor:** Named parameters with config decoupling
-   - Old: Commands list included configuration
-   - New: Configuration is separate `config` property
+2. **`ZplFontAsset` Removed:** Replaced by `ZplFontUpload` control command
+   - Old: `ZplGenerator(fonts: [ZplFontAsset(...)], ...)`
+   - New: `final font = await ZplFontUpload.fromAsset(path, id); ZplGenerator(commands: [font, ...])`
 
-3. **`ZplRow` Removed:** Use `ZplGridRow` for horizontal layouts
-   - Existing: `ZplRow(children: [...])`
-   - New: `ZplGridRow(columnWidths: [...], children: [...])`
+3. **`ZplGenerator` Constructor:** Removed `fonts`, `assetService` parameters
+   - Old: `ZplGenerator({config, required commands, fonts, assetService})`
+   - New: `ZplGenerator({config, required commands, autoLabelLengthFromFirstImage})`
 
-4. **Layout Width Constraint:** `maxWidth` property on leaf commands
-   - Allows layout containers to constrain child width
-   - Enables responsive alignment and wrapping
+4. **Two-Pass Build:** Control commands emit BEFORE `^XA` (required on Link-OS ZQ620, ZM400)
+   - Pass 1: Emit all `ZplControlCommand` subclasses (fonts, images, network configs)
+   - Pass 2: Emit `^XA` → config → regular commands → `^XZ`
 
-## Migration Checklist
+5. **`ZplAssetService` API Change:** `getFontUploadCommand()` removed
+   - Old: `assetService.getFontUploadCommand(fontAsset)`
+   - New: `loadFontBytes()` called internally by `ZplFontUpload.fromAsset()`
 
-When updating code for v1.1.0:
+## v2.0.0 Breaking Changes Checklist
 
-- [ ] Change `toZpl()` calls to pass `ZplConfiguration context`
-- [ ] Update `ZplGenerator` instantiation to use named parameters
-- [ ] Move configuration from command list to `config` parameter
-- [ ] Replace `ZplRow` with `ZplGridRow`
-- [ ] Update test assertions to match new ZPL output format
-- [ ] Test layout containers with `maxWidth` constraints
-- [ ] Verify all barcode types (check for new types: `dataMatrix`, `ean13`, `upcA`)
+When updating code to v2.0.0:
+
+- [ ] **Remove `ZplImage` usage:** Use `ZplImageDownload` + `ZplImageRecall` or `ZplImageInline`
+- [ ] **Replace `ZplFontAsset`:** Use `await ZplFontUpload.fromAsset(path, id)` and add as command
+- [ ] **Update `ZplGenerator` constructor:** Remove `fonts` and `assetService` parameters
+- [ ] **Add fonts as commands:** `ZplGenerator(commands: [await ZplFontUpload.fromAsset(...), ...])`
+- [ ] **Test image strategies:** Ensure correct strategy chosen (download+recall vs inline)
+- [ ] **Update tests:** Two-pass build changes ZPL output structure (control commands first)

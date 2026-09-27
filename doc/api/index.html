@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="flutter_zpl_generator API docs, for the Dart programming language.">
+  <title>flutter_zpl_generator - Dart API docs</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="static-assets/github.css?v1">
+  <link rel="stylesheet" href="static-assets/styles.css?v1">
+  <link rel="icon" href="static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="https://github.com/minhtri1401/flutter_zpl_generator">flutter_zpl_generator package</a></li>
+  </ol>
+  <div class="self-name">flutter_zpl_generator</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+  <div id="dartdoc-main-content" class="main-content">
+      
+<section class="desc markdown">
+  <h1 id="flutter-zpl-generator">Flutter ZPL Generator</h1>
+<p>A comprehensive Flutter package for generating ZPL (Zebra Programming Language) labels with <strong>industry-first TTF font conversion</strong>, <strong>automatic image-to-ZPL conversion</strong> capabilities, and a mathematically robust <strong>12-column grid layout engine</strong>.</p>
+<p><a href="https://pub.dev/packages/flutter_zpl_generator"><img src="https://img.shields.io/pub/v/flutter_zpl_generator.svg" alt="pub package"></a>
+<a href="https://pub.dev/packages/flutter_zpl_generator/score"><img src="https://img.shields.io/pub/popularity/flutter_zpl_generator?logo=dart" alt="popularity"></a>
+<a href="https://pub.dev/packages/flutter_zpl_generator/score"><img src="https://img.shields.io/pub/likes/flutter_zpl_generator?logo=dart" alt="likes"></a></p>
+<hr>
+<h2 id="-table-of-contents">📑 Table of Contents</h2>
+<ol>
+<li><a href="#-component-demos--previews">Component Demos &amp; Previews</a></li>
+<li><a href="#-what-makes-this-package-special">What Makes This Package Special</a></li>
+<li><a href="#-quick-start">Quick Start</a></li>
+<li><a href="#-the-layout-engine-visuals">The Layout Engine (Visuals)</a></li>
+<li><a href="#-images--fonts">Images &amp; Fonts</a></li>
+<li><a href="#-the-data-engine">The Data Engine</a></li>
+<li><a href="#%EF%B8%8F-hardware--enterprise-control">Hardware &amp; Enterprise Control</a></li>
+<li><a href="#-developer-experience--examples">Developer Experience &amp; Examples</a></li>
+<li><a href="#related-projects">Related Projects</a></li>
+</ol>
+<hr>
+<h2 id="-component-demos--previews">📸 Component Demos &amp; Previews</h2>
+<p>The library boasts an unparalleled set of components, beautifully simulated inside Flutter using the <code>ZplPreview</code> widget via the Labelary REST API:</p>
+<table>
+<thead>
+<tr>
+<th align="center">Text &amp; Fonts</th>
+<th align="center">Barcodes &amp; Data Matrix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img src="images/text_demo.png" height="300"></td>
+<td align="center"><img src="images/barcodes_demo.png" height="300"></td>
+</tr>
+<tr>
+<td align="center"><strong>Graphics &amp; Shapes</strong></td>
+<td align="center"><strong>Responsive 12-Unit Grid Layout</strong></td>
+</tr>
+<tr>
+<td align="center"><img src="images/graphics_demo.png" height="300"></td>
+<td align="center"><img src="images/layouts_demo.png" height="300"></td>
+</tr>
+<tr>
+<td align="center"><strong>Image Dithering Algorithms</strong></td>
+<td align="center"></td>
+</tr>
+<tr>
+<td align="center"><img src="images/image_demo.png" height="300"></td>
+<td align="center"></td>
+</tr>
+</tbody>
+</table>
+<h2 id="-what-makes-this-package-special">🌟 What Makes This Package Special</h2>
+<h3 id="-robust-native-layout-architecture">📐 Robust Native Layout Architecture</h3>
+<ul>
+<li><strong><code>ZplGridRow</code> &amp; <code>ZplGridCol</code></strong>: Build complex receipt layouts utilizing a proportional 12-unit grid container with offset spacing capabilities instead of brittle raw <code>^FO</code> (Field Origin) numbers.</li>
+<li><strong>Natural Configuration Flow</strong>: <code>ZplConfiguration</code> propagates correctly down to children natively, accurately calculating <code>ZplAlignment.right</code> or <code>ZplAlignment.center</code> based on <code>printWidth</code>.</li>
+</ul>
+<h3 id="-ttf-to-zpl-font-conversion-first-in-flutter">🔤 TTF to ZPL Font Conversion (First in Flutter!)</h3>
+<ul>
+<li>Convert any TrueType font to ZPL format and upload custom fonts directly to your Zebra printer's memory.</li>
+<li>Use your brand fonts in labels for perfect consistency!</li>
+<li>No more limitations to basic printer fonts.</li>
+</ul>
+<h3 id="-unrivaled-zpl-component-coverage">💯 Unrivaled ZPL Component Coverage</h3>
+<ul>
+<li>Included shapes: <code>ZplBox</code>, <code>ZplGraphicCircle</code> (^GC), <code>ZplGraphicEllipse</code> (^GE), <code>ZplGraphicDiagonalLine</code> (^GD).</li>
+<li><strong>Reverse Print Support (^FR)</strong>: Easily achieve stunning white-on-black UI elements utilizing <code>reversePrint: true</code>.</li>
+<li>Native Support for <strong>DataMatrix (^BX)</strong>, EAN-13 (^BE), UPC-A (^BU), Code 128 (^BC), Code 39 (^B3), and QR Codes (^BQ).</li>
+<li><strong><code>ZplRaw</code> Support</strong>: An escape hatch that lets you cleanly inject highly specific/legacy raw strings (e.g., <code>^MD</code> darkness or RFID triggers).</li>
+</ul>
+<h3 id="-live-flutter-preview">🖼️ Live Flutter Preview</h3>
+<ul>
+<li>The <code>ZplPreview</code> widget hooks up directly to Labelary endpoints recursively respecting the <code>generator</code> state for immediate real-time feedback visually in Flutter while you code.</li>
+<li>Alternatively, you can run the <strong><code>ZplNativePreview</code></strong> widget which operates completely 100% offline leveraging <code>CustomPainter</code> to natively reconstruct elements!</li>
+</ul>
+<blockquote>
+<p><strong>Important Disclosure</strong>:
+The native preview (<code>ZplNativePreview</code>) provides a highly performant offline UI mapping capability. However, ZPL is ultimately a hardware execution language. Thus, while it maps boundaries correctly, it will incredibly rarely map <strong>100% visually identically</strong> to the final printer firmware output due to nuances in built-in Zebra TTF rendering logic, line kerning, dot inflation, and physical ribbon tracking.</p>
+</blockquote>
+<hr>
+<h2 id="-quick-start">🚀 Quick Start</h2>
+<h3 id="basic-label-generation">Basic Label Generation</h3>
+<pre class="language-dart"><code class="language-dart">import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
+
+// Create ZPL commands and pass the configuration natively
+final generator = ZplGenerator(
+  config: const ZplConfiguration(
+    printWidth: 406, // 2 inches at 203 DPI
+    labelLength: 203, // 1 inch at 203 DPI
+    printDensity: ZplPrintDensity.d8, // 8 dpmm / 203 DPI
+  ),
+  commands: [
+    // Simple text handling
+    ZplText(x: 20, y: 20, text: 'Hello World!'),
+    
+    // Barcode Support
+    ZplBarcode(
+      x: 20, y: 60, 
+      height: 50, 
+      data: '12345',
+      type: ZplBarcodeType.code128,
+      printInterpretationLine: true,
+    ),
+  ],
+);
+
+// Generate ZPL string 
+// (Async required if parsing external images or TTF fonts!)
+final zplString = await generator.build();
+print(zplString);
+// Output: ^XA^LL203^PR8^JMB^FO20,20^A0N,,...^XZ
+</code></pre>
+<hr>
+<h2 id="-the-layout-engine-visuals">🏗️ The Layout Engine (Visuals)</h2>
+<p>A massive advantage over writing raw strings is abstracting raw X/Y origins via container-based bounds checks.</p>
+<h3 id="the-12-unit-grid-zplgridrow">The 12-Unit Grid (<code>ZplGridRow</code>)</h3>
+<p>Create responsive horizontal layouts easily without manually calculating X-offsets.</p>
+<pre class="language-dart"><code class="language-dart">ZplGridRow(
+  y: 355,
+  children: [
+    ZplGridCol(
+      width: 6, // 50% width bounds
+      offset: 0,
+      child: ZplText(text: 'LEFT COLUMN', alignment: ZplAlignment.left),
+    ),
+    ZplGridCol(
+      width: 6, // 50% width bounds
+      child: ZplText(text: 'RIGHT COLUMN', alignment: ZplAlignment.right),
+    ),
+  ],
+)
+</code></pre>
+<h3 id="advanced-tabular-data-zpltable">Advanced Tabular Data (<code>ZplTable</code>)</h3>
+<pre class="language-dart"><code class="language-dart">ZplTable(
+  y: 780,
+  columnWidths: [5, 2, 2, 3], // The 12-unit layout
+  borderThickness: 2,
+  cellPadding: 6,
+  headers: [
+    ZplTableHeader('Product', alignment: ZplAlignment.left),
+    ZplTableHeader('Qty', alignment: ZplAlignment.center),
+    ZplTableHeader('Price', alignment: ZplAlignment.right),
+  ],
+  data: [
+    ['Widget Pro', '2', '\$15.00'],
+    ['Gadget XL', '1', '\$42.50'],
+  ],
+)
+</code></pre>
+<h3 id="graphic-shapes--escapes">Graphic Shapes &amp; Escapes</h3>
+<pre class="language-dart"><code class="language-dart">// Shapes
+ZplGraphicCircle(x: 20, y: 310, diameter: 100, borderThickness: 2)
+ZplGraphicEllipse(x: 260, y: 485, width: 80, height: 100, borderThickness: 2)
+
+// Diagonal Lines
+ZplGraphicDiagonalLine(
+  x: 20, y: 665,
+  width: 150, height: 120,
+  borderThickness: 3, orientation: 'R', // Or 'L'
+)
+
+// Inverted Reverse Print (White Text, Black box)
+ZplBox(x: 20, y: 620, width: 772, height: 50, borderThickness: 50)
+ZplText(
+  x: 20, y: 630,
+  text: 'WHITE ON BLACK',
+  reversePrint: true, // Output ^FR
+)
+
+// The Raw Escape Hatch
+ZplRaw(command: '^FO20,880^A0N,24,20^FDInject anything directly!^FS')
+</code></pre>
+<h3 id="conditional-printing-zplconditional">Conditional Printing (<code>ZplConditional</code>)</h3>
+<p>Sometimes you want to show or hide entire layout sections natively based on condition flags (e.g. <code>hasDiscount</code>, <code>showSerialNumber</code>).</p>
+<p>Instead of writing messy ternary operators inside Dart lists <code>if (true) myObj,</code>, we've introduced <code>ZplConditional</code> mapping. If <code>condition: false</code>, it safely outputs an empty string, and gracefully returns <code>0</code> layout height so surrounding containers like <code>ZplColumn</code> immediately collapse the missing element without rendering any blank gaps!</p>
+<pre class="language-dart"><code class="language-dart">final generator = ZplGenerator(
+  commands: [
+    ZplText(text: 'Product: Widget'),
+    ZplConditional(
+      condition: product.hasDiscount, // If false, the below command is skipped AND collapses safely in columns
+      child: ZplText(text: 'SALE: \${product.discount}% OFF', reversePrint: true),
+    ),
+    ZplBarcode(data: product.sku, type: ZplBarcodeType.code128),
+  ],
+)
+</code></pre>
+<hr>
+<h2 id="-images--fonts">🎨 Images &amp; Fonts</h2>
+<h3 id="convert-images-to-zpl-graphics">Convert Images to ZPL Graphics</h3>
+<p>Transform any image (PNG, JPEG, GIF) into ZPL graphics that can be embedded directly in your labels:</p>
+<pre class="language-dart"><code class="language-dart">// Convert to ZPL graphics
+final zplGraphics = await LabelaryService.convertImageToGraphic(
+  imageBytes,
+  'logo.png',
+  outputFormat: LabelaryGraphicOutputFormat.zpl,
+  blackThreshold: 128 // Auto-Dithering
+);
+</code></pre>
+<h3 id="advanced-image-dithering-pristine-graphics">Advanced Image Dithering (Pristine Graphics)</h3>
+<p><code>ZplImage</code> now supports advanced image dithering natively in Dart. This converts continuous-tone photographs and colorful gradients into meticulously balanced dot patterns that print beautifully on 203 DPI devices.</p>
+<pre class="language-dart"><code class="language-dart">// 1. Floyd-Steinberg (Default) - Smoothly disperses dots for natural gradients
+ZplImage(
+  x: 20, y: 20,
+  image: bytes,
+  ditheringAlgorithm: ZplDitheringAlgorithm.floydSteinberg,
+)
+
+// 2. Atkinson - High contrast dot pattern without washing out (vintage print look)
+ZplImage(
+  x: 20, y: 150,
+  image: bytes,
+  ditheringAlgorithm: ZplDitheringAlgorithm.atkinson,
+)
+
+// 3. Threshold - Hard black &amp; white clipping (Legacy behavior)
+ZplImage(
+  x: 20, y: 280,
+  image: bytes,
+  ditheringAlgorithm: ZplDitheringAlgorithm.threshold,
+)
+</code></pre>
+<h3 id="acs-image-compression-gfa">ACS Image Compression (^GFA)</h3>
+<p>ZPL payloads containing high-resolution images can grow massive, taking several seconds to transmit to the printer over Bluetooth or Serial connections.</p>
+<p>You can compress the payload using <code>ZplImageCompression.acs</code>, which mathematically encodes the byte layout (Run-length Encoding). This routinely shrinks image payloads by <strong>60-90%</strong>, slashing transmission delays!</p>
+<pre class="language-dart"><code class="language-dart">ZplImage(
+  x: 20, y: 20,
+  image: highResPhotoBytes,
+  compression: ZplImageCompression.acs, // Emits ^GFA instead of ~DG
+)
+</code></pre>
+<h3 id="import-custom-fonts-to-your-printer">Import Custom Fonts to Your Printer</h3>
+<p>Convert TrueType fonts (TTF) to ZPL format and upload them directly to your Zebra printer's RAM.</p>
+<h4 id="step-1-convert-ttf-font-to-zpl">Step 1: Convert TTF Font to ZPL</h4>
+<pre class="language-dart"><code class="language-dart">import 'dart:io';
+import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
+
+// Load your TTF font file
+final fontFile = File('assets/fonts/Roboto-Regular.ttf');
+final fontBytes = await fontFile.readAsBytes();
+
+// Convert TTF to ZPL format
+final zplFontData = await LabelaryService.convertFontToZpl(
+  fontBytes,
+  'Roboto-Regular.ttf',
+  name: 'R', // Single letter alias for the font
+);
+// Sends output to printer memory: ~DU...
+</code></pre>
+<h4 id="step-2-use-the-font-asset-in-your-labels">Step 2: Use the Font Asset in Your Labels</h4>
+<pre class="language-dart"><code class="language-dart">final generator = ZplGenerator(
+  config: ZplConfiguration(printWidth: 406, labelLength: 609),
+  commands: [
+    ZplFontAsset(
+      alias: 'R',
+      fileName: 'ROBOTO.TTF',
+      fontData: fontBytes,
+    ),
+    const ZplText(
+      x: 50, y: 100,
+      text: 'Custom Font Text!',
+      fontAlias: 'R', // Use your custom font
+      fontHeight: 25,
+    ),
+  ]
+);
+
+final zplNetworkString = await generator.build();
+</code></pre>
+<hr>
+<h2 id="-the-data-engine">💾 The Data Engine</h2>
+<h3 id="data-binding--templating-engine">Data Binding &amp; Templating Engine</h3>
+<p>In logistics and production environments, you shouldn't compile identical labels from scratch 10,000 times. <code>ZplTemplate</code> enables you to cache the heavy geometry and image rendering algorithms once, unlocking blistering fast synchronous label generations.</p>
+<ol>
+<li><strong>Design the layout</strong> using <code>{{variable}}</code> placements in standard commands.</li>
+<li><strong>Init the template once</strong> globally.</li>
+<li><strong>Bind synchronous data maps</strong> aggressively in a loop.</li>
+</ol>
+<pre class="language-dart"><code class="language-dart">// 1. Initial Setup
+final template = ZplTemplate(
+  ZplGenerator(
+    config: const ZplConfiguration(printWidth: 406, labelLength: 203),
+    commands: [
+      ZplText(x: 10, y: 10, text: 'Hello {{name}}'),
+      ZplText(x: 10, y: 50, text: 'Price: \${{price}}'),
+      ZplBarcode(x: 10, y: 90, height: 50, data: '{{barcode}}', type: ZplBarcodeType.code128),
+    ],
+  )
+);
+
+// 2. Compile geometry &amp; imagery ONCE 
+await template.init();
+
+// 3. Loop generating thousands of labels instantly
+for (var dataMap in customers) {
+    // Zero layout/AST overhead, pure native string replacement
+    final rawZplPayload = template.bindSync(dataMap);
+    printer.print(rawZplPayload);
+}
+</code></pre>
+<h3 id="auto-increment-serialization-sn">Auto-Increment Serialization (<code>^SN</code>)</h3>
+<p>When printing many identical layout labels but with increasing/decreasing ID numbers (e.g. SN-001, SN-002, SN-003), sending a new payload for every single label is highly inefficient.</p>
+<p>Instead, you can combine <code>ZplPrintQuantity</code> with a <code>ZplText</code> configured for <strong>hardware serialization</strong>. The printer will calculate and index the variable numbers internally!</p>
+<pre class="language-dart"><code class="language-dart">final generator = ZplGenerator(
+  config: const ZplConfiguration(printWidth: 406, labelLength: 203),
+  commands: [
+    // This looks like static text, but we attach a 'serialization' config to it
+    ZplText(
+      x: 10, 
+      y: 10, 
+      text: 'SN-001', // Your starting value
+      serialization: const ZplSerialConfig(
+        increment: 1,      // +1 per label copy 
+        leadingZeros: true // Keep it exactly 3 digits long ('001' -&gt; '002' -&gt; '003')
+      ),
+    ),
+    
+    // We only send 1 print job over Wi-Fi, but the printer hardware will 
+    // eject 10 labels counting up to 'SN-010' automatically!
+    ZplPrintQuantity(quantity: 10),
+  ],
+);
+</code></pre>
+<hr>
+<h2 id="-hardware--enterprise-control">⚙️ Hardware &amp; Enterprise Control</h2>
+<h3 id="production-print-configurations-pq">Production Print Configurations (<code>^PQ</code>)</h3>
+<p><strong>Purpose</strong>: In production environments, you often need to print multiple copies of the exact same label without transmitting the entire payload over Wi-Fi/Bluetooth multiple times. <code>ZplPrintQuantity</code> safely delegates the responsibility of duplicating the label directly to the printer's internal memory buffer.</p>
+<p><strong>Placement Guidelines</strong>: You can append <code>ZplPrintQuantity</code> anywhere inside the <code>commands:</code> list. It will safely execute hardware features natively before the label officially terminates (<code>^XZ</code>).</p>
+<pre class="language-dart"><code class="language-dart">final generator = ZplGenerator(
+  config: const ZplConfiguration(printWidth: 406, labelLength: 203),
+  commands: [
+    ZplText(x: 10, y: 10, text: 'Product Label'),
+    
+    // You can place this command anywhere in the 'commands' array!
+    // This offloads the work to the printer hardware itself:
+    // "Print 50 copies of this label, and physically pause after every 10."
+    ZplPrintQuantity(quantity: 50, pauseInterval: 10),
+  ],
+);
+</code></pre>
+<h3 id="enterprise-rfid-tag-encoding-rf--rs">Enterprise RFID Tag Encoding (<code>^RF</code> / <code>^RS</code>)</h3>
+<p>Generate "Smart Labels" by leveraging Zebra's dual-hardware printers (like the <em>ZT411 RFID</em>). You can encode the tiny silicon microchip hidden inside the label <strong>at the exact same time</strong> you print the visual ink barcodes!</p>
+<pre class="language-dart"><code class="language-dart">final generator = ZplGenerator(
+  config: ZplConfiguration(printWidth: 406, labelLength: 203),
+  commands: [
+    // 1. Tell the printer what hardware protocol to run (EPC Class 1 Gen 2)
+    ZplRfidSetup(tagType: 8),
+
+    // 2. Blast your payload onto the actual RFID Antenna using HEX!
+    // (This encodes 11112222 directly into the EPC bank block 3)
+    ZplRfidWrite(
+      data: '11112222',
+      operation: RfidOperation.write,
+      format: RfidDataFormat.hex,
+      startingBlock: 3, 
+      byteCount: 4,
+      memoryBank: RfidMemoryBank.epc,
+    ),
+
+    // 3. Normal printing logic is executed in parallel!
+    ZplText(x: 10, y: 10, text: 'This text gets printed with ink!'),
+    ZplBarcode(x: 10, y: 50, data: '11112222', type: ZplBarcodeType.code128),
+  ],
+);
+</code></pre>
+<blockquote>
+<p>Note: When using <code>RfidDataFormat.hex</code>, the library strictly asserts that your payload only contains completely valid <code>[0-9A-Fa-f]</code> characters to prevent silent printer-locking failures.</p>
+</blockquote>
+<h3 id="network--infrastructure-commands">Network &amp; Infrastructure Commands</h3>
+<p>Zebra printers operating in warehouses and production environments often require programmatic network configuration (Wi-Fi, Bluetooth, SMTP, SNMP). <code>flutter_zpl_generator</code> exposes a complete suite of network administration commands that gracefully format ZPL configurations without interfering with visual layout math.</p>
+<p>These commands physically configure the hardware state. They seamlessly return <code>0</code> for layout calculations, meaning you can place them anywhere in the <code>commands</code> list!</p>
+<pre class="language-dart"><code class="language-dart">final generator = ZplGenerator(
+  config: ZplConfiguration(printWidth: 406, labelLength: 203),
+  commands: [
+    // 1. Establish printer networking rules on boot
+    ZplNetworkSettings(
+      device: 1, 
+      ip: '192.168.1.100', 
+      mask: '255.255.255.0', 
+      gateway: '192.168.1.1',
+      timeout: 300,
+      arp: 'Y',
+    ),
+    
+    // 2. Configure standard SNMP telemetry
+    ZplNetworkSnmp(
+      name: 'DockDoor_Printer_01',
+      location: 'Warehouse_A',
+      getCommunity: 'public',
+    ),
+    
+    // 3. Connect safely to a target network ID
+    ZplNetworkConnect(networkId: 'WLAN_INT_01'),
+
+    // Print regular graphics below...
+    ZplText(x: 10, y: 10, text: 'Hello ZPL Networking!'),
+  ],
+);
+</code></pre>
+<p>Available Configuration Classes:</p>
+<ul>
+<li><code>ZplNetworkBoot</code> (<code>^NB</code>) — Check interval for boot blocks.</li>
+<li><code>ZplNetworkDevice</code> (<code>^NC</code>) — Set primary network device.</li>
+<li><code>ZplNetworkConnect</code> (<code>~NC</code>) — Connect to a secondary network.</li>
+<li><code>ZplNetworkSettings</code> (<code>^ND</code>) — Change network parameters.</li>
+<li><code>ZplNetworkId</code> (<code>^NI</code>) — Assign a Network ID number string.</li>
+<li><code>ZplNetworkSnmp</code> (<code>^NN</code>) — Configure SNMP params.</li>
+<li><code>ZplNetworkPrimaryDevice</code> (<code>^NP</code>) — Set primary connection physical device.</li>
+<li><code>ZplNetworkPrintersTransparentAll</code> (<code>~NR</code>) — Set all network printers transparent.</li>
+<li><code>ZplNetworkWiredSettings</code> (<code>^NS</code>) — Wired network settings fallback.</li>
+<li><code>ZplNetworkPrinterTransparentCurrent</code> (<code>~NT</code>) — Set current printer transparent.</li>
+<li><code>ZplNetworkSmtp</code> (<code>^NT</code>) — Configure SMTP email rules.</li>
+<li><code>ZplNetworkPasswordTimeout</code> (<code>^NW</code>) — Password active countdown timer.</li>
+</ul>
+<hr>
+<h2 id="-developer-experience--examples">💻 Developer Experience &amp; Examples</h2>
+<h3 id="live-preview-details-labelary-integration">Live Preview Details (Labelary Integration)</h3>
+<p>You can preview the receipt in pseudo-real-time simply by wrapping your <code>generator</code> reference mathematically natively.</p>
+<pre class="language-dart"><code class="language-dart">class LabelPreviewScreen extends StatelessWidget {
+  
+  final generator = ZplGenerator(
+      config: const ZplConfiguration(printWidth: 406, labelLength: 203),
+      commands: [ ... ]
+  );
+
+  @override
+  Widget build(BuildContext context) {
+    return ZplPreview(
+      generator: generator, // Hot-reloads on Widget Rebuild automatically!
+    );
+  }
+}
+</code></pre>
+<p>If you prefer to hit the REST API directly for PDFs or native assets:</p>
+<pre class="language-dart"><code class="language-dart">final response = await LabelaryService.renderFromGenerator(
+  generator,
+  outputFormat: LabelaryOutputFormat.pdf,
+);
+
+// Write bytes to disk
+await File('label.pdf').writeAsBytes(response.data);
+</code></pre>
+<h3 id="complete-use-case-complex-retail-receipt">Complete Use-Case: Complex Retail Receipt</h3>
+<p>Combine the 12-Unit Grid, Tables, and Barcodes to generate a fully formatted receipt effortlessly.</p>
+<img src="images/receipt_demo.png" height="500">
+<pre class="language-dart"><code class="language-dart">import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
+
+final generator = ZplGenerator(
+  config: const ZplConfiguration(
+    printWidth: 576, // 203 DPI standard receipt
+    labelLength: 1200,
+    printDensity: ZplPrintDensity.d8,
+  ),
+  commands: [
+    // Header
+    ZplText(x: 0, y: 30, text: 'RECEIPT', fontHeight: 50, fontWidth: 45),
+    ZplText(x: 0, y: 100, text: 'Receipt number: 117 - 44332'),
+    ZplText(x: 0, y: 130, text: 'Date of purchase: December 8, 2023'),
+
+    // Company &amp; Bill To (Side-by-side using 12-unit Grid system)
+    ZplGridRow(
+      y: 200,
+      children: [
+        ZplGridCol(
+          width: 6, // 50% width
+          child: ZplColumn(
+            children: [
+              ZplText(text: 'Big Machinery, LLC', fontHeight: 25, fontWidth: 22),
+              ZplText(text: '3345, Diamond St, Orange City, ST 9987', fontHeight: 18, fontWidth: 16),
+            ],
+          ),
+        ),
+        ZplGridCol(
+          width: 6, // 50% width
+          child: ZplColumn(
+            children: [
+              ZplText(text: 'Bill To', fontHeight: 25, fontWidth: 22),
+              ZplText(text: 'Doe John', fontHeight: 18, fontWidth: 16),
+            ],
+          ),
+        ),
+      ],
+    ),
+
+    // Items table
+    ZplTable(
+      y: 360,
+      columnWidths: [6, 2, 2, 2], // 12-column grid mapping
+      borderThickness: 2,
+      cellPadding: 6,
+      headers: [
+        ZplTableHeader('Item', alignment: ZplAlignment.left, fontHeight: 22, fontWidth: 20),
+        ZplTableHeader('Qty', alignment: ZplAlignment.center, fontHeight: 22, fontWidth: 20),
+        ZplTableHeader('Unit', alignment: ZplAlignment.center, fontHeight: 22, fontWidth: 20),
+        ZplTableHeader('Total', alignment: ZplAlignment.center, fontHeight: 22, fontWidth: 20),
+      ],
+      data: [
+        ['Fuel Plastic Jug (10 gal)', '01', '\$34.00', '\$34.00'],
+        ['Gas Hose (5 feet)', '01', '\$15.00', '\$15.00'],
+        ['Aluminum Screw (4 in)', '100', '\$0.87', '\$87.00'],
+      ],
+      dataFontHeight: 18,
+      dataFontWidth: 16,
+    ),
+
+    // Totals
+    ZplText(x: 50, y: 580, text: 'Subtotal: \$136.00', fontHeight: 22, fontWidth: 20),
+    ZplText(x: 50, y: 650, text: 'Tax (12%): \$16.32', fontHeight: 20, fontWidth: 18),
+    ZplSeparator(y: 685, thickness: 2, paddingLeft: 50, paddingRight: 50),
+    ZplText(x: 50, y: 710, text: 'Total: \$152.32', fontHeight: 26, fontWidth: 24),
+
+    // Footer with QR code
+    ZplSeparator(y: 760, thickness: 1),
+    ZplText(x: 0, y: 785, text: 'Scan for digital receipt:', alignment: ZplAlignment.center),
+    ZplBarcode(
+      x: 0, y: 815,
+      data: 'https://receipt.example.com/117-44332',
+      type: ZplBarcodeType.qrCode,
+      height: 120,
+      alignment: ZplAlignment.center,
+    ),
+  ],
+);
+
+final zpl = await generator.build();
+print(zpl);
+</code></pre>
+<hr>
+<h2 id="related-projects">Related Projects</h2>
+<ul>
+<li><a href="https://labelary.com/">Labelary API</a> - Online ZPL viewer and API</li>
+<li><a href="https://www.zebra.com/us/en/products/printers.html">Zebra Printers</a></li>
+</ul>
+</section>
+
+
+      <section class="summary">
+          <h2>Libraries</h2>
+        <dl>
+          <dt id="flutter_zpl_generator">
+  <span class="name"><a href="flutter_zpl_generator/">flutter_zpl_generator</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+          <dt id="zpl_preview">
+  <span class="name"><a href="widgets_zpl_preview/">widgets/zpl_preview</a></span> 
+
+</dt>
+<dd>
+</dd>
+
+        </dl>
+      </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="https://github.com/minhtri1401/flutter_zpl_generator">flutter_zpl_generator package</a></li>
+</ol>
+
+    <h5 class="hidden-xs"><span class="package-name">flutter_zpl_generator</span> <span class="package-kind">package</span></h5>
+    <ol>
+      <li class="section-title">Libraries</li>
+      <li><a href="flutter_zpl_generator/">flutter_zpl_generator</a></li>
+      <li><a href="widgets_zpl_preview/">widgets/zpl_preview</a></li>
+</ol>
+
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div>
+</main>
+<footer>
+  <span class="no-break">
+    flutter_zpl_generator
+      1.5.1
+  </span>
+  
+</footer>
+
+
+<script src="static-assets/highlight.pack.js?v1"></script>
+<script src="static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the getFontUploadCommand method from the ZplAssetService class, for the Dart programming language.">
+  <title>getFontUploadCommand method - ZplAssetService class - flutter_zpl_generator library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">flutter_zpl_generator</a></li>
+    <li><a href="../../flutter_zpl_generator/">flutter_zpl_generator.dart</a></li>
+    <li><a href="../../flutter_zpl_generator/ZplAssetService-class.html">ZplAssetService</a></li>
+    <li class="self-crumb">getFontUploadCommand method</li>
+  </ol>
+  <div class="self-name">getFontUploadCommand</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <button class="toggle" id="theme-button" title="Toggle between light and dark mode" aria-label="Light and dark mode toggle">
+    <span id="dark-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      dark_mode
+    </span>
+    <span id="light-theme-button" class="material-symbols-outlined" aria-hidden="true">
+      light_mode
+    </span>
+  </button>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="flutter_zpl_generator&#47;ZplAssetService-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">getFontUploadCommand</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+<span class="name ">getFontUploadCommand</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="getFontUploadCommand-param-font"><span class="type-annotation"><a href="../../flutter_zpl_generator/ZplFontAsset-class.html">ZplFontAsset</a></span> <span class="parameter-name">font</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Converts a <a href="../../flutter_zpl_generator/ZplFontAsset-class.html">ZplFontAsset</a> into a ZPL <code>~DY</code> command for downloading
+the font to the printer's memory.</p>
+<p>The method loads the TTF font file from Flutter assets, converts it to
+hexadecimal format, and generates the appropriate <code>~DY</code> command that
+can be sent to a ZPL printer.</p>
+<p>Parameters:</p>
+<ul>
+<li><code>font</code>: The font asset to convert</li>
+</ul>
+<p>Returns:
+A Future containing the ZPL <code>~DY</code> command string that uploads the font
+to the printer's volatile memory (E: drive).</p>
+<p>Throws:</p>
+<ul>
+<li><code>FlutterError</code> if the asset path is invalid or the file cannot be loaded</li>
+<li><a href="https://api.flutter.dev/flutter/dart-core/FormatException-class.html">FormatException</a> if the font file is corrupted or invalid</li>
+</ul>
+<p>Example output:</p>
+<pre class="language-dart"><code>~DYE:AFONT.TTF,B,T,45123,,504B030414000000080...
+</code></pre>
+<p>Where:</p>
+<ul>
+<li><code>E:AFONT.TTF</code> is the path on the printer (E: = volatile memory)</li>
+<li><code>B</code> indicates binary data</li>
+<li><code>T</code> indicates TrueType font</li>
+<li><code>45123</code> is the byte count</li>
+<li>The hex string contains the actual font data</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;String&gt; getFontUploadCommand(ZplFontAsset font) async {
+  try {
+    &#47;&#47; Load the font file from Flutter assets
+    final byteData = await rootBundle.load(font.assetPath);
+    final buffer = byteData.buffer;
+    final fontBytes = buffer.asUint8List(
+      byteData.offsetInBytes,
+      byteData.lengthInBytes,
+    );
+
+    &#47;&#47; Convert font bytes to uppercase hexadecimal string
+    final hexString = HEX.encode(fontBytes).toUpperCase();
+    final byteCount = fontBytes.length;
+
+    &#47;&#47; Generate printer path: E: is the printer&#39;s volatile memory drive
+    final printerPath = &#39;E:${font.identifier}FONT.TTF&#39;;
+
+    &#47;&#47; Generate ZPL ~DY command
+    &#47;&#47; Format: ~DY&lt;device&gt;:&lt;filename&gt;,&lt;format&gt;,&lt;extension&gt;,&lt;byte_count&gt;,,&lt;data&gt;
+    &#47;&#47; - device: E (volatile memory)
+    &#47;&#47; - filename: {identifier}FONT.TTF
+    &#47;&#47; - format: B (binary)
+    &#47;&#47; - extension: T (TrueType)
+    &#47;&#47; - byte_count: number of bytes in the font file
+    &#47;&#47; - data: hexadecimal representation of the font
+    return &#39;~DY$printerPath,B,T,$byteCount,,$hexString&#39;;
+  } catch (e) {
+    throw Exception(
+      &#39;Failed to load font asset &quot;${font.assetPath}&quot;: $e\n&#39;
+      &#39;Make sure the font file exists in your assets and is properly &#39;
+      &#39;declared in pubspec.yaml&#39;,
+    );
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">flutter_zpl_generator</a></li>
+    <li><a href="../../flutter_zpl_generator/">flutter_zpl_generator</a></li>
+    <li><a href="../../flutter_zpl_generator/ZplAssetService-class.html">ZplAssetService</a></li>
+    <li class="self-crumb">getFontUploadCommand method</li>
+</ol>
+
+    <h5>ZplAssetService class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    flutter_zpl_generator
+      1.5.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

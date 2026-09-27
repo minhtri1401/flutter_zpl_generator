@@ -72,9 +72,9 @@ A comprehensive Dart/Flutter package for generating ZPL (Zebra Programming Langu
 | Requirement | Status | Notes |
 |---|---|---|
 | Support built-in ZPL fonts (A-H, 0) | ✓ Complete | Via `ZplFont` enum |
-| Support custom TTF fonts | ✓ Complete | Via `ZplFontAsset` and `ZplAssetService` |
+| Support custom TTF fonts | ✓ Complete | Via `await ZplFontUpload.fromAsset()` (v2.0.0+) |
 | Support font size/scaling | ✓ Complete | `fontHeight` and `fontWidth` properties |
-| Upload fonts to printer E: drive | ✓ Complete | `~DY` command generation |
+| Upload fonts to printer E: drive | ✓ Complete | `~DY` command generation (control command) |
 | Reference uploaded fonts in text | ✓ Complete | `fontAlias` (A-Z identifier) property |
 
 #### 1.5 API Integration

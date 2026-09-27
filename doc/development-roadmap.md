@@ -6,8 +6,28 @@ Create a comprehensive, production-ready Dart/Flutter package for ZPL (Zebra Pro
 
 ## Release History
 
-### v1.1.0 (March 2026) - Architecture Refactor
+### v2.0.0 (September 2026) - Link-OS Compatibility
 **Status:** Complete
+
+#### Key Improvements
+- **Two-Pass Build System:** Control commands (tilde-prefixed) emit BEFORE `^XA`, required on Link-OS mobile printers (ZQ620, etc.)
+- **ZplControlCommand Base Class:** New abstract class for `~DG`, `~DY`, `~JI`, `~JQ`, `~HQ`, `~NC`, `~NR`, `~NT` commands
+- **Image Refactor:** Replaced monolithic `ZplImage` with three-strategy system:
+  - `ZplImageDownload` (control command, `~DG`)
+  - `ZplImageRecall` (`^XG` for cached graphics)
+  - `ZplImageInline` (`^GFA` for one-shot images)
+- **Font System Simplification:** `ZplFontUpload` (control command) replaces `ZplFontAsset`; use `await ZplFontUpload.fromAsset(path, id)`
+- **ZplGenerator Constructor Simplified:** Removed `fonts`, `assetService` parameters; add font uploads as commands directly
+- **Removed:** `ZplFontAsset`, `ZplAssetService.getFontUploadCommand()` (now `loadFontBytes()`)
+
+#### Breaking Changes
+- `ZplGenerator` constructor no longer accepts `fonts` or `assetService` parameters
+- `ZplImage` removed entirely (use `ZplImageDownload` + `ZplImageRecall` or `ZplImageInline`)
+- `ZplFontAsset` removed (use `await ZplFontUpload.fromAsset()`)
+- Code and comments must reflect `ZplConfiguration` passed to all `toZpl()` calls
+
+### v1.1.0 (March 2026) - Architecture Refactor
+**Status:** Archived (prerelease to v2.0)
 
 #### Key Improvements
 - **Configuration Decoupling:** Separated `ZplConfiguration` from command list, passed as context parameter to all commands
@@ -58,62 +78,38 @@ Create a comprehensive, production-ready Dart/Flutter package for ZPL (Zebra Pro
 
 ## Current Phase
 
-### Phase 1: Bug Fixes & Stability (Q2 2026)
-**Status:** In Progress
+### v2.1.0 (Hygiene, Compression & Barcode Expansion) — September 2026
+**Status:** Complete
 
-#### Objectives
-- Monitor pub.dev user feedback and issue reports
-- Fix any edge cases in layout system
-- Improve ZPL generation for complex label scenarios
-- Enhance documentation based on real-world usage
+#### Delivered Features
+- **Z64/B64 Image Compression:** `ZplImageCompression.z64` (70–90% reduction) and `.b64` (base64) for `ZplImageDownload` and `ZplImageInline` with `compression:` parameter. Pure-Dart deflate (works on web).
+- **Barcode Symbologies (13 total):** Added `pdf417`, `aztec`, `code93`, `interleaved2of5`, `ean8`, `upcE`, `gs1_128` to existing Code128, Code39, EAN13, UPC-A, QR, Data Matrix.
+- **QR/PDF417 Parameters:** `magnification` (1–10), `qrErrorCorrection` (low/medium/quartile/high), `pdf417SecurityLevel`, `pdf417Columns`.
+- **Stability:** Tilde-command ordering fixed (ZBI, host-query, network commands now emit before `^XA`). Flutter 3.47.5 pinned. `.pubignore` reduces package from 15MB to <1MB.
+- **Testing & CI:** Comprehensive unit tests (125+), GitHub Actions `ci.yml` and `security-scan.yml` with Dependabot, OSV/SARIF scanning.
+- **Documentation:** Updated all `doc/` and `CLAUDE.md` to v2.0 API.
 
-#### Key Tasks
-- [ ] Review and address GitHub issues
-- [ ] Performance profiling for large labels
-- [ ] Test on all Flutter platforms (iOS, Android, Web, Desktop)
-- [ ] Update README with v1.1.0 migration guide
+### v2.2.0 (Advanced Features) — Q1 2027
+**Status:** Planned (formerly listed as "Compression & Barcode Expansion", now delivered in v2.1.0)
 
-#### Success Metrics
-- Zero critical bugs
-- Average issue resolution time < 3 days
-- Documentation coverage > 90%
-
-### Phase 2: Advanced Features (Q3 2026)
-**Status:** Planned
-
-#### Proposed Features
-
-##### A. Advanced Layout System
-- `ZplWrap` component for automatic line wrapping
-- `ZplAlignedBox` for proportional spacing
-- Nested layout validation and error reporting
-
-##### B. Font Enhancements
-- Support for font scaling/sizing alternatives
-- Font fallback mechanism for missing fonts
-- Pre-built font asset library (common fonts)
-
-##### C. Image Processing
+##### C. Advanced Features (TBD)
+- Label rotation support
 - Advanced image dithering options
-- Image cropping and resizing before conversion
-- Support for multi-color label images
+- Font fallback mechanism
 
-##### D. Barcode Enhancements
-- GS1-128 support
-- PDF417 (2D barcode)
-- Aztec code support
-- Barcode validation before rendering
+## Next Candidates (Exploration Phase)
 
-##### E. Labelary API Extensions
-- Support for label rotation
-- PDF output support
-- Batch rendering optimization
+Short-listed features for future releases, prioritized by community feedback and use-case impact:
 
-#### Estimated Timeline
-- Design & Specification: 2 weeks
-- Implementation: 6 weeks
-- Testing & Refinement: 2 weeks
-- Release: End of Q3 2026
+1. **QR mask selection parity with Zebra** — Implement Zebra's mask evaluation algorithm (ISO/IEC 18004:2015 §8.8.4) in `ZplNativePreview` to eliminate 1–2% edge-case mismatches in high-density QR codes and ensure 100% pixel-identical preview/firmware output.
+2. **Physical-printer verification of Z64 ^GFA and preview calibration** — Validate Z64 compressed images on real Link-OS printer (ZQ620, ZM400); measure barcode/text/image output against physical hardcopy to finalize calibration constants and document any firmware-specific deviations.
+3. **ZPL Parser / Decompiler** — Reverse-engineer existing ZPL labels into Flutter `ZplGenerator` calls. Enables label import/refactoring workflows.
+4. **JSON Label Template Schema** — Define labels as JSON/YAML, auto-generate Flutter code or render via `ZplGenerator.fromJson()`. Unlock no-code / low-code design tools.
+5. **Labelary PDF Export + Linter** — Render to PDF via Labelary; validate ZPL output (undefined fonts, bounds, performance warnings).
+6. **End-to-End Example with flutter_zpl_printer** — Demonstrate full workflow: design in `flutter_zpl_generator`, print via `flutter_zpl_printer` plugin; test on real ZQ620 hardware.
+
+### Phase 2: Advanced Features
+**Status:** Archived (subsumed into v2.1.0)
 
 ### Phase 3: Performance & Scale (Q4 2026)
 **Status:** Planned
@@ -245,13 +241,20 @@ Create a comprehensive, production-ready Dart/Flutter package for ZPL (Zebra Pro
 2026 Q1  │ Planning for v1.1.0
          │
 2026 Q2  │ v1.1.0 Architecture Refactor ✓
-         │ Phase 1: Bug Fixes & Stability (Current)
          │
-2026 Q3  │ Phase 2: Advanced Features (Planned)
+2026 Q3  │ v2.0.0 Link-OS Compatibility ✓
          │
-2026 Q4  │ Phase 3: Performance & Scale (Planned)
+2026 Q4  │ v2.1.0 Hygiene, Compression & Barcodes ✓ (2026-09-27)
+         │ ├─ Z64/B64 compression (70–90% reduction)
+         │ ├─ 7 barcode symbologies + QR/PDF417 params
+         │ ├─ Flutter 3.47.5, .pubignore, tilde-cmd fixes
+         │ ├─ GitHub Actions CI + security scanning
+         │ └─ 125+ unit tests, comprehensive coverage
          │
-2027 Q1  │ Phase 4: Ecosystem Integration (Planned)
+2027 Q1  │ v2.2.0 Advanced Features (Planned)
+         │ ├─ Label rotation & multi-color dithering
+         │ ├─ Font fallback & scaling options
+         │ └─ Performance optimizations
          │
-2027+    │ Long-Term Vision: Visual Designer, Templates, Analytics
+2027 Q2+ │ Next Candidates: ZPL parser, JSON schema, PDF export, flutter_zpl_printer integration
 ```

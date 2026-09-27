@@ -5,6 +5,99 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-09-27
+
+Toolchain refresh, package hygiene, Z64/B64 graphic compression and seven
+new barcode symbologies.
+
+### Added
+
+- **Z64 / B64 graphic compression.** `ZplImageCompression.z64` (zlib +
+  base64 + CRC-16) and `.b64` for both `ZplImageDownload` (`~DG`) and
+  `ZplImageInline` (`^GFA`). Z64 typically cuts image payloads by 70–90 %
+  versus raw hex. `ZplImageInline` gains a `compression:` parameter
+  (default `acs`, output unchanged). Pure-Dart deflate via
+  `package:archive`, so it works on web.
+- **Barcode symbologies:** `pdf417` (`^B7`), `aztec` (`^BO`), `code93`
+  (`^BA`), `interleaved2of5` (`^B2`), `ean8` (`^B8`), `upcE` (`^B9`) and
+  `gs1_128` (`^BC` mode D). All render in `ZplNativePreview`.
+- **QR parameters:** `magnification` (also used by Aztec) and
+  `qrErrorCorrection` (`ZplQrErrorCorrection.low/medium/quartile/high`).
+- **PDF417 parameters:** `pdf417SecurityLevel`, `pdf417Columns`.
+- GitHub Actions: `ci.yml` (format, analyze, test, publish dry-run) and
+  `security-scan.yml` (OSV vulnerability/malware scan with SARIF upload,
+  dependency review on PRs, gitleaks secret scan, weekly schedule) plus
+  Dependabot for pub and actions.
+- Unit tests for previously untested modules: `ZplTable`, `ZplTextBlock`,
+  `ZplAdvancedTextProperties`, `ZplSeparator`, ZBI/host-query commands,
+  control-command ordering, both preview widgets, the compression encoder
+  and every barcode symbology.
+
+### Native preview accuracy
+
+`ZplNativePreview` was rendering barcodes 20–45 % too wide, QR/Data Matrix
+at guessed sizes, and text in the platform font at the wrong size. It is
+now measured against Labelary (see
+`test/native_preview_fidelity_harness_test.dart`, which renders both and
+diffs the bitmaps):
+
+- 1D barcodes use the real encoded module count times `^BY` module width,
+  with the interpretation line below the bars (7 dots per module + 6) rather
+  than carved out of them. Code 128 reproduces Zebra's automatic subset
+  switching; Code 39 / I 2 of 5 apply the `^BY` ratio (default 3:1); EAN/UPC
+  omit the leading digit like the printer. Overlap with Labelary went from
+  29–34 % to 90–95 %.
+- QR uses numeric/alphanumeric/byte mode selection, the printer's
+  "strongest error correction that fits" rule and the 10-dot vertical
+  offset, so size and version match exactly (alphanumeric payloads are
+  pixel-identical). Data Matrix scales by the `^BX` module height (100 %).
+- Text is drawn with a bundled condensed bold face (Archivo Narrow, SIL
+  OFL 1.1, `fonts/`) sized so caps are 75 % of the `^A` height with the cap
+  top on the origin, width defaults to height for font 0, and `^FB`
+  alignment mirrors the generator. Bounding boxes now land within 2–3
+  dots of Labelary.
+- Field rotation (`R`, `I`, `B`) is honoured for text and barcodes;
+  `ZplConditional` children and `ZplGraphicSymbol` are drawn; `^TB` blocks
+  clip to their box.
+- Layout: `ZplBarcode.width` (used for centre/right alignment in the
+  generated ZPL) is now the printed width, so aligned barcodes print where
+  the preview shows them. Previously a centred Code 128 printed ~30 dots
+  off-centre.
+
+### Fixed
+
+- **QR Code field data now carries the required `^FD<ecc>A,` prefix**
+  (e.g. `^FDMA,https://…`). Without it real printers consume the first
+  characters of your data as parameters. `^BQ` now also emits the
+  error-correction level. Output for existing QR labels changes.
+
+- `ZplZbiStart` (`~JI`), `ZplZbiStop` (`~JQ`), `ZplHostQuery` (`~HQ`),
+  `ZplNetworkConnect` (`~NC`), `ZplNetworkPrintersTransparentAll` (`~NR`)
+  and `ZplNetworkPrinterTransparentCurrent` (`~NT`) now extend
+  `ZplControlCommand`, so `ZplGenerator` emits them before `^XA` like
+  `~DG`/`~DY`. Previously they were embedded inside the format block, which
+  strict Link-OS firmware rejects. **Output order changes** for labels that
+  use these commands; the ZPL is otherwise identical.
+- README image-conversion snippet referenced a non-existent
+  `LabelaryGraphicOutputFormat`; corrected to `LabelaryOutputFormat`.
+
+### Changed
+
+- Project pinned to Flutter 3.47.5 / Dart 3.13 via fvm; dependencies
+  upgraded (`image` 4.10, `mockito` 5.6.4, `build_runner` 2.15).
+- Added `.pubignore`: the pub archive no longer ships the 15 MB ZPL manual
+  PDFs, plans, or local fonts (13 MB → well under 1 MB).
+- `CLAUDE.md` and `doc/` rewritten to match the v2 API (`ZplImage`,
+  `ZplFontAsset`, `ZplRow` and other removed names purged).
+- `ZplBarcode` internals split into `zpl_barcode_symbology_emitter.dart`
+  and `zpl_barcode_width_estimator.dart`; public API unchanged apart from
+  the additions above.
+- QR Code width estimate now scales with `magnification` (module count +
+  quiet zone, times magnification) instead of fixed buckets. Centred or
+  right-aligned QR codes may shift by a few dots.
+- `ZplImageInline` accepts `compression: none` (raw hex inside `^GFA`);
+  verified on Labelary only.
+
 ## [2.0.0] - 2026-04-20
 
 ### BREAKING CHANGES

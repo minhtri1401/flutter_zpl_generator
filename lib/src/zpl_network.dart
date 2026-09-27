@@ -31,16 +31,13 @@ class ZplNetworkDevice extends ZplCommand {
 
 /// Network Connect (`~NC`)
 /// Connects to a secondary network.
-class ZplNetworkConnect extends ZplCommand {
+class ZplNetworkConnect extends ZplControlCommand {
   final String networkId;
 
   const ZplNetworkConnect({required this.networkId});
 
   @override
   String toZpl(ZplConfiguration context) => '~NC$networkId\n';
-
-  @override
-  int calculateWidth(ZplConfiguration config) => 0;
 }
 
 /// Modify Network Settings (`^ND`)
@@ -136,14 +133,11 @@ class ZplNetworkPrimaryDevice extends ZplCommand {
 }
 
 /// Set All Network Printers Transparent (`~NR`)
-class ZplNetworkPrintersTransparentAll extends ZplCommand {
+class ZplNetworkPrintersTransparentAll extends ZplControlCommand {
   const ZplNetworkPrintersTransparentAll();
 
   @override
   String toZpl(ZplConfiguration context) => '~NR\n';
-
-  @override
-  int calculateWidth(ZplConfiguration config) => 0;
 }
 
 /// Modify Wired Network Settings (`^NS`)
@@ -181,14 +175,11 @@ class ZplNetworkWiredSettings extends ZplCommand {
 }
 
 /// Set Current Printer Transparent (`~NT`)
-class ZplNetworkPrinterTransparentCurrent extends ZplCommand {
+class ZplNetworkPrinterTransparentCurrent extends ZplControlCommand {
   const ZplNetworkPrinterTransparentCurrent();
 
   @override
   String toZpl(ZplConfiguration context) => '~NT\n';
-
-  @override
-  int calculateWidth(ZplConfiguration config) => 0;
 }
 
 /// Configure SMTP (`^NT`)

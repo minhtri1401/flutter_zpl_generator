@@ -4,8 +4,8 @@ import 'zpl_configuration.dart';
 /// Starts an immediate Zebra Basic Interpreter (ZBI) script run directly
 /// on the printer hardware OS.
 ///
-/// Uses the `~JI` command. Returns width `0` for layout purposes.
-class ZplZbiStart extends ZplCommand {
+/// Uses the `~JI` control command; emitted before `^XA` by [ZplGenerator].
+class ZplZbiStart extends ZplControlCommand {
   /// The name or filesystem path of the ZBI program.
   final String path;
 
@@ -13,9 +13,6 @@ class ZplZbiStart extends ZplCommand {
   final String? parameters;
 
   const ZplZbiStart({required this.path, this.parameters});
-
-  @override
-  int calculateWidth(ZplConfiguration config) => 0;
 
   @override
   String toZpl(ZplConfiguration config) {
@@ -28,11 +25,8 @@ class ZplZbiStart extends ZplCommand {
 
 /// Aborts execution of any running Zebra Basic Interpreter (ZBI) script
 /// immediately via the `~JQ` host command.
-class ZplZbiStop extends ZplCommand {
+class ZplZbiStop extends ZplControlCommand {
   const ZplZbiStop();
-
-  @override
-  int calculateWidth(ZplConfiguration config) => 0;
 
   @override
   String toZpl(ZplConfiguration config) {
@@ -42,14 +36,11 @@ class ZplZbiStop extends ZplCommand {
 
 /// Triggers a Host Query (`~HQ`) response back over the printer port
 /// (e.g. Serial or TCP) returning hardware diagnostic states.
-class ZplHostQuery extends ZplCommand {
+class ZplHostQuery extends ZplControlCommand {
   /// The specific query type (e.g., 'ES' for maintenance, 'OD' for odometer).
   final String queryGroup;
 
   const ZplHostQuery({required this.queryGroup});
-
-  @override
-  int calculateWidth(ZplConfiguration config) => 0;
 
   @override
   String toZpl(ZplConfiguration config) {

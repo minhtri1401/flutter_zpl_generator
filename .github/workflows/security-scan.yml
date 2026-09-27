@@ -1,0 +1,100 @@
+# Supply-chain and secret protection.
+#
+# - OSV-Scanner: resolves the dependency graph and checks every package
+#   against the OSV database, which includes both vulnerability advisories
+#   and MAL-* malicious-package records for pub.dev.
+# - Dependency Review: blocks pull requests that introduce dependencies with
+#   known vulnerabilities or disallowed licenses.
+# - Gitleaks: scans the git history for committed secrets (API keys, tokens).
+#
+# Runs on every push/PR and weekly so newly published advisories are caught
+# even when the code has not changed.
+name: Security scan
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: '0 3 * * 1' # Mondays 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: 3.47.5
+
+jobs:
+  osv-scan:
+    name: OSV vulnerability & malware scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write # upload SARIF to the Security tab
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      # pubspec.lock is not committed for libraries; resolve it here so the
+      # scanner sees the exact versions CI and consumers would pull.
+      - name: Resolve dependencies
+        run: |
+          flutter pub get
+          cd example && flutter pub get
+
+      - name: Run OSV-Scanner
+        id: osv
+        uses: google/osv-scanner-action/osv-scanner-action@v2
+        with:
+          scan-args: |-
+            --format=sarif
+            --output=osv-results.sarif
+            --lockfile=pubspec.lock
+            --lockfile=example/pubspec.lock
+        continue-on-error: true # keep going so the SARIF still uploads
+
+      # Fork PRs get a read-only token, so the upload is best-effort there.
+      - name: Upload SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && hashFiles('osv-results.sarif') != ''
+        continue-on-error: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.repo.fork }}
+        with:
+          sarif_file: osv-results.sarif
+
+      - name: Fail on findings
+        if: steps.osv.outcome == 'failure'
+        run: |
+          echo "::error::OSV-Scanner reported vulnerable or malicious dependencies. See the Security tab."
+          exit 1
+
+  dependency-review:
+    name: Dependency review (PRs)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: moderate
+          comment-summary-in-pr: on-failure
+
+  secret-scan:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history so old commits are scanned too
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

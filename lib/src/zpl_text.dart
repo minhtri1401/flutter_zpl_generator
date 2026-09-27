@@ -96,7 +96,7 @@ class ZplText extends ZplCommand {
           '^FB$availableWidth,$maxLines,$lineSpacing,$justification,0',
         );
         if (reversePrint) sb.writeln('^FR');
-        _writeDataCommand(sb);
+        _writeDataCommand(sb, inFieldBlock: true);
       } else if (x == 0) {
         // Standalone text with alignment — use full label width
         sb.writeln('^FO0,$y');
@@ -106,16 +106,18 @@ class ZplText extends ZplCommand {
           '^FB$availableWidth,$maxLines,$lineSpacing,$justification,0',
         );
         if (reversePrint) sb.writeln('^FR');
-        _writeDataCommand(sb);
+        _writeDataCommand(sb, inFieldBlock: true);
       } else {
         // Manual position with alignment hint — fall through to positioned output
         sb.writeln('^FO$x,$y');
         _writeFontCommand(sb);
         if (maxLines > 1) {
-          sb.writeln('^FB${_wrapWidth(x, effectiveWidth)},$maxLines,$lineSpacing,L,0');
+          sb.writeln(
+            '^FB${_wrapWidth(x, effectiveWidth)},$maxLines,$lineSpacing,L,0',
+          );
         }
         if (reversePrint) sb.writeln('^FR');
-        _writeDataCommand(sb);
+        _writeDataCommand(sb, inFieldBlock: maxLines > 1);
       }
     } else {
       // Left alignment or no alignment
@@ -123,10 +125,12 @@ class ZplText extends ZplCommand {
       sb.writeln('^FO$alignedX,$y');
       _writeFontCommand(sb);
       if (maxLines > 1) {
-        sb.writeln('^FB${_wrapWidth(alignedX, effectiveWidth)},$maxLines,$lineSpacing,L,0');
+        sb.writeln(
+          '^FB${_wrapWidth(alignedX, effectiveWidth)},$maxLines,$lineSpacing,L,0',
+        );
       }
       if (reversePrint) sb.writeln('^FR');
-      _writeDataCommand(sb);
+      _writeDataCommand(sb, inFieldBlock: maxLines > 1);
     }
 
     return sb.toString();
@@ -160,13 +164,38 @@ class ZplText extends ZplCommand {
   }
 
   /// Writes data payload via ^FD or auto-incrementing ^SN
-  void _writeDataCommand(StringBuffer sb) {
+  /// Writes `^FD`/`^SN`. Printers ignore raw line breaks in field data;
+  /// inside a `^FB` block the escape `\&` produces a line break, outside a
+  /// block the lines simply run together, so the emitter mirrors that.
+  void _writeDataCommand(StringBuffer sb, {required bool inFieldBlock}) {
+    final data = fieldData(text, inFieldBlock: inFieldBlock);
     if (serialization != null) {
       final leading = serialization!.leadingZeros ? 'Y' : 'N';
-      sb.writeln('^SN$text,${serialization!.increment},$leading^FS');
+      sb.writeln('^SN$data,${serialization!.increment},$leading^FS');
     } else {
-      sb.writeln('^FD$text^FS');
+      sb.writeln('^FD$data^FS');
     }
+  }
+
+  /// Converts Dart line breaks to what the printer will actually render.
+  static String fieldData(String text, {required bool inFieldBlock}) {
+    final normalised = text.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
+    return inFieldBlock
+        ? normalised.replaceAll('\n', r'\&')
+        : normalised.replaceAll('\n', '');
+  }
+
+  /// Whether [toZpl] emits a `^FB` block (mirrors the branches above).
+  bool get emitsFieldBlock =>
+      maxLines > 1 ||
+      (alignment != null &&
+          alignment != ZplAlignment.left &&
+          (maxWidth != null || x == 0));
+
+  /// Text as the printer lays it out: line breaks survive only in a block.
+  String get renderedText {
+    final t = text.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
+    return emitsFieldBlock ? t : t.replaceAll('\n', '');
   }
 
   /// Calculate the X position based on alignment, available width, and left padding.

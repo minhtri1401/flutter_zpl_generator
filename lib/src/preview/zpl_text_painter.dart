@@ -77,7 +77,8 @@ void drawZplText(Canvas canvas, ZplText text, ZplConfiguration config) {
 
   final tp = TextPainter(
     text: TextSpan(
-      text: text.text,
+      // Line breaks only survive inside a ^FB block (see ZplText.fieldData).
+      text: text.renderedText,
       style: previewTextStyle(
         fh,
         foreground: foreground,

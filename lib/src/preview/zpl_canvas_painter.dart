@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
-import 'package:barcode/barcode.dart';
+import 'zpl_barcode_painter.dart';
+import 'zpl_text_painter.dart';
 
 /// A CustomPainter that graphically renders ZPL commands onto a Flutter canvas.
 class ZplCanvasPainter extends CustomPainter {
@@ -63,6 +64,10 @@ class ZplCanvasPainter extends CustomPainter {
         }
       } else if (cmd is ZplRaw) {
         _drawRawZpl(canvas, size, cmd);
+      } else if (cmd is ZplConditional) {
+        if (cmd.condition) _drawCommands(canvas, size, [cmd.child]);
+      } else if (cmd is ZplGraphicSymbol) {
+        drawZplGraphicSymbol(canvas, cmd);
       } else if (cmd is ZplGridRow) {
         _drawCommands(
           canvas,
@@ -311,226 +316,14 @@ class ZplCanvasPainter extends CustomPainter {
     }
   }
 
-  void _drawBarcode(Canvas canvas, ZplBarcode zplBarcode) {
-    Barcode? barcode;
-    if (zplBarcode.type == ZplBarcodeType.code128) {
-      barcode = Barcode.code128();
-    } else if (zplBarcode.type == ZplBarcodeType.code39) {
-      barcode = Barcode.code39();
-    } else if (zplBarcode.type == ZplBarcodeType.ean13) {
-      barcode = Barcode.ean13();
-    } else if (zplBarcode.type == ZplBarcodeType.upcA) {
-      barcode = Barcode.upcA();
-    } else if (zplBarcode.type == ZplBarcodeType.qrCode) {
-      barcode = Barcode.qrCode();
-    } else if (zplBarcode.type == ZplBarcodeType.dataMatrix) {
-      barcode = Barcode.dataMatrix();
-    } else {
-      barcode = Barcode.code128();
-    }
+  void _drawBarcode(Canvas canvas, ZplBarcode zplBarcode) =>
+      drawZplBarcode(canvas, zplBarcode, generator.config);
 
-    final canvasWidth = generator.config.printWidth?.toDouble() ?? 406.0;
-    final bool is2D =
-        zplBarcode.type == ZplBarcodeType.qrCode ||
-        zplBarcode.type == ZplBarcodeType.dataMatrix;
+  void _drawText(Canvas canvas, ZplText text) =>
+      drawZplText(canvas, text, generator.config);
 
-    // Use the barcode's calculated width getter (accounts for type, data length, module width)
-    final double renderWidth = zplBarcode.width.toDouble();
-    final double renderHeight = is2D
-        ? renderWidth
-        : (zplBarcode.height > 0 ? zplBarcode.height.toDouble() : 50.0);
-
-    // X alignment
-    double drawX = zplBarcode.x.toDouble();
-    if (zplBarcode.alignment != null) {
-      final labelWidth = (zplBarcode.maxWidth?.toDouble() ?? canvasWidth);
-      switch (zplBarcode.alignment!) {
-        case ZplAlignment.center:
-          drawX =
-              zplBarcode.x +
-              ((labelWidth - renderWidth) / 2).clamp(0, labelWidth);
-        case ZplAlignment.right:
-          drawX =
-              zplBarcode.x + (labelWidth - renderWidth).clamp(0, labelWidth);
-        case ZplAlignment.left:
-          drawX = zplBarcode.x.toDouble();
-      }
-    }
-
-    try {
-      final drawText = zplBarcode.printInterpretationLine;
-      final drawTextAbove = zplBarcode.printInterpretationLineAbove;
-
-      final elements = barcode.make(
-        zplBarcode.data,
-        width: renderWidth,
-        height: renderHeight,
-        drawText: drawText,
-        fontHeight: drawText ? 24.0 : null,
-      );
-
-      canvas.save();
-      final yOffset = (drawText && drawTextAbove) ? 24.0 : 0.0;
-      canvas.translate(drawX, zplBarcode.y.toDouble() + yOffset);
-
-      final paint = Paint()
-        ..style = PaintingStyle.fill
-        ..isAntiAlias = false;
-      for (final el in elements) {
-        if (el is BarcodeBar) {
-          paint.color = el.black ? Colors.black : Colors.white;
-          canvas.drawRect(
-            Rect.fromLTWH(el.left, el.top, el.width, el.height),
-            paint,
-          );
-        }
-      }
-
-      if (drawText) {
-        for (final el in elements) {
-          if (el is BarcodeText) {
-            final textPainter = TextPainter(
-              text: TextSpan(
-                text: el.text,
-                style: const TextStyle(
-                  color: Colors.black,
-                  fontSize: 24,
-                  fontWeight: FontWeight.normal,
-                  fontFamily: 'monospace',
-                ),
-              ),
-              textDirection: TextDirection.ltr,
-              textAlign: TextAlign.center,
-            );
-            textPainter.layout(
-              minWidth: el.width,
-              maxWidth: el.width > 0 ? el.width : double.infinity,
-            );
-
-            final textY = drawTextAbove ? el.top - renderHeight - 24.0 : el.top;
-            textPainter.paint(canvas, Offset(el.left, textY));
-          }
-        }
-      }
-      canvas.restore();
-    } catch (e) {
-      final paint = Paint()..color = const Color(0x809E9E9E);
-      canvas.drawRect(
-        Rect.fromLTWH(drawX, zplBarcode.y.toDouble(), 100, 50),
-        paint,
-      );
-      _drawFallbackText(
-        canvas,
-        'Err: $e',
-        Offset(drawX, zplBarcode.y.toDouble()),
-      );
-    }
-  }
-
-  void _drawText(Canvas canvas, ZplText text) {
-    final fh = (text.fontHeight ?? 20).toDouble();
-    final fw = (text.fontWidth ?? (fh * 0.6).round()).toDouble();
-
-    // ZPL fonts render narrower than Flutter's proportional font.
-    // Compress horizontally by the font aspect ratio (always <= 1.0).
-    final hScale = (fw / fh).clamp(0.5, 1.0);
-
-    // Line height: account for lineSpacing when multi-line
-    final lineHeight = text.maxLines > 1 && text.lineSpacing > 0
-        ? (fh + text.lineSpacing) / fh
-        : 1.0;
-
-    TextAlign getTextAlign() {
-      switch (text.alignment) {
-        case ZplAlignment.center:
-          return TextAlign.center;
-        case ZplAlignment.right:
-          return TextAlign.right;
-        default:
-          return TextAlign.left;
-      }
-    }
-
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: text.text,
-        style: TextStyle(
-          foreground: Paint()
-            ..color = text.reversePrint ? Colors.white : Colors.black
-            ..blendMode = text.reversePrint
-                ? BlendMode.difference
-                : BlendMode.srcOver,
-          fontSize: fh,
-          fontWeight: FontWeight.w600,
-          height: lineHeight,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-      maxLines: text.maxLines > 1 ? text.maxLines : null,
-      ellipsis: text.maxLines > 1 ? '\u2026' : null,
-      textAlign: getTextAlign(),
-    );
-
-    // When maxWidth is set, use it. Otherwise for multi-line text,
-    // fall back to available width (printWidth - x position).
-    final wrapWidth =
-        text.maxWidth?.toDouble() ??
-        (text.maxLines > 1
-            ? (generator.config.printWidth ?? 406).toDouble() -
-                  text.x.toDouble()
-            : null);
-
-    final effectiveMaxWidth = wrapWidth != null
-        ? wrapWidth / hScale
-        : double.infinity;
-    textPainter.layout(
-      minWidth: wrapWidth != null ? effectiveMaxWidth : 0,
-      maxWidth: effectiveMaxWidth,
-    );
-
-    final scaledWidth = textPainter.width * hScale;
-
-    double drawX = text.x.toDouble();
-    if (text.alignment != null && text.maxWidth == null) {
-      final labelWidth = (generator.config.printWidth ?? 406).toDouble();
-      if (text.x == 0) {
-        switch (text.alignment!) {
-          case ZplAlignment.center:
-            drawX = ((labelWidth - scaledWidth) / 2).clamp(0, labelWidth);
-          case ZplAlignment.right:
-            drawX = (labelWidth - scaledWidth).clamp(0, labelWidth);
-          case ZplAlignment.left:
-            drawX = text.paddingLeft.toDouble();
-        }
-      }
-    }
-
-    canvas.save();
-    canvas.translate(drawX, text.y.toDouble());
-    canvas.scale(hScale, 1.0);
-    textPainter.paint(canvas, Offset.zero);
-    canvas.restore();
-  }
-
-  void _drawTextBlock(Canvas canvas, ZplTextBlock textBlock) {
-    final textPainter = TextPainter(
-      text: TextSpan(
-        text: textBlock.text,
-        style: const TextStyle(
-          color: Colors.black,
-          fontSize: 24,
-          fontWeight: FontWeight.w600,
-          height: 1.2,
-        ),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout(maxWidth: textBlock.maxWidth.toDouble());
-    textPainter.paint(
-      canvas,
-      Offset(textBlock.x.toDouble(), textBlock.y.toDouble()),
-    );
-  }
+  void _drawTextBlock(Canvas canvas, ZplTextBlock textBlock) =>
+      drawZplTextBlock(canvas, textBlock);
 
   /// Shared pixel-grid renderer used by ZplImage (legacy), ZplImageInline and
   /// ZplImageRecall. When [monochrome] is null falls back to a cyan
@@ -685,5 +478,6 @@ class ZplCanvasPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant ZplCanvasPainter oldDelegate) =>
+      oldDelegate.generator != generator;
 }

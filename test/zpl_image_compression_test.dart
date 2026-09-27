@@ -22,8 +22,9 @@ void main() {
 
   group('ZplImageDownload compression', () {
     test('uncompressed ~DG body contains raw ASCII hex rows', () async {
-      final zpl = ZplImageDownload(image: testImageBytes)
-          .toZpl(const ZplConfiguration());
+      final zpl = ZplImageDownload(
+        image: testImageBytes,
+      ).toZpl(const ZplConfiguration());
       expect(zpl, contains('~DGIMG,32,2,'));
       expect(zpl, isNot(contains('^GFA')));
     });
@@ -42,8 +43,9 @@ void main() {
 
   group('ZplImageInline (one-shot ^GFA)', () {
     test('emits ^GFA inside format block with ACS shortcuts', () {
-      final zpl = ZplImageInline(image: testImageBytes)
-          .toZpl(const ZplConfiguration());
+      final zpl = ZplImageInline(
+        image: testImageBytes,
+      ).toZpl(const ZplConfiguration());
       expect(zpl, isNot(contains('~DG')));
       expect(zpl, contains('^GFA,32,32,2,'));
       expect(zpl, contains('!'));

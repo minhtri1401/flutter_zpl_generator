@@ -3,8 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 
-Uint8List _png(int w, int h) =>
-    img.encodePng(img.Image(width: w, height: h));
+Uint8List _png(int w, int h) => img.encodePng(img.Image(width: w, height: h));
 
 void main() {
   group('layout containers x new image commands', () {
@@ -14,34 +13,29 @@ void main() {
         width: 200,
         height: 80,
       );
-      final col = ZplColumn(
-        x: 10,
-        y: 20,
-        spacing: 5,
-        children: [recall],
-      );
+      final col = ZplColumn(x: 10, y: 20, spacing: 5, children: [recall]);
       final zpl = col.toZpl(const ZplConfiguration(printWidth: 576));
       expect(zpl, contains('^FO10,20'));
       expect(zpl, contains('^XGLOGO,1,1^FS'));
     });
 
-    test('ZplColumn stacks two ZplImageInline children with renderedHeight', () {
-      final inline = ZplImageInline(
-        image: _png(64, 32),
-        targetWidth: 64,
-      );
-      final col = ZplColumn(
-        x: 0,
-        y: 0,
-        spacing: 0,
-        children: [inline, inline],
-      );
-      final zpl = col.toZpl(const ZplConfiguration(printWidth: 576));
-      final firstFo = zpl.indexOf('^FO0,0');
-      final secondFo = zpl.indexOf('^FO0,32');
-      expect(firstFo, isNonNegative);
-      expect(secondFo, greaterThan(firstFo));
-    });
+    test(
+      'ZplColumn stacks two ZplImageInline children with renderedHeight',
+      () {
+        final inline = ZplImageInline(image: _png(64, 32), targetWidth: 64);
+        final col = ZplColumn(
+          x: 0,
+          y: 0,
+          spacing: 0,
+          children: [inline, inline],
+        );
+        final zpl = col.toZpl(const ZplConfiguration(printWidth: 576));
+        final firstFo = zpl.indexOf('^FO0,0');
+        final secondFo = zpl.indexOf('^FO0,32');
+        expect(firstFo, isNonNegative);
+        expect(secondFo, greaterThan(firstFo));
+      },
+    );
 
     test('ZplGridRow carries ZplImageRecall through repositioning', () {
       final row = ZplGridRow(

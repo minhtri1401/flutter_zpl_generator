@@ -52,8 +52,7 @@ class ZplGenerator {
     sb.write(config.toZpl());
 
     if (autoLabelLengthFromFirstImage && config.labelLength == null) {
-      final firstDownload =
-          commands.whereType<ZplImageDownload>().firstOrNull;
+      final firstDownload = commands.whereType<ZplImageDownload>().firstOrNull;
       if (firstDownload != null) {
         sb.writeln('^LL${firstDownload.height}');
       }

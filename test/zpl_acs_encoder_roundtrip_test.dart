@@ -109,8 +109,7 @@ void main() {
         final bytes = (count / 2).ceil();
         final encoded = host.compressRow(row);
         final decoded = acsDecode(encoded, bytes);
-        expect(decoded.substring(0, count), row,
-            reason: 'encoded="$encoded"');
+        expect(decoded.substring(0, count), row, reason: 'encoded="$encoded"');
       });
     }
   });

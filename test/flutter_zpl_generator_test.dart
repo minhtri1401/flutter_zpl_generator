@@ -217,28 +217,30 @@ void main() {
   });
 
   group('Image commands (v2.0 — Download + Recall + Inline)', () {
-    test('Download + Recall round-trip generates ~DG (pre-^XA) and ^XG (in-format)',
-        () async {
-      final imageBytes = await loadImageBytes('orioninnovation_logo.jpeg');
+    test(
+      'Download + Recall round-trip generates ~DG (pre-^XA) and ^XG (in-format)',
+      () async {
+        final imageBytes = await loadImageBytes('orioninnovation_logo.jpeg');
 
-      final download = ZplImageDownload(
-        image: imageBytes,
-        graphicName: 'GOOGLE_CERT.GRF',
-      );
-      const recall = ZplImageRecall(
-        x: 10,
-        y: 10,
-        graphicName: 'GOOGLE_CERT.GRF',
-      );
+        final download = ZplImageDownload(
+          image: imageBytes,
+          graphicName: 'GOOGLE_CERT.GRF',
+        );
+        const recall = ZplImageRecall(
+          x: 10,
+          y: 10,
+          graphicName: 'GOOGLE_CERT.GRF',
+        );
 
-      final zpl = await ZplGenerator(commands: [download, recall]).build();
+        final zpl = await ZplGenerator(commands: [download, recall]).build();
 
-      expect(zpl, contains('~DGGOOGLE_CERT.GRF,'));
-      expect(zpl, contains('^XGGOOGLE_CERT.GRF,1,1^FS'));
-      expect(zpl.indexOf('~DG'), lessThan(zpl.indexOf('^XA')));
-      expect(zpl.indexOf('^XG'), greaterThan(zpl.indexOf('^XA')));
-      expect(zpl.indexOf('^XG'), lessThan(zpl.indexOf('^XZ')));
-    });
+        expect(zpl, contains('~DGGOOGLE_CERT.GRF,'));
+        expect(zpl, contains('^XGGOOGLE_CERT.GRF,1,1^FS'));
+        expect(zpl.indexOf('~DG'), lessThan(zpl.indexOf('^XA')));
+        expect(zpl.indexOf('^XG'), greaterThan(zpl.indexOf('^XA')));
+        expect(zpl.indexOf('^XG'), lessThan(zpl.indexOf('^XZ')));
+      },
+    );
 
     test('dithering algorithms produce distinct hex bodies', () async {
       final imageBytes = await loadImageBytes('orioninnovation_logo.jpeg');
@@ -266,30 +268,33 @@ void main() {
   });
 
   group('ZplFontUpload Tests', () {
-    test('should include a font upload and use it in a ZplText command', () async {
-      final font = ZplFontUpload(
-        identifier: 'R',
-        fontBytes: Uint8List.fromList([0xDE, 0xAD, 0xBE, 0xEF]),
-      );
+    test(
+      'should include a font upload and use it in a ZplText command',
+      () async {
+        final font = ZplFontUpload(
+          identifier: 'R',
+          fontBytes: Uint8List.fromList([0xDE, 0xAD, 0xBE, 0xEF]),
+        );
 
-      final commands = <ZplCommand>[
-        font,
-        ZplText(
-          x: 50,
-          y: 50,
-          text: 'This is Roboto Font',
-          customFont: font,
-          fontHeight: 40,
-        ),
-      ];
+        final commands = <ZplCommand>[
+          font,
+          ZplText(
+            x: 50,
+            y: 50,
+            text: 'This is Roboto Font',
+            customFont: font,
+            fontHeight: 40,
+          ),
+        ];
 
-      final zpl = await ZplGenerator(commands: commands).build();
+        final zpl = await ZplGenerator(commands: commands).build();
 
-      expect(zpl, contains('^XA'));
-      expect(zpl, contains('^XZ'));
-      expect(zpl, contains('^FDThis is Roboto Font^FS'));
-      expect(zpl, contains('~DYE:RFONT.TTF,B,T,4,,DEADBEEF'));
-    });
+        expect(zpl, contains('^XA'));
+        expect(zpl, contains('^XZ'));
+        expect(zpl, contains('^FDThis is Roboto Font^FS'));
+        expect(zpl, contains('~DYE:RFONT.TTF,B,T,4,,DEADBEEF'));
+      },
+    );
   });
 
   group('ZplGenerator Tests', () {

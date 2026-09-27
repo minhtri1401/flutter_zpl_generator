@@ -3,8 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 
-Uint8List _png(int w, int h) =>
-    img.encodePng(img.Image(width: w, height: h));
+Uint8List _png(int w, int h) => img.encodePng(img.Image(width: w, height: h));
 
 void main() {
   group('Bug 2 regression — post-resize getters', () {
@@ -14,12 +13,14 @@ void main() {
       expect(d.height, 1280);
     });
 
-    test('ZplImageDownload width reflects aspect-scaled resize from targetHeight',
-        () {
-      final d = ZplImageDownload(image: _png(1080, 2400), targetHeight: 1000);
-      expect(d.width, 450);
-      expect(d.height, 1000);
-    });
+    test(
+      'ZplImageDownload width reflects aspect-scaled resize from targetHeight',
+      () {
+        final d = ZplImageDownload(image: _png(1080, 2400), targetHeight: 1000);
+        expect(d.width, 450);
+        expect(d.height, 1000);
+      },
+    );
 
     test('no resize → original dimensions', () {
       final d = ZplImageDownload(image: _png(200, 100));

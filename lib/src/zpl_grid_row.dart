@@ -176,7 +176,6 @@ class ZplGridRow extends ZplCommand {
       );
     }
 
-
     if (child is ZplBox) {
       return ZplBox(
         x: newX,

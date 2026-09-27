@@ -3,8 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 
-Uint8List _png(int w, int h) =>
-    img.encodePng(img.Image(width: w, height: h));
+Uint8List _png(int w, int h) => img.encodePng(img.Image(width: w, height: h));
 
 void main() {
   group('ZplGenerator.autoLabelLengthFromFirstImage (Bug 3)', () {
@@ -45,17 +44,19 @@ void main() {
       expect(zpl, isNot(contains('^LL320')));
     });
 
-    test('flag true + aspect-scaled image → ^LL equals post-resize height',
-        () async {
-      final gen = ZplGenerator(
-        autoLabelLengthFromFirstImage: true,
-        commands: [
-          ZplImageDownload(image: _png(1080, 2400), targetWidth: 576),
-        ],
-      );
-      final zpl = await gen.build();
-      expect(zpl, contains('^LL1280'));
-    });
+    test(
+      'flag true + aspect-scaled image → ^LL equals post-resize height',
+      () async {
+        final gen = ZplGenerator(
+          autoLabelLengthFromFirstImage: true,
+          commands: [
+            ZplImageDownload(image: _png(1080, 2400), targetWidth: 576),
+          ],
+        );
+        final zpl = await gen.build();
+        expect(zpl, contains('^LL1280'));
+      },
+    );
 
     test('^LL is inside ^XA…^XZ, not in the control phase', () async {
       final gen = ZplGenerator(

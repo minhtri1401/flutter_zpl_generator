@@ -3,8 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 
-Uint8List _png(int w, int h) =>
-    img.encodePng(img.Image(width: w, height: h));
+Uint8List _png(int w, int h) => img.encodePng(img.Image(width: w, height: h));
 
 void main() {
   group('ZplGenerator two-phase build (Bug 1)', () {
@@ -33,31 +32,32 @@ void main() {
       expect(zpl.indexOf('~DY'), lessThan(zpl.indexOf('^XA')));
     });
 
-    test('multiple control commands preserve input order, all pre-^XA', () async {
-      final fontA = ZplFontUpload(
-        identifier: 'A',
-        fontBytes: Uint8List.fromList([1]),
-      );
-      final dl = ZplImageDownload(image: _png(8, 8), graphicName: 'G1');
-      final fontB = ZplFontUpload(
-        identifier: 'B',
-        fontBytes: Uint8List.fromList([2]),
-      );
-      final gen = ZplGenerator(commands: [fontA, dl, fontB]);
-      final zpl = await gen.build();
-      final idxA = zpl.indexOf('~DYE:AFONT.TTF');
-      final idxDg = zpl.indexOf('~DGG1');
-      final idxB = zpl.indexOf('~DYE:BFONT.TTF');
-      final idxXa = zpl.indexOf('^XA');
-      expect(idxA, lessThan(idxDg));
-      expect(idxDg, lessThan(idxB));
-      expect(idxB, lessThan(idxXa));
-    });
+    test(
+      'multiple control commands preserve input order, all pre-^XA',
+      () async {
+        final fontA = ZplFontUpload(
+          identifier: 'A',
+          fontBytes: Uint8List.fromList([1]),
+        );
+        final dl = ZplImageDownload(image: _png(8, 8), graphicName: 'G1');
+        final fontB = ZplFontUpload(
+          identifier: 'B',
+          fontBytes: Uint8List.fromList([2]),
+        );
+        final gen = ZplGenerator(commands: [fontA, dl, fontB]);
+        final zpl = await gen.build();
+        final idxA = zpl.indexOf('~DYE:AFONT.TTF');
+        final idxDg = zpl.indexOf('~DGG1');
+        final idxB = zpl.indexOf('~DYE:BFONT.TTF');
+        final idxXa = zpl.indexOf('^XA');
+        expect(idxA, lessThan(idxDg));
+        expect(idxDg, lessThan(idxB));
+        expect(idxB, lessThan(idxXa));
+      },
+    );
 
     test('format-only commands still produce a valid ^XA…^XZ block', () async {
-      final gen = ZplGenerator(
-        commands: [ZplText(x: 0, y: 0, text: 'Hi')],
-      );
+      final gen = ZplGenerator(commands: [ZplText(x: 0, y: 0, text: 'Hi')]);
       final zpl = await gen.build();
       expect(zpl, contains('^XA'));
       expect(zpl, contains('^FDHi^FS'));

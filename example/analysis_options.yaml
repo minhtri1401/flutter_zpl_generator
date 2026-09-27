@@ -3,6 +3,9 @@ analyzer:
     - android/**
     - ios/**
     - macos/**
+    - web/**
+    - windows/**
+    - linux/**
 include: ../analysis_options.yaml
 
 linter:

@@ -108,7 +108,11 @@ void drawZplText(Canvas canvas, ZplText text, ZplConfiguration config) {
     blockWidth = labelWidth - text.paddingLeft - text.paddingRight;
     originX = 0;
   } else if (text.maxLines > 1) {
-    blockWidth = labelWidth - text.x - text.paddingRight;
+    // Mirrors ZplText._wrapWidth: a container slot (maxWidth) already
+    // starts at x, so only the label width is measured from the origin.
+    blockWidth = text.maxWidth != null
+        ? (text.maxWidth! - text.paddingRight).toDouble()
+        : labelWidth - text.x - text.paddingRight;
   }
 
   if (blockWidth != null) {

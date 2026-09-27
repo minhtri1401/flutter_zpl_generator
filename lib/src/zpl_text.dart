@@ -112,8 +112,7 @@ class ZplText extends ZplCommand {
         sb.writeln('^FO$x,$y');
         _writeFontCommand(sb);
         if (maxLines > 1) {
-          final wrapWidth = effectiveWidth - x - paddingRight;
-          sb.writeln('^FB$wrapWidth,$maxLines,$lineSpacing,L,0');
+          sb.writeln('^FB${_wrapWidth(x, effectiveWidth)},$maxLines,$lineSpacing,L,0');
         }
         if (reversePrint) sb.writeln('^FR');
         _writeDataCommand(sb);
@@ -124,14 +123,21 @@ class ZplText extends ZplCommand {
       sb.writeln('^FO$alignedX,$y');
       _writeFontCommand(sb);
       if (maxLines > 1) {
-        final wrapWidth = effectiveWidth - alignedX - paddingRight;
-        sb.writeln('^FB$wrapWidth,$maxLines,$lineSpacing,L,0');
+        sb.writeln('^FB${_wrapWidth(alignedX, effectiveWidth)},$maxLines,$lineSpacing,L,0');
       }
       if (reversePrint) sb.writeln('^FR');
       _writeDataCommand(sb);
     }
 
     return sb.toString();
+  }
+
+  /// `^FB` width for left-aligned wrapping. [maxWidth] is the width of the
+  /// slot the text sits in (its origin is already [originX]), so it must not
+  /// be reduced by the origin again; only the label width is measured from 0.
+  int _wrapWidth(int originX, int labelWidth) {
+    if (maxWidth != null) return maxWidth! - paddingRight;
+    return labelWidth - originX - paddingRight;
   }
 
   /// Writes the font selection command (^A) to the buffer.

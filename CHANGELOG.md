@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.1] - 2026-09-27
+
+### Fixed
+- `ZplText`: when `maxWidth` is set together with `maxLines > 1` and a
+  non-zero `x`, the left-aligned `^FB` width was `maxWidth - x` (negative for
+  offset children inside containers). It is now `maxWidth - paddingRight`,
+  matching the justified branch. Output changes for affected labels.
+- `ZplNativePreview` mirrors the same wrap width for wrapped text inside
+  containers, so the preview and the printed `^FB` block agree.
+
+### Changed
+
+- Example app gains web, Windows and Linux runners, matching the package's
+  declared platform support (pub.dev tags all six platforms and wasm-ready).
+
 ## [2.1.0] - 2026-09-27
 
 Toolchain refresh, package hygiene, Z64/B64 graphic compression and seven

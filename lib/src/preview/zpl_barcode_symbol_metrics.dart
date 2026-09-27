@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:barcode/barcode.dart';
 import 'package:qr/qr.dart';
 
@@ -168,7 +170,32 @@ ZplBarcodeSymbolMetrics _measure1D(ZplBarcode b, List<BarcodeBar> bars) {
   );
 }
 
+/// PDF417 geometry from the `^B7` parameters. `package:barcode` picks its
+/// own column/row split from the requested aspect ratio, so the printed
+/// size is derived from the ZPL parameters instead: 17 modules per data
+/// column plus start/stop/row-indicator columns (69), rows = codewords /
+/// columns. Codeword count is estimated from the payload (text compaction
+/// ~0.6 codeword per character, numeric ~0.35, plus the length descriptor)
+/// and the error-correction codewords 2^(s+1). Verified on Labelary:
+/// "Stacked 2D payload" at c=4, s=2 → 5 rows; auto columns, s=0 → 1 x 14.
+ZplBarcodeSymbolMetrics _measurePdf417(ZplBarcode b) {
+  final len = b.data.length;
+  final numeric = RegExp(r'^[0-9]+$').hasMatch(b.data);
+  final dataCodewords = (len * (numeric ? 0.35 : 0.6)).ceil() + 1;
+  final total = dataCodewords + (1 << (b.pdf417SecurityLevel + 1));
+  final cols = b.pdf417Columns ?? (math.sqrt(total) / 3).round().clamp(1, 30);
+  final rows = (total / cols).ceil().clamp(3, 90);
+  return ZplBarcodeSymbolMetrics(
+    barUnits: const [],
+    modulesWide: (17 * cols + 69).toDouble(),
+    modulesHigh: rows,
+    moduleWidth: (b.moduleWidth ?? 2).toDouble(),
+    moduleHeight: b.height.toDouble(),
+  );
+}
+
 ZplBarcodeSymbolMetrics _measure2D(ZplBarcode b, List<BarcodeBar> bars) {
+  if (b.type == ZplBarcodeType.pdf417) return _measurePdf417(b);
   final mx = bars.map((e) => e.width).reduce((a, c) => a < c ? a : c);
   final my = bars.map((e) => e.height).reduce((a, c) => a < c ? a : c);
   final mw = (b.moduleWidth ?? 2).toDouble();

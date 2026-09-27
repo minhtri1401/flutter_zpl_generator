@@ -206,9 +206,10 @@ mixin ImagePayloadBuilder {
         sb.write(ch);
         count -= multiples * 20;
       }
-      // Emit remaining 2..19 via G..Y (consumes one data char).
+      // Emit remaining 2..19 via H..Y (G = 1 repeat, H = 2, …, Y = 19 per
+      // the ZPL II guide; verified on Labelary: "GF" prints one F nibble).
       if (count >= 2) {
-        sb.write(String.fromCharCode('G'.codeUnitAt(0) - 2 + count));
+        sb.write(String.fromCharCode('G'.codeUnitAt(0) - 1 + count));
         sb.write(ch);
         count = 0;
       }
@@ -220,15 +221,17 @@ mixin ImagePayloadBuilder {
       i += original;
     }
     String result = sb.toString();
-    if (result.endsWith('0') && result.length >= 2) {
-      final lastNonZero = result.lastIndexOf(RegExp(r'[1-9A-Ea-z]'));
-      if (lastNonZero != -1 && lastNonZero < result.length - 2) {
-        final m = RegExp(r'[g-zG-Y]*0+$').firstMatch(result);
-        if (m != null) result = '${result.substring(0, m.start)},';
+    // A trailing run of zeros or ones becomes ',' / '!' (fill the rest of
+    // the row), whatever its length; the row is never entirely one value
+    // here because those cases returned above.
+    final zeroTail = RegExp(r'[g-zG-Y]*0+$').firstMatch(result);
+    if (zeroTail != null && zeroTail.start > 0) {
+      result = '${result.substring(0, zeroTail.start)},';
+    } else {
+      final oneTail = RegExp(r'[g-zG-Y]*F+$').firstMatch(result);
+      if (oneTail != null && oneTail.start > 0) {
+        result = '${result.substring(0, oneTail.start)}!';
       }
-    } else if (result.endsWith('F') && result.length >= 2) {
-      final m = RegExp(r'[g-zG-Y]*F+$').firstMatch(result);
-      if (m != null) result = '${result.substring(0, m.start)}!';
     }
     return result;
   }

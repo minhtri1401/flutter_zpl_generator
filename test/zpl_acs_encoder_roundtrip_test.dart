@@ -27,7 +27,7 @@ String acsDecode(String encoded, int rowBytes) {
       final code = ch.codeUnitAt(0);
       if (code >= 'G'.codeUnitAt(0) && code <= 'Y'.codeUnitAt(0)) {
         if (!sawRepeat) runLen = 0;
-        runLen += code - 'G'.codeUnitAt(0) + 2;
+        runLen += code - 'G'.codeUnitAt(0) + 1; // G = 1 … Y = 19
         sawRepeat = true;
         i++;
       } else if (code >= 'g'.codeUnitAt(0) && code <= 'z'.codeUnitAt(0)) {

@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.2] - 2026-09-27
+
+### Fixed
+
+- **ACS image compression produced corrupted graphics on the printer.**
+  The run-length letters were off by one (the encoder wrote `G` for a run
+  of 2, but `G` means 1 in ZPL, `H` is 2, … `Y` is 19), so every 2–19
+  nibble run came out one nibble short and rows drifted right. Affected
+  `ZplImageInline` (ACS by default) since 1.3.0 and `ZplImageDownload`
+  with `compression: acs`. Verified against Labelary: ACS output is now
+  pixel-identical to the raw-hex output. `none`, `b64` and `z64` were
+  never affected.
+- Native preview: UPC-A/UPC-E print their system and check digits outside
+  the bars (only EAN-13 drops its leading digit); GS1-128 interpretation
+  line keeps the `(AI)` parentheses; PDF417 size now follows
+  `pdf417Columns` and `pdf417SecurityLevel` instead of the encoder's own
+  aspect-driven layout, so it no longer overflows neighbouring fields.
+
 ## [2.1.1] - 2026-09-27
 
 ### Fixed

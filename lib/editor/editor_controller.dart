@@ -9,6 +9,7 @@ import 'editor_history.dart';
 import 'model/element_json_codec.dart';
 import 'model/label_document.dart';
 import 'model/label_element.dart';
+import 'model/label_preset.dart';
 
 /// Owns the editor state: document, selection and in-progress gestures.
 ///
@@ -31,6 +32,7 @@ class EditorController extends ChangeNotifier {
   _DragSession? _drag;
   final EditorHistory _history = EditorHistory();
   Object? _lastCoalesceKey;
+  EditorUnits _units = EditorUnits.dots;
 
   EditorController({
     LabelDocument? document,
@@ -47,6 +49,20 @@ class EditorController extends ChangeNotifier {
   bool get isDragging => _drag != null;
   bool get canUndo => _history.canUndo;
   bool get canRedo => _history.canRedo;
+
+  /// Display units for inspector helper text and rulers (not persisted).
+  EditorUnits get units => _units;
+  set units(EditorUnits value) {
+    if (value == _units) return;
+    _units = value;
+    notifyListeners();
+  }
+
+  /// Dots per millimetre from the label's print density (8 when unset).
+  double get dpmm => dpmmFor(config.printDensity);
+
+  /// [dots] expressed in the current display units, e.g. "12.7 mm".
+  String formatDots(int dots) => _units.format(dots, dpmm);
 
   /// Records the current document before a user-visible mutation.
   /// Consecutive commits sharing a non-null [coalesce] key (typing in one

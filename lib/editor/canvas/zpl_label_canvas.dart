@@ -5,6 +5,7 @@ import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 import '../editor_controller.dart';
 import '../model/label_document.dart';
 import 'grid_overlay_painter.dart';
+import 'ruler_overlay_painter.dart';
 import 'selection_overlay_painter.dart';
 
 /// Zoomable, pannable label canvas with selection, drag and resize.
@@ -161,6 +162,15 @@ class _ZplLabelCanvasState extends State<ZplLabelCanvas> {
                         painter: GridOverlayPainter(step: c.snapGrid),
                       ),
                     ),
+                  IgnorePointer(
+                    child: CustomPaint(
+                      painter: RulerOverlayPainter(
+                        dpmm: c.dpmm,
+                        units: c.units,
+                        zoom: _zoom,
+                      ),
+                    ),
+                  ),
                   IgnorePointer(
                     child: CustomPaint(
                       painter: SelectionOverlayPainter(

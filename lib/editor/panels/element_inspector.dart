@@ -6,6 +6,7 @@ import '../model/box_element.dart';
 import '../model/circle_element.dart';
 import '../model/image_element.dart';
 import '../model/label_element.dart';
+import '../model/label_preset.dart';
 import '../model/line_element.dart';
 import '../model/text_element.dart';
 import 'inspector_fields.dart';
@@ -48,8 +49,8 @@ class ElementInspector extends StatelessWidget {
                     Row(
                       spacing: 8,
                       children: [
-                        Expanded(child: IntField(label: 'X', value: e.x, min: 0, onChanged: (v) => controller.updateSelected((el) => el.moveTo(v, el.y), coalesce: 'inspector:${e.id}'))),
-                        Expanded(child: IntField(label: 'Y', value: e.y, min: 0, onChanged: (v) => controller.updateSelected((el) => el.moveTo(el.x, v), coalesce: 'inspector:${e.id}'))),
+                        Expanded(child: IntField(label: 'X', value: e.x, min: 0, helperText: _unitHint(e.x), onChanged: (v) => controller.updateSelected((el) => el.moveTo(v, el.y), coalesce: 'inspector:${e.id}'))),
+                        Expanded(child: IntField(label: 'Y', value: e.y, min: 0, helperText: _unitHint(e.y), onChanged: (v) => controller.updateSelected((el) => el.moveTo(el.x, v), coalesce: 'inspector:${e.id}'))),
                       ],
                     ),
                     _fieldsFor(e),
@@ -68,6 +69,10 @@ class ElementInspector extends StatelessWidget {
       },
     );
   }
+
+  /// Helper text in mm/in, or none when the display unit is dots.
+  String? _unitHint(int dots) =>
+      controller.units == EditorUnits.dots ? null : controller.formatDots(dots);
 
   Widget _fieldsFor(LabelElement e) {
     // Edits to one element from the inspector merge into a single undo step.

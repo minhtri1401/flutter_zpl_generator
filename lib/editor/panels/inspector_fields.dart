@@ -9,6 +9,9 @@ class IntField extends StatefulWidget {
   final int? min;
   final int? max;
 
+  /// Optional text under the field, e.g. the value in mm.
+  final String? helperText;
+
   const IntField({
     super.key,
     required this.label,
@@ -16,6 +19,7 @@ class IntField extends StatefulWidget {
     required this.onChanged,
     this.min,
     this.max,
+    this.helperText,
   });
 
   @override
@@ -60,7 +64,11 @@ class _IntFieldState extends State<IntField> {
       controller: _text,
       focusNode: _focus,
       keyboardType: const TextInputType.numberWithOptions(signed: true),
-      decoration: InputDecoration(labelText: widget.label, isDense: true),
+      decoration: InputDecoration(
+        labelText: widget.label,
+        helperText: widget.helperText,
+        isDense: true,
+      ),
       onChanged: _submit,
     );
   }

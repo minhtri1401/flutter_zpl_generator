@@ -11,8 +11,7 @@ enum ResizeHandle {
   bottomLeft,
   left;
 
-  bool get movesLeft =>
-      this == topLeft || this == left || this == bottomLeft;
+  bool get movesLeft => this == topLeft || this == left || this == bottomLeft;
   bool get movesRight =>
       this == topRight || this == right || this == bottomRight;
   bool get movesTop => this == topLeft || this == top || this == topRight;
@@ -21,15 +20,15 @@ enum ResizeHandle {
 
   /// Anchor point of this handle on [rect].
   Offset anchor(Rect rect) => switch (this) {
-        topLeft => rect.topLeft,
-        top => rect.topCenter,
-        topRight => rect.topRight,
-        right => rect.centerRight,
-        bottomRight => rect.bottomRight,
-        bottom => rect.bottomCenter,
-        bottomLeft => rect.bottomLeft,
-        left => rect.centerLeft,
-      };
+    topLeft => rect.topLeft,
+    top => rect.topCenter,
+    topRight => rect.topRight,
+    right => rect.centerRight,
+    bottomRight => rect.bottomRight,
+    bottom => rect.bottomCenter,
+    bottomLeft => rect.bottomLeft,
+    left => rect.centerLeft,
+  };
 
   /// Applies a drag [delta] to [rect], keeping at least [minSize] on each axis.
   Rect apply(Rect rect, Offset delta, {double minSize = 4}) {
@@ -37,10 +36,18 @@ enum ResizeHandle {
     var top = rect.top;
     var right = rect.right;
     var bottom = rect.bottom;
-    if (movesLeft) left = (left + delta.dx).clamp(double.negativeInfinity, right - minSize);
-    if (movesRight) right = (right + delta.dx).clamp(left + minSize, double.infinity);
-    if (movesTop) top = (top + delta.dy).clamp(double.negativeInfinity, bottom - minSize);
-    if (movesBottom) bottom = (bottom + delta.dy).clamp(top + minSize, double.infinity);
+    if (movesLeft) {
+      left = (left + delta.dx).clamp(double.negativeInfinity, right - minSize);
+    }
+    if (movesRight) {
+      right = (right + delta.dx).clamp(left + minSize, double.infinity);
+    }
+    if (movesTop) {
+      top = (top + delta.dy).clamp(double.negativeInfinity, bottom - minSize);
+    }
+    if (movesBottom) {
+      bottom = (bottom + delta.dy).clamp(top + minSize, double.infinity);
+    }
     return Rect.fromLTRB(left, top, right, bottom);
   }
 
@@ -48,8 +55,11 @@ enum ResizeHandle {
   /// its anchor) contains [point], or null.
   static ResizeHandle? hitTest(Rect rect, Offset point, double size) {
     for (final h in values) {
-      if (Rect.fromCenter(center: h.anchor(rect), width: size, height: size)
-          .contains(point)) {
+      if (Rect.fromCenter(
+        center: h.anchor(rect),
+        width: size,
+        height: size,
+      ).contains(point)) {
         return h;
       }
     }

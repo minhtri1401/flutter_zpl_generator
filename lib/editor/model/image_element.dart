@@ -59,42 +59,42 @@ class ImageElement extends LabelElement {
 
   @override
   ZplImageInline toCommand() => _commandCache[this] ??= ZplImageInline(
-        x: x,
-        y: y,
-        image: image,
-        targetWidth: targetWidth,
-        targetHeight: targetHeight,
-        maintainAspect: maintainAspect,
-        ditheringAlgorithm: ditheringAlgorithm,
-      );
+    x: x,
+    y: y,
+    image: image,
+    targetWidth: targetWidth,
+    targetHeight: targetHeight,
+    maintainAspect: maintainAspect,
+    ditheringAlgorithm: ditheringAlgorithm,
+  );
 
   @override
   Rect bounds(ZplConfiguration config) => Rect.fromLTWH(
-        x.toDouble(),
-        y.toDouble(),
-        targetWidth.toDouble(),
-        targetHeight.toDouble(),
-      );
+    x.toDouble(),
+    y.toDouble(),
+    targetWidth.toDouble(),
+    targetHeight.toDouble(),
+  );
 
   @override
   ImageElement moveTo(int x, int y) => copyWith(x: x, y: y);
 
   @override
   ImageElement resizeTo(int width, int height) => copyWith(
-        targetWidth: width.clamp(1, 32000),
-        targetHeight: height.clamp(1, 32000),
-      );
+    targetWidth: width.clamp(1, 32000),
+    targetHeight: height.clamp(1, 32000),
+  );
 
   @override
   Map<String, dynamic> toJson() => {
-        'x': x,
-        'y': y,
-        'image': base64Encode(image),
-        'targetWidth': targetWidth,
-        'targetHeight': targetHeight,
-        'maintainAspect': maintainAspect,
-        'ditheringAlgorithm': ditheringAlgorithm.name,
-      };
+    'x': x,
+    'y': y,
+    'image': base64Encode(image),
+    'targetWidth': targetWidth,
+    'targetHeight': targetHeight,
+    'maintainAspect': maintainAspect,
+    'ditheringAlgorithm': ditheringAlgorithm.name,
+  };
 
   factory ImageElement.fromJson(String id, Map<String, dynamic> json) {
     final raw = json['image'];

@@ -12,8 +12,10 @@ class LabelDocument {
   static const int schemaVersion = 1;
 
   /// 4x6" label at 203 dpi.
-  static const ZplConfiguration defaultConfig =
-      ZplConfiguration(printWidth: 812, labelLength: 1218);
+  static const ZplConfiguration defaultConfig = ZplConfiguration(
+    printWidth: 812,
+    labelLength: 1218,
+  );
 
   final ZplConfiguration config;
   final List<LabelElement> elements;
@@ -95,18 +97,18 @@ class LabelDocument {
 
   /// Bridges to the package: every element becomes its [ZplCommand].
   ZplGenerator toGenerator() => ZplGenerator(
-        config: config,
-        commands: elements.map((e) => e.toCommand()).toList(),
-      );
+    config: config,
+    commands: elements.map((e) => e.toCommand()).toList(),
+  );
 
   Future<String> buildZpl() => toGenerator().build();
 
   Map<String, dynamic> toJson() => {
-        'version': schemaVersion,
-        'config': _configToJson(config),
-        'elements': elements.map(ElementJsonCodec.encode).toList(),
-        if (sampleData.isNotEmpty) 'sampleData': sampleData,
-      };
+    'version': schemaVersion,
+    'config': _configToJson(config),
+    'elements': elements.map(ElementJsonCodec.encode).toList(),
+    if (sampleData.isNotEmpty) 'sampleData': sampleData,
+  };
 
   factory LabelDocument.fromJson(Map<String, dynamic> json) {
     final rawElements = json['elements'];
@@ -140,18 +142,18 @@ class LabelDocument {
   }
 
   static Map<String, dynamic> _configToJson(ZplConfiguration c) => {
-        'printWidth': c.printWidth,
-        'labelLength': c.labelLength,
-        'darkness': c.darkness,
-        'printSpeed': c.printSpeed,
-        'labelHomeX': c.labelHomeX,
-        'labelHomeY': c.labelHomeY,
-        'printDensity': c.printDensity?.name,
-        'printMode': c.printMode?.name,
-        'mediaType': c.mediaType?.name,
-        'printOrientation': c.printOrientation?.name,
-        'internationalEncoding': c.internationalEncoding,
-      };
+    'printWidth': c.printWidth,
+    'labelLength': c.labelLength,
+    'darkness': c.darkness,
+    'printSpeed': c.printSpeed,
+    'labelHomeX': c.labelHomeX,
+    'labelHomeY': c.labelHomeY,
+    'printDensity': c.printDensity?.name,
+    'printMode': c.printMode?.name,
+    'mediaType': c.mediaType?.name,
+    'printOrientation': c.printOrientation?.name,
+    'internationalEncoding': c.internationalEncoding,
+  };
 
   static ZplConfiguration _configFromJson(Map<String, dynamic> j) {
     T? optEnum<T extends Enum>(List<T> values, Object? raw) {
@@ -161,6 +163,7 @@ class LabelDocument {
       }
       return null;
     }
+
     return ZplConfiguration(
       printWidth: intFromJson(j['printWidth']),
       labelLength: intFromJson(j['labelLength']),
@@ -171,8 +174,10 @@ class LabelDocument {
       printDensity: optEnum(ZplPrintDensity.values, j['printDensity']),
       printMode: optEnum(ZplPrintMode.values, j['printMode']),
       mediaType: optEnum(ZplMediaType.values, j['mediaType']),
-      printOrientation:
-          optEnum(ZplPrintOrientation.values, j['printOrientation']),
+      printOrientation: optEnum(
+        ZplPrintOrientation.values,
+        j['printOrientation'],
+      ),
       internationalEncoding: intFromJson(j['internationalEncoding']),
     );
   }

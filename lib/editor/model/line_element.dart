@@ -41,22 +41,21 @@ class LineElement extends LabelElement {
 
   @override
   ZplSeparator toCommand() => ZplSeparator(
-        x: x,
-        y: y,
-        type: ZplSeparatorType.box,
-        thickness: thickness.clamp(1, 32000),
-        length: length.clamp(1, 32000),
-        orientation:
-            vertical ? ZplOrientation.rotated90 : ZplOrientation.normal,
-      );
+    x: x,
+    y: y,
+    type: ZplSeparatorType.box,
+    thickness: thickness.clamp(1, 32000),
+    length: length.clamp(1, 32000),
+    orientation: vertical ? ZplOrientation.rotated90 : ZplOrientation.normal,
+  );
 
   @override
   Rect bounds(ZplConfiguration config) => Rect.fromLTWH(
-        x.toDouble(),
-        y.toDouble(),
-        (vertical ? thickness : length).toDouble(),
-        (vertical ? length : thickness).toDouble(),
-      );
+    x.toDouble(),
+    y.toDouble(),
+    (vertical ? thickness : length).toDouble(),
+    (vertical ? length : thickness).toDouble(),
+  );
 
   @override
   LineElement moveTo(int x, int y) => copyWith(x: x, y: y);
@@ -64,18 +63,18 @@ class LineElement extends LabelElement {
   /// Length follows the axis of the line; thickness follows the other axis.
   @override
   LineElement resizeTo(int width, int height) => copyWith(
-        length: (vertical ? height : width).clamp(1, 32000),
-        thickness: (vertical ? width : height).clamp(1, 32000),
-      );
+    length: (vertical ? height : width).clamp(1, 32000),
+    thickness: (vertical ? width : height).clamp(1, 32000),
+  );
 
   @override
   Map<String, dynamic> toJson() => {
-        'x': x,
-        'y': y,
-        'length': length,
-        'thickness': thickness,
-        'vertical': vertical,
-      };
+    'x': x,
+    'y': y,
+    'length': length,
+    'thickness': thickness,
+    'vertical': vertical,
+  };
 
   factory LineElement.fromJson(String id, Map<String, dynamic> json) {
     return LineElement(

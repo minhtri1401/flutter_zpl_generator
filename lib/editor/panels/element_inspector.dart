@@ -39,23 +39,49 @@ class ElementInspector extends StatelessWidget {
       builder: (context, _) {
         final e = controller.selected;
         final body = e == null
-              ? LabelConfigFields(controller: controller)
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: 8,
-                  children: [
-                    Text(e.typeName.toUpperCase(),
-                        style: Theme.of(context).textTheme.labelLarge),
-                    Row(
-                      spacing: 8,
-                      children: [
-                        Expanded(child: IntField(label: 'X', value: e.x, min: 0, helperText: _unitHint(e.x), onChanged: (v) => controller.updateSelected((el) => el.moveTo(v, el.y), coalesce: 'inspector:${e.id}'))),
-                        Expanded(child: IntField(label: 'Y', value: e.y, min: 0, helperText: _unitHint(e.y), onChanged: (v) => controller.updateSelected((el) => el.moveTo(el.x, v), coalesce: 'inspector:${e.id}'))),
-                      ],
-                    ),
-                    _fieldsFor(e),
-                  ],
-                );
+            ? LabelConfigFields(controller: controller)
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: 8,
+                children: [
+                  Text(
+                    controller.hasMultipleSelected
+                        ? '${controller.selectedIds.length} SELECTED · editing ${e.typeName}'
+                        : e.typeName.toUpperCase(),
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
+                  Row(
+                    spacing: 8,
+                    children: [
+                      Expanded(
+                        child: IntField(
+                          label: 'X',
+                          value: e.x,
+                          min: 0,
+                          helperText: _unitHint(e.x),
+                          onChanged: (v) => controller.updateSelected(
+                            (el) => el.moveTo(v, el.y),
+                            coalesce: 'inspector:${e.id}',
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: IntField(
+                          label: 'Y',
+                          value: e.y,
+                          min: 0,
+                          helperText: _unitHint(e.y),
+                          onChanged: (v) => controller.updateSelected(
+                            (el) => el.moveTo(el.x, v),
+                            coalesce: 'inspector:${e.id}',
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  _fieldsFor(e),
+                ],
+              );
         return SingleChildScrollView(
           controller: scrollController,
           padding: const EdgeInsets.all(12),
@@ -76,8 +102,10 @@ class ElementInspector extends StatelessWidget {
 
   Widget _fieldsFor(LabelElement e) {
     // Edits to one element from the inspector merge into a single undo step.
-    void apply(LabelElement updated) =>
-        controller.updateSelected((_) => updated, coalesce: 'inspector:${e.id}');
+    void apply(LabelElement updated) => controller.updateSelected(
+      (_) => updated,
+      coalesce: 'inspector:${e.id}',
+    );
     return switch (e) {
       TextElement() => TextInspector(e: e, onChanged: apply),
       BarcodeElement() => BarcodeInspector(e: e, onChanged: apply),

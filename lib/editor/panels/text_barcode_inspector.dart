@@ -19,27 +19,94 @@ class TextInspector extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 8,
       children: [
-        StringField(label: 'Text', value: e.text, maxLines: 3, onChanged: (v) => onChanged(e.copyWith(text: v))),
-        _InsertVariableChip(onInsert: () => onChanged(e.copyWith(text: e.text + LabelVariables.placeholder('var')))),
-        EnumDropdown<ZplFont>(label: 'Font', value: e.font, values: ZplFont.values, onChanged: (v) => onChanged(e.copyWith(font: v))),
+        StringField(
+          label: 'Text',
+          value: e.text,
+          maxLines: 3,
+          onChanged: (v) => onChanged(e.copyWith(text: v)),
+        ),
+        _InsertVariableChip(
+          onInsert: () => onChanged(
+            e.copyWith(text: e.text + LabelVariables.placeholder('var')),
+          ),
+        ),
+        EnumDropdown<ZplFont>(
+          label: 'Font',
+          value: e.font,
+          values: ZplFont.values,
+          onChanged: (v) => onChanged(e.copyWith(font: v)),
+        ),
         Row(
           spacing: 8,
           children: [
-            Expanded(child: IntField(label: 'Font height', value: e.fontHeight, min: 10, max: 1000, onChanged: (v) => onChanged(e.copyWith(fontHeight: v)))),
-            Expanded(child: IntField(label: 'Font width', value: e.fontWidth, min: 10, max: 1000, onChanged: (v) => onChanged(e.copyWith(fontWidth: v)))),
+            Expanded(
+              child: IntField(
+                label: 'Font height',
+                value: e.fontHeight,
+                min: 10,
+                max: 1000,
+                onChanged: (v) => onChanged(e.copyWith(fontHeight: v)),
+              ),
+            ),
+            Expanded(
+              child: IntField(
+                label: 'Font width',
+                value: e.fontWidth,
+                min: 10,
+                max: 1000,
+                onChanged: (v) => onChanged(e.copyWith(fontWidth: v)),
+              ),
+            ),
           ],
         ),
-        EnumDropdown<ZplOrientation>(label: 'Orientation', value: e.orientation, values: ZplOrientation.values, onChanged: (v) => onChanged(e.copyWith(orientation: v))),
-        EnumDropdown<ZplAlignment>(label: 'Alignment', value: e.alignment, values: ZplAlignment.values, nullable: true, onChanged: (v) => onChanged(e.copyWith(alignment: () => v))),
+        EnumDropdown<ZplOrientation>(
+          label: 'Orientation',
+          value: e.orientation,
+          values: ZplOrientation.values,
+          onChanged: (v) => onChanged(e.copyWith(orientation: v)),
+        ),
+        EnumDropdown<ZplAlignment>(
+          label: 'Alignment',
+          value: e.alignment,
+          values: ZplAlignment.values,
+          nullable: true,
+          onChanged: (v) => onChanged(e.copyWith(alignment: () => v)),
+        ),
         Row(
           spacing: 8,
           children: [
-            Expanded(child: IntField(label: 'Max lines', value: e.maxLines, min: 1, max: 99, onChanged: (v) => onChanged(e.copyWith(maxLines: v)))),
-            Expanded(child: IntField(label: 'Line spacing', value: e.lineSpacing, min: 0, max: 500, onChanged: (v) => onChanged(e.copyWith(lineSpacing: v)))),
+            Expanded(
+              child: IntField(
+                label: 'Max lines',
+                value: e.maxLines,
+                min: 1,
+                max: 99,
+                onChanged: (v) => onChanged(e.copyWith(maxLines: v)),
+              ),
+            ),
+            Expanded(
+              child: IntField(
+                label: 'Line spacing',
+                value: e.lineSpacing,
+                min: 0,
+                max: 500,
+                onChanged: (v) => onChanged(e.copyWith(lineSpacing: v)),
+              ),
+            ),
           ],
         ),
-        IntField(label: 'Wrap width (0 = none)', value: e.maxWidth ?? 0, min: 0, onChanged: (v) => onChanged(e.copyWith(maxWidth: () => v == 0 ? null : v))),
-        BoolSwitch(label: 'Reverse print', value: e.reversePrint, onChanged: (v) => onChanged(e.copyWith(reversePrint: v))),
+        IntField(
+          label: 'Wrap width (0 = none)',
+          value: e.maxWidth ?? 0,
+          min: 0,
+          onChanged: (v) =>
+              onChanged(e.copyWith(maxWidth: () => v == 0 ? null : v)),
+        ),
+        BoolSwitch(
+          label: 'Reverse print',
+          value: e.reversePrint,
+          onChanged: (v) => onChanged(e.copyWith(reversePrint: v)),
+        ),
       ],
     );
   }
@@ -58,24 +125,78 @@ class BarcodeInspector extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: 8,
       children: [
-        StringField(label: 'Data', value: e.data, onChanged: (v) => onChanged(e.copyWith(data: v))),
-        _InsertVariableChip(onInsert: () => onChanged(e.copyWith(data: e.data + LabelVariables.placeholder('var')))),
-        EnumDropdown<ZplBarcodeType>(label: 'Symbology', value: e.type, values: ZplBarcodeType.values, onChanged: (v) => onChanged(e.copyWith(type: v))),
-        EnumDropdown<ZplOrientation>(label: 'Orientation', value: e.orientation, values: ZplOrientation.values, onChanged: (v) => onChanged(e.copyWith(orientation: v))),
+        StringField(
+          label: 'Data',
+          value: e.data,
+          onChanged: (v) => onChanged(e.copyWith(data: v)),
+        ),
+        _InsertVariableChip(
+          onInsert: () => onChanged(
+            e.copyWith(data: e.data + LabelVariables.placeholder('var')),
+          ),
+        ),
+        EnumDropdown<ZplBarcodeType>(
+          label: 'Symbology',
+          value: e.type,
+          values: ZplBarcodeType.values,
+          onChanged: (v) => onChanged(e.copyWith(type: v)),
+        ),
+        EnumDropdown<ZplOrientation>(
+          label: 'Orientation',
+          value: e.orientation,
+          values: ZplOrientation.values,
+          onChanged: (v) => onChanged(e.copyWith(orientation: v)),
+        ),
         if (e.isTwoDimensional) ...[
-          IntField(label: 'Magnification', value: e.magnification, min: 1, max: 10, onChanged: (v) => onChanged(e.copyWith(magnification: v))),
+          IntField(
+            label: 'Magnification',
+            value: e.magnification,
+            min: 1,
+            max: 10,
+            onChanged: (v) => onChanged(e.copyWith(magnification: v)),
+          ),
           if (e.type == ZplBarcodeType.qrCode)
-            EnumDropdown<ZplQrErrorCorrection>(label: 'QR error correction', value: e.qrErrorCorrection, values: ZplQrErrorCorrection.values, onChanged: (v) => onChanged(e.copyWith(qrErrorCorrection: v))),
+            EnumDropdown<ZplQrErrorCorrection>(
+              label: 'QR error correction',
+              value: e.qrErrorCorrection,
+              values: ZplQrErrorCorrection.values,
+              onChanged: (v) => onChanged(e.copyWith(qrErrorCorrection: v)),
+            ),
         ] else ...[
           Row(
             spacing: 8,
             children: [
-              Expanded(child: IntField(label: 'Height', value: e.height, min: 1, max: 32000, onChanged: (v) => onChanged(e.copyWith(height: v)))),
-              Expanded(child: IntField(label: 'Module width', value: e.moduleWidth, min: 1, max: 10, onChanged: (v) => onChanged(e.copyWith(moduleWidth: v)))),
+              Expanded(
+                child: IntField(
+                  label: 'Height',
+                  value: e.height,
+                  min: 1,
+                  max: 32000,
+                  onChanged: (v) => onChanged(e.copyWith(height: v)),
+                ),
+              ),
+              Expanded(
+                child: IntField(
+                  label: 'Module width',
+                  value: e.moduleWidth,
+                  min: 1,
+                  max: 10,
+                  onChanged: (v) => onChanged(e.copyWith(moduleWidth: v)),
+                ),
+              ),
             ],
           ),
-          BoolSwitch(label: 'Interpretation line', value: e.printInterpretationLine, onChanged: (v) => onChanged(e.copyWith(printInterpretationLine: v))),
-          BoolSwitch(label: 'Line above', value: e.printInterpretationLineAbove, onChanged: (v) => onChanged(e.copyWith(printInterpretationLineAbove: v))),
+          BoolSwitch(
+            label: 'Interpretation line',
+            value: e.printInterpretationLine,
+            onChanged: (v) => onChanged(e.copyWith(printInterpretationLine: v)),
+          ),
+          BoolSwitch(
+            label: 'Line above',
+            value: e.printInterpretationLineAbove,
+            onChanged: (v) =>
+                onChanged(e.copyWith(printInterpretationLineAbove: v)),
+          ),
         ],
       ],
     );

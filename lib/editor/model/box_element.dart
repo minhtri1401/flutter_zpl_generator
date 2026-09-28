@@ -49,22 +49,22 @@ class BoxElement extends LabelElement {
 
   @override
   ZplBox toCommand() => ZplBox(
-        x: x,
-        y: y,
-        width: width,
-        height: height,
-        borderThickness: borderThickness.clamp(1, 32000),
-        cornerRounding: cornerRounding.clamp(0, 8),
-        reversePrint: reversePrint,
-      );
+    x: x,
+    y: y,
+    width: width,
+    height: height,
+    borderThickness: borderThickness.clamp(1, 32000),
+    cornerRounding: cornerRounding.clamp(0, 8),
+    reversePrint: reversePrint,
+  );
 
   @override
   Rect bounds(ZplConfiguration config) => Rect.fromLTWH(
-        x.toDouble(),
-        y.toDouble(),
-        width.toDouble(),
-        height.toDouble(),
-      );
+    x.toDouble(),
+    y.toDouble(),
+    width.toDouble(),
+    height.toDouble(),
+  );
 
   @override
   BoxElement moveTo(int x, int y) => copyWith(x: x, y: y);
@@ -75,14 +75,14 @@ class BoxElement extends LabelElement {
 
   @override
   Map<String, dynamic> toJson() => {
-        'x': x,
-        'y': y,
-        'width': width,
-        'height': height,
-        'borderThickness': borderThickness,
-        'cornerRounding': cornerRounding,
-        'reversePrint': reversePrint,
-      };
+    'x': x,
+    'y': y,
+    'width': width,
+    'height': height,
+    'borderThickness': borderThickness,
+    'cornerRounding': cornerRounding,
+    'reversePrint': reversePrint,
+  };
 
   factory BoxElement.fromJson(String id, Map<String, dynamic> json) {
     return BoxElement(

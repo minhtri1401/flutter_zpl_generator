@@ -61,47 +61,53 @@ class _ZplLabelEditorState extends State<ZplLabelEditor> {
     final inspector = ElementInspector(controller: c);
 
     return Column(
-        children: [
-          EditorToolbar(controller: c, onPickImage: widget.onPickImage, templateStore: widget.templateStore),
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                if (constraints.maxWidth < 700) {
-                  // Phone: canvas takes the full height; properties live in
-                  // a pull-up sheet that starts collapsed to a handle.
-                  return Stack(
-                    children: [
-                      Positioned.fill(child: canvas),
-                      DraggableScrollableSheet(
-                        initialChildSize: 0.12,
-                        minChildSize: 0.12,
-                        maxChildSize: 0.7,
-                        snap: true,
-                        snapSizes: const [0.12, 0.45, 0.7],
-                        builder: (context, scroll) => Material(
-                          elevation: 8,
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                          clipBehavior: Clip.antiAlias,
-                          child: ElementInspector(
-                            controller: c,
-                            scrollController: scroll,
-                            header: const _SheetHandle(),
-                          ),
+      children: [
+        EditorToolbar(
+          controller: c,
+          onPickImage: widget.onPickImage,
+          templateStore: widget.templateStore,
+        ),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth < 700) {
+                // Phone: canvas takes the full height; properties live in
+                // a pull-up sheet that starts collapsed to a handle.
+                return Stack(
+                  children: [
+                    Positioned.fill(child: canvas),
+                    DraggableScrollableSheet(
+                      initialChildSize: 0.12,
+                      minChildSize: 0.12,
+                      maxChildSize: 0.7,
+                      snap: true,
+                      snapSizes: const [0.12, 0.45, 0.7],
+                      builder: (context, scroll) => Material(
+                        elevation: 8,
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(16),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: ElementInspector(
+                          controller: c,
+                          scrollController: scroll,
+                          header: const _SheetHandle(),
                         ),
                       ),
-                    ],
-                  );
-                }
-                return Row(
-                  children: [
-                    Expanded(child: canvas),
-                    SizedBox(width: 300, child: inspector),
+                    ),
                   ],
                 );
-              },
-            ),
+              }
+              return Row(
+                children: [
+                  Expanded(child: canvas),
+                  SizedBox(width: 300, child: inspector),
+                ],
+              );
+            },
           ),
-        ],
+        ),
+      ],
     );
   }
 }

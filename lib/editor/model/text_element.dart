@@ -84,20 +84,20 @@ class TextElement extends LabelElement {
 
   @override
   ZplText toCommand() => ZplText(
-        x: x,
-        y: y,
-        text: text,
-        font: font,
-        fontAlias: fontAlias,
-        fontHeight: fontHeight,
-        fontWidth: fontWidth,
-        orientation: orientation,
-        alignment: effectiveAlignment,
-        maxLines: maxLines,
-        lineSpacing: lineSpacing,
-        maxWidth: maxWidth,
-        reversePrint: reversePrint,
-      );
+    x: x,
+    y: y,
+    text: text,
+    font: font,
+    fontAlias: fontAlias,
+    fontHeight: fontHeight,
+    fontWidth: fontWidth,
+    orientation: orientation,
+    alignment: effectiveAlignment,
+    maxLines: maxLines,
+    lineSpacing: lineSpacing,
+    maxWidth: maxWidth,
+    reversePrint: reversePrint,
+  );
 
   @override
   Rect bounds(ZplConfiguration config) {
@@ -110,7 +110,10 @@ class TextElement extends LabelElement {
       for (final line in text.split('\n')) {
         if (line.length > longest) longest = line.length;
       }
-      width = (longest * fontWidth * avgCharAdvance).ceilToDouble().clamp(1, 1e6);
+      width = (longest * fontWidth * avgCharAdvance).ceilToDouble().clamp(
+        1,
+        1e6,
+      );
     }
     final lines = maxLines < 1 ? 1 : maxLines;
     final height = (fontHeight * lines + lineSpacing * (lines - 1)).toDouble();
@@ -126,36 +129,46 @@ class TextElement extends LabelElement {
   @override
   TextElement resizeTo(int width, int height) {
     // Handles work in oriented space; font metrics are un-oriented.
-    final unoriented = orientedSize(orientation, width.toDouble(), height.toDouble());
+    final unoriented = orientedSize(
+      orientation,
+      width.toDouble(),
+      height.toDouble(),
+    );
     width = unoriented.width.round();
     height = unoriented.height.round();
     final current = bounds(const ZplConfiguration());
-    final currentUnoriented = orientedSize(orientation, current.width, current.height);
+    final currentUnoriented = orientedSize(
+      orientation,
+      current.width,
+      current.height,
+    );
     final lines = maxLines < 1 ? 1 : maxLines;
     final newHeight = ((height - lineSpacing * (lines - 1)) / lines)
         .round()
         .clamp(10, 1000);
-    final scaleX = currentUnoriented.width > 0 ? width / currentUnoriented.width : 1.0;
+    final scaleX = currentUnoriented.width > 0
+        ? width / currentUnoriented.width
+        : 1.0;
     final newWidth = (fontWidth * scaleX).round().clamp(10, 1000);
     return copyWith(fontHeight: newHeight, fontWidth: newWidth);
   }
 
   @override
   Map<String, dynamic> toJson() => {
-        'x': x,
-        'y': y,
-        'text': text,
-        'font': font.name,
-        'fontAlias': fontAlias,
-        'fontHeight': fontHeight,
-        'fontWidth': fontWidth,
-        'orientation': orientation.name,
-        'alignment': alignment?.name,
-        'maxLines': maxLines,
-        'lineSpacing': lineSpacing,
-        'maxWidth': maxWidth,
-        'reversePrint': reversePrint,
-      };
+    'x': x,
+    'y': y,
+    'text': text,
+    'font': font.name,
+    'fontAlias': fontAlias,
+    'fontHeight': fontHeight,
+    'fontWidth': fontWidth,
+    'orientation': orientation.name,
+    'alignment': alignment?.name,
+    'maxLines': maxLines,
+    'lineSpacing': lineSpacing,
+    'maxWidth': maxWidth,
+    'reversePrint': reversePrint,
+  };
 
   factory TextElement.fromJson(String id, Map<String, dynamic> json) {
     return TextElement(

@@ -81,18 +81,18 @@ class BarcodeElement extends LabelElement {
 
   @override
   ZplBarcode toCommand() => ZplBarcode(
-        x: x,
-        y: y,
-        data: data,
-        type: type,
-        height: height.clamp(1, 32000),
-        orientation: orientation,
-        printInterpretationLine: printInterpretationLine,
-        printInterpretationLineAbove: printInterpretationLineAbove,
-        moduleWidth: moduleWidth.clamp(1, 10),
-        magnification: magnification.clamp(1, 10),
-        qrErrorCorrection: qrErrorCorrection,
-      );
+    x: x,
+    y: y,
+    data: data,
+    type: type,
+    height: height.clamp(1, 32000),
+    orientation: orientation,
+    printInterpretationLine: printInterpretationLine,
+    printInterpretationLineAbove: printInterpretationLineAbove,
+    moduleWidth: moduleWidth.clamp(1, 10),
+    magnification: magnification.clamp(1, 10),
+    qrErrorCorrection: qrErrorCorrection,
+  );
 
   @override
   Rect bounds(ZplConfiguration config) {
@@ -116,7 +116,11 @@ class BarcodeElement extends LabelElement {
   @override
   BarcodeElement resizeTo(int width, int height) {
     // Handles work in oriented space; bar metrics are un-oriented.
-    final unoriented = orientedSize(orientation, width.toDouble(), height.toDouble());
+    final unoriented = orientedSize(
+      orientation,
+      width.toDouble(),
+      height.toDouble(),
+    );
     width = unoriented.width.round();
     height = unoriented.height.round();
     final b = bounds(const ZplConfiguration());
@@ -138,18 +142,18 @@ class BarcodeElement extends LabelElement {
 
   @override
   Map<String, dynamic> toJson() => {
-        'x': x,
-        'y': y,
-        'data': data,
-        'symbology': type.name,
-        'height': height,
-        'orientation': orientation.name,
-        'printInterpretationLine': printInterpretationLine,
-        'printInterpretationLineAbove': printInterpretationLineAbove,
-        'moduleWidth': moduleWidth,
-        'magnification': magnification,
-        'qrErrorCorrection': qrErrorCorrection.name,
-      };
+    'x': x,
+    'y': y,
+    'data': data,
+    'symbology': type.name,
+    'height': height,
+    'orientation': orientation.name,
+    'printInterpretationLine': printInterpretationLine,
+    'printInterpretationLineAbove': printInterpretationLineAbove,
+    'moduleWidth': moduleWidth,
+    'magnification': magnification,
+    'qrErrorCorrection': qrErrorCorrection.name,
+  };
 
   factory BarcodeElement.fromJson(String id, Map<String, dynamic> json) {
     return BarcodeElement(
@@ -168,9 +172,14 @@ class BarcodeElement extends LabelElement {
         json['orientation'],
         ZplOrientation.normal,
       ),
-      printInterpretationLine: boolFromJson(json['printInterpretationLine'], true),
-      printInterpretationLineAbove:
-          boolFromJson(json['printInterpretationLineAbove'], false),
+      printInterpretationLine: boolFromJson(
+        json['printInterpretationLine'],
+        true,
+      ),
+      printInterpretationLineAbove: boolFromJson(
+        json['printInterpretationLineAbove'],
+        false,
+      ),
       moduleWidth: intFromJson(json['moduleWidth']) ?? 2,
       magnification: intFromJson(json['magnification']) ?? 3,
       qrErrorCorrection: enumFromJson(

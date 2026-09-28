@@ -32,13 +32,17 @@ class RulerOverlayPainter extends CustomPainter {
       final x = i * minor;
       final major = i % majorEvery == 0;
       canvas.drawLine(Offset(x, 0), Offset(x, major ? long : short), paint);
-      if (major && i > 0) _label(canvas, '${i ~/ majorEvery}', Offset(x + 2 / zoom, long), style);
+      if (major && i > 0) {
+        _label(canvas, '${i ~/ majorEvery}', Offset(x + 2 / zoom, long), style);
+      }
     }
     for (var i = 0; i * minor <= size.height; i++) {
       final y = i * minor;
       final major = i % majorEvery == 0;
       canvas.drawLine(Offset(0, y), Offset(major ? long : short, y), paint);
-      if (major && i > 0) _label(canvas, '${i ~/ majorEvery}', Offset(long, y + 2 / zoom), style);
+      if (major && i > 0) {
+        _label(canvas, '${i ~/ majorEvery}', Offset(long, y + 2 / zoom), style);
+      }
     }
   }
 

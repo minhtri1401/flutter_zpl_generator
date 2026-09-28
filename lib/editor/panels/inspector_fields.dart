@@ -27,8 +27,9 @@ class IntField extends StatefulWidget {
 }
 
 class _IntFieldState extends State<IntField> {
-  late final TextEditingController _text =
-      TextEditingController(text: widget.value.toString());
+  late final TextEditingController _text = TextEditingController(
+    text: widget.value.toString(),
+  );
   final FocusNode _focus = FocusNode();
 
   @override
@@ -94,8 +95,9 @@ class StringField extends StatefulWidget {
 }
 
 class _StringFieldState extends State<StringField> {
-  late final TextEditingController _text =
-      TextEditingController(text: widget.value);
+  late final TextEditingController _text = TextEditingController(
+    text: widget.value,
+  );
   final FocusNode _focus = FocusNode();
 
   @override

@@ -11,10 +11,10 @@ class ElementJsonCodec {
   const ElementJsonCodec._();
 
   static Map<String, dynamic> encode(LabelElement element) => {
-        'type': element.typeName,
-        'id': element.id,
-        ...element.toJson(),
-      };
+    'type': element.typeName,
+    'id': element.id,
+    ...element.toJson(),
+  };
 
   /// Returns null for unknown types so a document with one bad element
   /// still loads.

@@ -20,7 +20,12 @@ class CircleElement extends LabelElement {
   @override
   String get typeName => 'circle';
 
-  CircleElement copyWith({int? x, int? y, int? diameter, int? borderThickness}) {
+  CircleElement copyWith({
+    int? x,
+    int? y,
+    int? diameter,
+    int? borderThickness,
+  }) {
     return CircleElement(
       id: id,
       x: x ?? this.x,
@@ -32,19 +37,19 @@ class CircleElement extends LabelElement {
 
   @override
   ZplGraphicCircle toCommand() => ZplGraphicCircle(
-        x: x,
-        y: y,
-        diameter: diameter,
-        borderThickness: borderThickness,
-      );
+    x: x,
+    y: y,
+    diameter: diameter,
+    borderThickness: borderThickness,
+  );
 
   @override
   Rect bounds(ZplConfiguration config) => Rect.fromLTWH(
-        x.toDouble(),
-        y.toDouble(),
-        diameter.toDouble(),
-        diameter.toDouble(),
-      );
+    x.toDouble(),
+    y.toDouble(),
+    diameter.toDouble(),
+    diameter.toDouble(),
+  );
 
   @override
   CircleElement moveTo(int x, int y) => copyWith(x: x, y: y);
@@ -56,11 +61,11 @@ class CircleElement extends LabelElement {
 
   @override
   Map<String, dynamic> toJson() => {
-        'x': x,
-        'y': y,
-        'diameter': diameter,
-        'borderThickness': borderThickness,
-      };
+    'x': x,
+    'y': y,
+    'diameter': diameter,
+    'borderThickness': borderThickness,
+  };
 
   factory CircleElement.fromJson(String id, Map<String, dynamic> json) {
     return CircleElement(

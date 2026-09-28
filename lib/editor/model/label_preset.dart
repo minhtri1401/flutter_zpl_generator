@@ -47,10 +47,10 @@ enum EditorUnits {
   const EditorUnits(this.label);
 
   String format(int dots, double dpmm) => switch (this) {
-        EditorUnits.dots => '$dots',
-        EditorUnits.mm => '${(dots / dpmm).toStringAsFixed(1)} mm',
-        EditorUnits.inch => '${(dots / dpmm / 25.4).toStringAsFixed(2)} in',
-      };
+    EditorUnits.dots => '$dots',
+    EditorUnits.mm => '${(dots / dpmm).toStringAsFixed(1)} mm',
+    EditorUnits.inch => '${(dots / dpmm / 25.4).toStringAsFixed(2)} in',
+  };
 }
 
 /// Dots per millimetre for a density; 203 dpi (8 dpmm) when unset.

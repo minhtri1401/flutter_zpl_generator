@@ -19,18 +19,18 @@ class SnapEngine {
     required this.guideThreshold,
     required Iterable<Rect> others,
     required Size label,
-  })  : _xs = [
-          for (final b in others) ...[b.left, b.center.dx, b.right],
-          0,
-          label.width / 2,
-          label.width,
-        ],
-        _ys = [
-          for (final b in others) ...[b.top, b.center.dy, b.bottom],
-          0,
-          label.height / 2,
-          label.height,
-        ];
+  }) : _xs = [
+         for (final b in others) ...[b.left, b.center.dx, b.right],
+         0,
+         label.width / 2,
+         label.width,
+       ],
+       _ys = [
+         for (final b in others) ...[b.top, b.center.dy, b.bottom],
+         0,
+         label.height / 2,
+         label.height,
+       ];
 
   /// Snaps a whole-rect move.
   SnapResult move(Rect r) {

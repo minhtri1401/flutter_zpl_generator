@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 
 import '../model/barcode_element.dart';
+import '../model/label_variables.dart';
 import '../model/text_element.dart';
 import 'inspector_fields.dart';
 
@@ -19,6 +20,7 @@ class TextInspector extends StatelessWidget {
       spacing: 8,
       children: [
         StringField(label: 'Text', value: e.text, maxLines: 3, onChanged: (v) => onChanged(e.copyWith(text: v))),
+        _InsertVariableChip(onInsert: () => onChanged(e.copyWith(text: e.text + LabelVariables.placeholder('var')))),
         EnumDropdown<ZplFont>(label: 'Font', value: e.font, values: ZplFont.values, onChanged: (v) => onChanged(e.copyWith(font: v))),
         Row(
           spacing: 8,
@@ -57,6 +59,7 @@ class BarcodeInspector extends StatelessWidget {
       spacing: 8,
       children: [
         StringField(label: 'Data', value: e.data, onChanged: (v) => onChanged(e.copyWith(data: v))),
+        _InsertVariableChip(onInsert: () => onChanged(e.copyWith(data: e.data + LabelVariables.placeholder('var')))),
         EnumDropdown<ZplBarcodeType>(label: 'Symbology', value: e.type, values: ZplBarcodeType.values, onChanged: (v) => onChanged(e.copyWith(type: v))),
         EnumDropdown<ZplOrientation>(label: 'Orientation', value: e.orientation, values: ZplOrientation.values, onChanged: (v) => onChanged(e.copyWith(orientation: v))),
         if (e.isTwoDimensional) ...[
@@ -75,6 +78,24 @@ class BarcodeInspector extends StatelessWidget {
           BoolSwitch(label: 'Line above', value: e.printInterpretationLineAbove, onChanged: (v) => onChanged(e.copyWith(printInterpretationLineAbove: v))),
         ],
       ],
+    );
+  }
+}
+
+/// Appends a `{{var}}` placeholder; the user renames it in the field.
+class _InsertVariableChip extends StatelessWidget {
+  final VoidCallback onInsert;
+  const _InsertVariableChip({required this.onInsert});
+
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: ActionChip(
+        avatar: const Icon(Icons.data_object, size: 16),
+        label: const Text('Insert {{variable}}'),
+        onPressed: onInsert,
+      ),
     );
   }
 }

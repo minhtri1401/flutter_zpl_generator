@@ -117,6 +117,13 @@ class EditorController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Stores a sample value for a placeholder (one undo step per variable).
+  void setSampleValue(String name, String value) {
+    _commit(coalesce: 'sample:$name');
+    _document = _document.withSample(name, value);
+    notifyListeners();
+  }
+
   void setConfig(ZplConfiguration config) {
     _commit();
     setDocument(_document.copyWith(config: config));

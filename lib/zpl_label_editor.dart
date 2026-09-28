@@ -11,6 +11,7 @@ export 'editor/model/image_element.dart';
 export 'editor/model/label_document.dart';
 export 'editor/model/label_element.dart';
 export 'editor/model/label_preset.dart';
+export 'editor/model/label_variables.dart';
 export 'editor/model/line_element.dart';
 export 'editor/model/text_element.dart';
 export 'editor/canvas/resize_handle.dart';

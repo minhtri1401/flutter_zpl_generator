@@ -2,6 +2,7 @@ import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 
 import 'element_json_codec.dart';
 import 'label_element.dart';
+import 'label_variables.dart';
 
 /// Immutable editor document: label configuration plus ordered elements.
 ///
@@ -17,10 +18,18 @@ class LabelDocument {
   final ZplConfiguration config;
   final List<LabelElement> elements;
 
+  /// Sample values for `{{placeholders}}`, used by the export preview and
+  /// remembered with the template.
+  final Map<String, String> sampleData;
+
   const LabelDocument({
     this.config = defaultConfig,
     this.elements = const [],
+    this.sampleData = const {},
   });
+
+  /// Placeholder names used by text and barcode elements, in order.
+  List<String> get variables => LabelVariables.scan(this);
 
   /// Label size in dots with the same fallbacks as [ZplNativePreview].
   int get width => config.printWidth ?? 406;
@@ -29,12 +38,22 @@ class LabelDocument {
   LabelDocument copyWith({
     ZplConfiguration? config,
     List<LabelElement>? elements,
+    Map<String, String>? sampleData,
   }) {
     return LabelDocument(
       config: config ?? this.config,
       elements: elements ?? this.elements,
+      sampleData: sampleData ?? this.sampleData,
     );
   }
+
+  LabelDocument withSample(String name, String value) =>
+      copyWith(sampleData: {...sampleData, name: value});
+
+  /// ZPL with [data] (default: [sampleData]) substituted into placeholders.
+  /// Placeholders without a value are left as-is.
+  Future<String> buildBoundZpl([Map<String, String>? data]) =>
+      ZplTemplate(toGenerator()).bind(data ?? sampleData);
 
   LabelElement? elementById(String id) {
     for (final e in elements) {
@@ -86,6 +105,7 @@ class LabelDocument {
         'version': schemaVersion,
         'config': _configToJson(config),
         'elements': elements.map(ElementJsonCodec.encode).toList(),
+        if (sampleData.isNotEmpty) 'sampleData': sampleData,
       };
 
   factory LabelDocument.fromJson(Map<String, dynamic> json) {
@@ -104,11 +124,18 @@ class LabelDocument {
       }
     }
     final rawConfig = json['config'];
+    final rawSample = json['sampleData'];
     return LabelDocument(
       config: rawConfig is Map<String, dynamic>
           ? _configFromJson(rawConfig)
           : defaultConfig,
       elements: elements,
+      sampleData: rawSample is Map
+          ? {
+              for (final e in rawSample.entries)
+                if (e.key is String) e.key as String: e.value.toString(),
+            }
+          : const {},
     );
   }
 

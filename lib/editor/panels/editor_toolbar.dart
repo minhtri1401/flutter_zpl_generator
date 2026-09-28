@@ -72,7 +72,7 @@ class EditorToolbar extends StatelessWidget {
                 FilledButton.tonalIcon(
                   icon: const Icon(Icons.code),
                   label: const Text('ZPL'),
-                  onPressed: () => ZplExportDialog.show(context, c.document),
+                  onPressed: () => ZplExportDialog.show(context, c),
                 ),
                 ],
               ),

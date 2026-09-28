@@ -7,6 +7,7 @@ import 'editor_controller.dart';
 import 'editor_shortcuts.dart';
 import 'panels/editor_toolbar.dart';
 import 'panels/element_inspector.dart';
+import 'storage/template_store.dart';
 
 /// Complete editor: toolbar on top, canvas in the middle, inspector on the
 /// right (or below on narrow layouts).
@@ -14,7 +15,15 @@ class ZplLabelEditor extends StatefulWidget {
   final EditorController controller;
   final Future<Uint8List?> Function()? onPickImage;
 
-  const ZplLabelEditor({super.key, required this.controller, this.onPickImage});
+  /// Optional template persistence; without it the Templates button is hidden.
+  final TemplateStore? templateStore;
+
+  const ZplLabelEditor({
+    super.key,
+    required this.controller,
+    this.onPickImage,
+    this.templateStore,
+  });
 
   @override
   State<ZplLabelEditor> createState() => _ZplLabelEditorState();
@@ -53,7 +62,7 @@ class _ZplLabelEditorState extends State<ZplLabelEditor> {
 
     return Column(
         children: [
-          EditorToolbar(controller: c, onPickImage: widget.onPickImage),
+          EditorToolbar(controller: c, onPickImage: widget.onPickImage, templateStore: widget.templateStore),
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {

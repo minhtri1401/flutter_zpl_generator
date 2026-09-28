@@ -10,6 +10,7 @@ import 'model/element_json_codec.dart';
 import 'model/label_document.dart';
 import 'model/label_element.dart';
 import 'model/label_preset.dart';
+import 'storage/template_store.dart';
 
 /// Owns the editor state: document, selection and in-progress gestures.
 ///
@@ -33,6 +34,7 @@ class EditorController extends ChangeNotifier {
   final EditorHistory _history = EditorHistory();
   Object? _lastCoalesceKey;
   EditorUnits _units = EditorUnits.dots;
+  TemplateInfo? _currentTemplate;
 
   EditorController({
     LabelDocument? document,
@@ -89,6 +91,21 @@ class EditorController extends ChangeNotifier {
   void loadDocument(LabelDocument doc) {
     _history.clear();
     setDocument(doc);
+  }
+
+  /// The saved template this document came from, if any.
+  TemplateInfo? get currentTemplate => _currentTemplate;
+
+  /// Loads [doc] and remembers it as [info] (null for imported/unsaved).
+  void loadTemplate(TemplateInfo? info, LabelDocument doc) {
+    _currentTemplate = info;
+    loadDocument(doc);
+  }
+
+  /// Records that the current document was saved as [info].
+  void markSaved(TemplateInfo? info) {
+    _currentTemplate = info;
+    notifyListeners();
   }
 
   /// Replaces the document (undo/redo, load) and drops stale selection.

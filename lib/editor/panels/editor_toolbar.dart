@@ -10,6 +10,8 @@ import '../model/image_element.dart';
 import '../model/label_element.dart';
 import '../model/line_element.dart';
 import '../model/text_element.dart';
+import '../storage/template_store.dart';
+import 'templates_sheet.dart';
 import 'zpl_export_dialog.dart';
 
 /// Add / edit / history / export actions. Image picking is delegated to the
@@ -18,7 +20,15 @@ class EditorToolbar extends StatelessWidget {
   final EditorController controller;
   final Future<Uint8List?> Function()? onPickImage;
 
-  const EditorToolbar({super.key, required this.controller, this.onPickImage});
+  /// When set, a Templates button offers save/load/import/export.
+  final TemplateStore? templateStore;
+
+  const EditorToolbar({
+    super.key,
+    required this.controller,
+    this.onPickImage,
+    this.templateStore,
+  });
 
   static const _origin = 32;
 
@@ -53,6 +63,12 @@ class EditorToolbar extends StatelessWidget {
                 IconButton(tooltip: 'Send backward', icon: const Icon(Icons.flip_to_back), onPressed: hasSelection ? c.sendBackward : null),
                 IconButton(tooltip: 'Delete', icon: const Icon(Icons.delete_outline), onPressed: hasSelection ? c.removeSelected : null),
                 const VerticalDivider(width: 16),
+                if (templateStore != null)
+                  IconButton(
+                    tooltip: 'Templates',
+                    icon: const Icon(Icons.folder_open),
+                    onPressed: () => TemplatesSheet.show(context, c, templateStore!),
+                  ),
                 FilledButton.tonalIcon(
                   icon: const Icon(Icons.code),
                   label: const Text('ZPL'),

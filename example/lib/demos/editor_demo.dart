@@ -1,10 +1,13 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter_zpl_generator/editor/storage/file_template_store.dart';
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 
 import 'package:flutter_zpl_generator/zpl_label_editor.dart';
+import 'package:path_provider/path_provider.dart';
 
 /// Launcher tab: the editor itself opens as a full-screen route so canvas
 /// drags never compete with the showcase's tab swipe.
@@ -51,6 +54,10 @@ class _EditorPageState extends State<EditorPage> {
     ),
   );
 
+  // Templates persist as JSON files under the app's documents directory.
+  late final Future<TemplateStore> _store = getApplicationDocumentsDirectory()
+      .then((dir) => FileTemplateStore(Directory('${dir.path}/zpl_templates')));
+
   @override
   void dispose() {
     _controller.dispose();
@@ -66,7 +73,14 @@ class _EditorPageState extends State<EditorPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Label editor')),
-      body: ZplLabelEditor(controller: _controller, onPickImage: _pickBundledLogo),
+      body: FutureBuilder<TemplateStore>(
+        future: _store,
+        builder: (context, snap) => ZplLabelEditor(
+          controller: _controller,
+          onPickImage: _pickBundledLogo,
+          templateStore: snap.data,
+        ),
+      ),
     );
   }
 }

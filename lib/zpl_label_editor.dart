@@ -20,5 +20,8 @@ export 'editor/editor_history.dart';
 export 'editor/editor_shortcuts.dart';
 export 'editor/panels/editor_toolbar.dart';
 export 'editor/panels/element_inspector.dart';
+export 'editor/panels/templates_sheet.dart';
 export 'editor/panels/zpl_export_dialog.dart';
+export 'editor/storage/memory_template_store.dart';
+export 'editor/storage/template_store.dart';
 export 'editor/zpl_label_editor.dart';

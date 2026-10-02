@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   which includes this package.
 - The templating example now shows a real `printer.printZpl(...)` call instead of a placeholder.
 - Example app: **Send to printer** button on every demo (Wi-Fi; native platforms only).
+- README opens with a plain definition and adds an **FAQ** (generating and printing ZPL, offline
+  preview, supported barcodes, units, web and desktop support).
+- New `llms.txt` summarizing the API, units, and guides for AI coding assistants.
+- Sharper pubspec description and library-level dartdoc.
 
 ## [2.2.0] - 2026-09-27
 

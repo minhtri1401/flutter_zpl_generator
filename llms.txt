@@ -4,7 +4,7 @@
 
 Install with `flutter pub add flutter_zpl_generator`, then `import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';`.
 
-This package only produces the ZPL string. To send it to a printer over Bluetooth LE, Wi-Fi or USB, use the companion package [flutter_zpl_printer](https://pub.dev/packages/flutter_zpl_printer), which depends on this one.
+This package only produces the ZPL string. To send it to a printer over Bluetooth LE, Wi-Fi or USB, use the companion package [flutter_zpl_printer](https://pub.dev/packages/flutter_zpl_printer) (0.2.0+), which depends on and re-exports this one: `import 'package:flutter_zpl_printer/flutter_zpl_printer.dart';` gives both, and `await printer.printLabel(generator)` builds and sends a label.
 
 Key facts for writing code against it:
 
@@ -44,7 +44,7 @@ final String zpl = await generator.build(); // ^XA ... ^XZ
 ## Packages
 
 - [flutter_zpl_generator on pub.dev](https://pub.dev/packages/flutter_zpl_generator): this package
-- [flutter_zpl_printer](https://pub.dev/packages/flutter_zpl_printer): send ZPL to Zebra printers over Bluetooth LE, Wi-Fi or USB (Link-OS SDK)
+- [flutter_zpl_printer](https://pub.dev/packages/flutter_zpl_printer): send ZPL to Zebra printers over Bluetooth LE, Wi-Fi or USB (pure Dart, no Link-OS SDK; includes and re-exports this package)
 - [Source on GitHub](https://github.com/minhtri1401/flutter_zpl_generator): issues and pull requests
 
 ## Optional

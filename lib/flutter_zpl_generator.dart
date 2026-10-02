@@ -1,5 +1,12 @@
-// A comprehensive Flutter package for generating ZPL (Zebra Programming Language) labels
-// with Labelary API integration and live preview capabilities.
+/// Generate ZPL (Zebra Programming Language) label code in Flutter and Dart.
+///
+/// Build a label from [ZplCommand]s (text, barcodes, shapes, images, fonts,
+/// grid and table layouts), wrap them in a [ZplGenerator], and call
+/// [ZplGenerator.build] to get the ZPL string. Preview it offline with
+/// [ZplNativePreview] or through Labelary with [ZplPreview].
+///
+/// To send the ZPL to a Zebra printer, use the `flutter_zpl_printer` package.
+library;
 
 export 'src/enums.dart';
 export 'src/zpl_command_base.dart';

@@ -1,0 +1,53 @@
+# flutter_zpl_generator
+
+> Flutter and Dart package that generates ZPL (Zebra Programming Language) label code from a declarative, widget-like API. Build shipping labels, product labels, barcodes, QR codes and receipts for Zebra thermal printers, then preview them in Flutter (offline or via the Labelary API). Pure Dart output, MIT licensed, runs on Android, iOS, web, macOS, Windows and Linux.
+
+Install with `flutter pub add flutter_zpl_generator`, then `import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';`.
+
+This package only produces the ZPL string. To send it to a printer over Bluetooth LE, Wi-Fi or USB, use the companion package [flutter_zpl_printer](https://pub.dev/packages/flutter_zpl_printer), which depends on this one.
+
+Key facts for writing code against it:
+
+- Every element is a `ZplCommand`. Put them in `ZplGenerator(config: ZplConfiguration(...), commands: [...])` and call `await generator.build()` to get the ZPL string.
+- All coordinates and sizes are in printer dots. At 203 DPI (8 dots/mm) a 4x6 inch label is `printWidth: 812, labelLength: 1218`; a 2x1 inch label is `printWidth: 406, labelLength: 203`.
+- Text: `ZplText`. Barcodes: `ZplBarcode` with `ZplBarcodeType` (code128, gs1_128, code39, code93, interleaved2of5, ean13, ean8, upcA, upcE, qrCode, dataMatrix, pdf417, aztec). Shapes: `ZplBox`, `ZplSeparator`, `ZplGraphicCircle`, `ZplGraphicEllipse`, `ZplGraphicDiagonalLine`. Escape hatch: `ZplRaw`.
+- Layout without manual x offsets: `ZplColumn`, `ZplGridRow` + `ZplGridCol` (12-unit grid), `ZplTable`, `ZplConditional`.
+- Images: `ZplImageInline` (`^GFA`), or `ZplImageDownload` (`~DG`) + `ZplImageRecall` (`^XG`). Dithering via `ZplDitheringAlgorithm` (threshold, floydSteinberg, atkinson); compression via `ZplImageCompression` (none, acs, b64, z64).
+- Custom TrueType fonts: `await ZplFontUpload.fromAsset('assets/font.ttf', 'A')`, add it to `commands`, and pass it as `ZplText(customFont: ...)`.
+- Templates: `ZplTemplate(generator)`, `await init()`, then `bindSync({'name': 'value'})` replaces `{{name}}` placeholders.
+- Printer control: `ZplPrintQuantity` (`^PQ`), serial numbers via `ZplText(serialization: ZplSerialConfig(...))` (`^SN`), RFID (`ZplRfidSetup`, `ZplRfidWrite`), network config (`ZplNetwork*`).
+- Preview: `ZplNativePreview(generator: g)` renders offline on a Flutter canvas; `ZplPreview(generator: g)` renders through the Labelary web API. `LabelaryService.renderFromGenerator` returns PNG or PDF bytes.
+- Output order is strict for Link-OS firmware: tilde commands (`~DG`, `~DY`) are emitted before `^XA` automatically.
+
+Minimal example:
+
+```dart
+final generator = ZplGenerator(
+  config: const ZplConfiguration(printWidth: 406, labelLength: 203),
+  commands: [
+    ZplText(x: 20, y: 20, text: 'Hello ZPL', fontHeight: 30, fontWidth: 30),
+    ZplBarcode(x: 20, y: 60, height: 50, data: '12345', type: ZplBarcodeType.code128),
+  ],
+);
+final String zpl = await generator.build(); // ^XA ... ^XZ
+```
+
+## Docs
+
+- [README](https://raw.githubusercontent.com/minhtri1401/flutter_zpl_generator/main/README.md): feature tour with code for every command family, receipt example, preview widgets
+- [Getting started](https://raw.githubusercontent.com/minhtri1401/flutter_zpl_generator/main/doc/getting-started-101.md): install, first label, live preview
+- [Mobile / Link-OS printers](https://raw.githubusercontent.com/minhtri1401/flutter_zpl_generator/main/doc/mobile-printer-guide.md): ZPL shape required by ZQ-series mobile printers and firmware caveats
+- [Migrating 1.x to 2.0](https://raw.githubusercontent.com/minhtri1401/flutter_zpl_generator/main/doc/migration-v1-to-v2.md): image and font API changes
+- [API reference](https://pub.dev/documentation/flutter_zpl_generator/latest/): generated dartdoc for every public class
+- [Changelog](https://raw.githubusercontent.com/minhtri1401/flutter_zpl_generator/main/CHANGELOG.md): release history and output changes
+
+## Packages
+
+- [flutter_zpl_generator on pub.dev](https://pub.dev/packages/flutter_zpl_generator): this package
+- [flutter_zpl_printer](https://pub.dev/packages/flutter_zpl_printer): send ZPL to Zebra printers over Bluetooth LE, Wi-Fi or USB (Link-OS SDK)
+- [Source on GitHub](https://github.com/minhtri1401/flutter_zpl_generator): issues and pull requests
+
+## Optional
+
+- [Example app](https://github.com/minhtri1401/flutter_zpl_generator/tree/main/example): Flutter demo of every component with live preview
+- [Labelary](https://labelary.com/): online ZPL viewer used by `ZplPreview` and `LabelaryService`

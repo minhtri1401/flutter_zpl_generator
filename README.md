@@ -1,6 +1,8 @@
 # Flutter ZPL Generator
 
-A comprehensive Flutter package for generating ZPL (Zebra Programming Language) labels with **industry-first TTF font conversion**, **automatic image-to-ZPL conversion** capabilities, and a mathematically robust **12-column grid layout engine**.
+**flutter_zpl_generator** is a Flutter and Dart package that turns a declarative, widget-like API into ZPL (Zebra Programming Language) code for Zebra thermal label printers. Use it to build shipping labels, product labels, barcodes, QR codes and receipts in Dart, preview them inside your app, and get a ready-to-print `^XA…^XZ` string.
+
+It adds **TTF font conversion**, **automatic image-to-ZPL conversion** with dithering and compression, and a **12-column grid layout engine** so you don't hand-place every `^FO` coordinate.
 
 [![pub package](https://img.shields.io/pub/v/flutter_zpl_generator.svg)](https://pub.dev/packages/flutter_zpl_generator)
 [![popularity](https://img.shields.io/pub/popularity/flutter_zpl_generator?logo=dart)](https://pub.dev/packages/flutter_zpl_generator/score)
@@ -22,7 +24,8 @@ A comprehensive Flutter package for generating ZPL (Zebra Programming Language) 
 6. [The Data Engine](#-the-data-engine)
 7. [Hardware & Enterprise Control](#️-hardware--enterprise-control)
 8. [Developer Experience & Examples](#-developer-experience--examples)
-9. [Related Projects](#related-projects)
+9. [FAQ](#faq)
+10. [Related Projects](#related-projects)
 
 ---
 
@@ -641,6 +644,31 @@ final generator = ZplGenerator(
 final zpl = await generator.build();
 print(zpl);
 ```
+
+---
+
+## FAQ
+
+### How do I generate a ZPL label in Flutter?
+Add `flutter_zpl_generator`, list your elements (`ZplText`, `ZplBarcode`, `ZplBox`, …) in a `ZplGenerator`, and call `await generator.build()`. The result is a complete ZPL string you can send to any Zebra printer or paste into a ZPL viewer. See [Quick Start](#-quick-start).
+
+### How do I print the ZPL from a Flutter app?
+This package only generates ZPL. [`flutter_zpl_printer`](https://pub.dev/packages/flutter_zpl_printer) sends it to Zebra printers over Bluetooth LE, Wi-Fi or USB and already depends on this package.
+
+### Can I preview a ZPL label without a printer?
+Yes. `ZplNativePreview` draws the label on a Flutter canvas fully offline. `ZplPreview` renders it through the Labelary web API, and `LabelaryService.renderFromGenerator` returns PNG or PDF bytes.
+
+### Which barcodes are supported?
+Code 128, GS1-128, Code 39, Code 93, Interleaved 2 of 5, EAN-13, EAN-8, UPC-A, UPC-E, QR Code, Data Matrix, PDF417 and Aztec. See [Barcode Symbologies](#barcode-symbologies-zplbarcode).
+
+### What units are coordinates in?
+Printer dots. At 203 DPI (8 dots/mm) a 4×6 inch label is `printWidth: 812, labelLength: 1218`. At 300 DPI multiply inches by 300.
+
+### Does it work on web and desktop?
+Yes. Generation is pure Dart and runs on Android, iOS, web, macOS, Windows and Linux.
+
+### Is there a machine-readable summary for AI coding assistants?
+Yes: [`llms.txt`](llms.txt) at the repository root lists the core API, units and links to every guide.
 
 ---
 

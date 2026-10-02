@@ -6,12 +6,17 @@ A comprehensive Flutter package for generating ZPL (Zebra Programming Language) 
 [![popularity](https://img.shields.io/pub/popularity/flutter_zpl_generator?logo=dart)](https://pub.dev/packages/flutter_zpl_generator/score)
 [![likes](https://img.shields.io/pub/likes/flutter_zpl_generator?logo=dart)](https://pub.dev/packages/flutter_zpl_generator/score)
 
+> 🖨️ **Print what you build:** [`flutter_zpl_printer`](https://pub.dev/packages/flutter_zpl_printer) sends these
+> labels to Zebra printers over Bluetooth LE, Wi-Fi, or USB, and includes this package. See
+> [Print to a Zebra printer](#️-print-to-a-zebra-printer).
+
 ---
 
 ## 📑 Table of Contents
 1. [Component Demos & Previews](#-component-demos--previews)
 2. [What Makes This Package Special](#-what-makes-this-package-special)
 3. [Quick Start](#-quick-start)
+   - [Print to a Zebra printer](#️-print-to-a-zebra-printer)
 4. [The Layout Engine (Visuals)](#-the-layout-engine-visuals)
 5. [Images & Fonts](#-images--fonts)
 6. [The Data Engine](#-the-data-engine)
@@ -93,6 +98,32 @@ final zplString = await generator.build();
 print(zplString);
 // Output: ^XA^LL203^PR8^JMB^FO20,20^A0N,,...^XZ
 ```
+
+### 🖨️ Print to a Zebra printer
+
+This package builds ZPL; it doesn't talk to printers. To send labels to a Zebra printer, use the companion
+package [`flutter_zpl_printer`](https://pub.dev/packages/flutter_zpl_printer). It discovers and connects over
+**Bluetooth LE**, **Wi-Fi/TCP**, and **USB**, and it **includes `flutter_zpl_generator`**, so one dependency
+and one import cover both.
+
+```yaml
+dependencies:
+  flutter_zpl_printer: ^0.2.0 # includes flutter_zpl_generator
+```
+
+```dart
+import 'package:flutter_zpl_printer/flutter_zpl_printer.dart'; // also exports this package
+
+final printer = await ZebraPrinter.connect(TcpConnection.zpl('192.168.1.50')); // or BleConnection, UsbConnection
+await printer.printLabel(generator); // the ZplGenerator from above
+await printer.disconnect();
+```
+
+`printLabel` builds and sends the label. You can also send any ZPL string with `printer.printZpl(zpl)`,
+for example the output of a `ZplTemplate`. See the
+[flutter_zpl_printer README](https://pub.dev/packages/flutter_zpl_printer) for discovery, permissions,
+status checks, and platform support. The [example app](example/) in this repository has a
+**Send to printer** button on every demo.
 
 ---
 
@@ -346,9 +377,12 @@ await template.init();
 for (var dataMap in customers) {
     // Zero layout/AST overhead, pure native string replacement
     final rawZplPayload = template.bindSync(dataMap);
-    printer.print(rawZplPayload);
+    await printer.printZpl(rawZplPayload); // ZebraPrinter from flutter_zpl_printer
 }
 ```
+
+`printer` here is a connected `ZebraPrinter` from
+[`flutter_zpl_printer`](#️-print-to-a-zebra-printer).
 
 ### Auto-Increment Serialization (`^SN`)
 
@@ -611,5 +645,6 @@ print(zpl);
 ---
 
 ## Related Projects
+- [flutter_zpl_printer](https://pub.dev/packages/flutter_zpl_printer) - Print these labels on Zebra printers over Bluetooth LE, Wi-Fi, and USB (includes this package)
 - [Labelary API](https://labelary.com/) - Online ZPL viewer and API
 - [Zebra Printers](https://www.zebra.com/us/en/products/printers.html)

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 
+import '../printing/send_to_printer.dart';
+
 /// Reusable scaffold for each demo tab.
 /// Shows: Features + ZPL toggle -> Online preview -> Native preview.
 class DemoScaffold extends StatefulWidget {
@@ -23,6 +25,65 @@ class DemoScaffold extends StatefulWidget {
 class _DemoScaffoldState extends State<DemoScaffold> {
   bool _showZpl = false;
   String? _zpl;
+  bool _sending = false;
+
+  /// Last printer IP, shared across demo tabs.
+  static String _lastHost = '';
+
+  Future<void> _sendToPrinter() async {
+    final zpl = _zpl;
+    if (zpl == null) return;
+    final controller = TextEditingController(text: _lastHost);
+    final host = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Send to printer'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: controller,
+              autofocus: true,
+              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              decoration: const InputDecoration(
+                labelText: 'Printer IP address',
+                hintText: '192.168.1.50',
+              ),
+              onSubmitted: (v) => Navigator.pop(context, v.trim()),
+            ),
+            const SizedBox(height: 12),
+            const Text(
+              'Sends this label over Wi-Fi (port 9100) with flutter_zpl_printer. '
+              'It also supports Bluetooth LE and USB.',
+              style: TextStyle(fontSize: 12),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('Print'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (host == null || host.isEmpty || !mounted) return;
+    _lastHost = host;
+
+    setState(() => _sending = true);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await sendZplToPrinter(host, zpl);
+      messenger.showSnackBar(SnackBar(content: Text('Sent to $host')));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text('Could not print: $e')));
+    } finally {
+      if (mounted) setState(() => _sending = false);
+    }
+  }
 
   @override
   void initState() {
@@ -87,6 +148,20 @@ class _DemoScaffoldState extends State<DemoScaffold> {
             ),
           ),
           const SizedBox(height: 12),
+
+          if (printingSupported) ...[
+            FilledButton.icon(
+              onPressed: _zpl == null || _sending ? null : _sendToPrinter,
+              icon: _sending
+                  ? const SizedBox.square(
+                      dimension: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Icon(Icons.print),
+              label: const Text('Send to printer'),
+            ),
+            const SizedBox(height: 8),
+          ],
 
           // ZPL code toggle
           FilledButton.tonal(

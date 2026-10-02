@@ -25,3 +25,6 @@ zpl-document/
 labelary_docs_summary.md
 Roboto-Regular.ttf
 orioninnovation_logo.jpeg
+
+# Context7 indexing config (repo only, not the pub package)
+context7.json

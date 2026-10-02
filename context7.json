@@ -1,0 +1,39 @@
+{
+  "$schema": "https://context7.com/schema/context7.json",
+  "projectTitle": "flutter_zpl_generator",
+  "description": "Flutter and Dart package that generates ZPL label code for Zebra printers: text, barcodes, QR codes, images, TTF fonts, grid layouts, templates, and live preview.",
+  "folders": [],
+  "excludeFolders": [
+    "doc/api",
+    ".github",
+    "test",
+    "fonts",
+    "images",
+    "example/android",
+    "example/ios",
+    "example/macos",
+    "example/windows",
+    "example/linux",
+    "example/web"
+  ],
+  "excludeFiles": [
+    "CLAUDE.md",
+    "code-standards.md",
+    "codebase-summary.md",
+    "development-roadmap.md",
+    "project-changelog.md",
+    "project-overview-pdr.md",
+    "system-architecture.md"
+  ],
+  "rules": [
+    "Build a label with ZplGenerator(config: ZplConfiguration(...), commands: [...]) and call `await generator.build()` to get the ZPL string (^XA ... ^XZ).",
+    "All coordinates and sizes are printer dots. At 203 dpi (8 dots/mm) a 4x6 inch label is printWidth: 812, labelLength: 1218; a 2x1 inch label is 406 x 203.",
+    "Prefer layout widgets (ZplGridRow + ZplGridCol 12-unit grid, ZplColumn, ZplTable) over hand-computed x/y offsets.",
+    "For images on Link-OS mobile printers (ZQ series) use ZplImageDownload (~DG) + ZplImageRecall (^XG), not ZplImageInline. Tilde commands are emitted before ^XA automatically.",
+    "Keep image compression at ZplImageCompression.none (the default) unless the printer firmware supports B64/Z64. Threshold dithering avoids dense output that can trip mobile print-head thermal protection.",
+    "For many labels with one layout use ZplTemplate(generator): call `await template.init()` once, then template.bindSync({'name': value}) per label to fill {{name}} placeholders.",
+    "Custom fonts: `final font = await ZplFontUpload.fromAsset('assets/font.ttf', 'A')`, add it to commands, and pass it as ZplText(customFont: font).",
+    "ZplNativePreview renders offline on a Flutter canvas; ZplPreview and LabelaryService use the Labelary web API and need network access.",
+    "This package only generates ZPL. To print, use flutter_zpl_printer (0.2.0+), which re-exports this package: `await printer.printLabel(generator)` or `printer.printZpl(zpl)`."
+  ]
+}

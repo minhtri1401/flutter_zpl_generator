@@ -15,7 +15,6 @@ dependencies:
   image: ^4.8.0
   http: ^1.6.0
   hex: ^0.2.0
-  barcode_widget: ^2.0.4
   barcode: ^2.2.9
   qr: ^3.0.0
   archive: ^4.3.0

@@ -12,6 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unused `barcode_widget` dependency. Apps that use `BarcodeWidget` must now
   depend on `barcode_widget` themselves.
 
+### Added
+
+- `ZplFieldDataEscaper` (`needsHex`, `hexEscape`) is exported so hosts that
+  fill `{{placeholders}}` into finished ZPL can escape values in `^FH` fields
+  the same way; `{{name}}` placeholders are left unescaped.
+
 ### Fixed
 
 - `ZplSeparator` with `ZplSeparatorType.box` now emits `^GB…,t,t` (border
@@ -23,9 +29,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   is now written behind `^FH` with `_5E`/`_7E` (and `_5F` for `_`) escapes,
   so the printer no longer reads them as commands. Text without these
   characters is byte-identical to before.
-- `ZplFieldDataEscaper` (`needsHex`, `hexEscape`) is exported so hosts that
-  fill `{{placeholders}}` into finished ZPL can escape values in `^FH` fields
-  the same way; `{{name}}` placeholders are left unescaped.
 - `ZplTemplate` does not hex-escape bound values; callers filling `^FH` fields
   use `ZplFieldDataEscaper.hexEscape`.
 

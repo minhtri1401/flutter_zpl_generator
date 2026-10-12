@@ -24,6 +24,9 @@ class ZplTemplate {
   /// Injects data into the pre-built template safely using asynchronous fallbacks.
   ///
   /// Variables inside the [Map] correspond to `{{key}}` in the ZPL output.
+  /// Values are inserted as they are and are NOT hex-escaped, so a value with
+  /// `_` in a `^FH` field must be passed through `ZplFieldDataEscaper.hexEscape`
+  /// by the caller.
   /// Automatically calls [init] if the template has not been cached yet.
   Future<String> bind(Map<String, dynamic> data) async {
     if (_cachedZpl == null) {

@@ -26,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ZplFieldDataEscaper` (`needsHex`, `hexEscape`) is exported so hosts that
   fill `{{placeholders}}` into finished ZPL can escape values in `^FH` fields
   the same way; `{{name}}` placeholders are left unescaped.
+- `ZplTemplate` does not hex-escape bound values; callers filling `^FH` fields
+  use `ZplFieldDataEscaper.hexEscape`.
 
 ## [2.2.1] - 2026-10-02
 

@@ -106,6 +106,13 @@ void main() {
       expect(ZplFieldDataEscaper.hexEscape('{{a_1b}} {{c}}'), '{{a_1b}} {{c}}');
     });
 
+    test('hexEscape edge cases around braces and surrogate pairs', () {
+      expect(ZplFieldDataEscaper.hexEscape('{{a_b'), '{{a_5Fb');
+      // The inner {{a_b}} is the placeholder; the outer braces are plain text.
+      expect(ZplFieldDataEscaper.hexEscape('{{{a_b}}}'), '{{{a_b}}}');
+      expect(ZplFieldDataEscaper.hexEscape('😀~'), '😀_7E');
+    });
+
     test('needsHex is false for a placeholder alone and true beside a ~', () {
       expect(ZplFieldDataEscaper.needsHex('{{a}}'), isFalse);
       expect(ZplFieldDataEscaper.needsHex('~{{a}}'), isTrue);

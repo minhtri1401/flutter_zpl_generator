@@ -9,6 +9,14 @@
 /// `{{name}}` placeholders (the [ZplTemplate] grammar) are copied verbatim, so
 /// a host that fills them into finished ZPL later can escape each value with
 /// [hexEscape] in an `^FH` field and leave the placeholder names alone.
+///
+/// Rules for filling values into finished ZPL:
+/// - Escape a fill-time value only when its field is preceded by `^FH`.
+/// - A value holding `^` or `~` in a field without `^FH` stays unsafe, because
+///   the host would have to insert `^FH` itself (zPrint refuses such values up
+///   front).
+/// - Substitute every `{{placeholder}}` (with `''` when empty) before
+///   printing: a literal `{{lot_no}}` under `^FH` prints its `_no` garbled.
 abstract final class ZplFieldDataEscaper {
   static const int _underscore = 0x5F;
   static const int _caret = 0x5E;

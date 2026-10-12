@@ -130,8 +130,7 @@ void main() {
         length: 100,
       );
       final zpl = sep.toZpl(config);
-      expect(zpl, contains('^GB'));
-      expect(zpl, contains('100,2'));
+      expect(zpl, contains('^GB100,2,2,B,0^FS'));
     });
   });
 

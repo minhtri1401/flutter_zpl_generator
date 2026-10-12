@@ -92,6 +92,9 @@ class ZplSeparator extends ZplCommand {
         y: y,
         width: calculatedLength,
         height: thickness,
+        // A border thinner than the box prints as an outline; matching the
+        // thickness fills the rule solid on the printer.
+        borderThickness: thickness.clamp(1, 32000),
       ).toZpl(context);
     } else {
       final startY = y + paddingTop;
@@ -100,6 +103,7 @@ class ZplSeparator extends ZplCommand {
         y: startY,
         width: thickness,
         height: calculatedLength,
+        borderThickness: thickness.clamp(1, 32000),
       ).toZpl(context);
     }
   }

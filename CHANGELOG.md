@@ -12,6 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Unused `barcode_widget` dependency. Apps that use `BarcodeWidget` must now
   depend on `barcode_widget` themselves.
 
+### Fixed
+
+- `ZplSeparator` with `ZplSeparatorType.box` now emits `^GB…,t,t` (border
+  thickness equal to the rule thickness), so rules 3 dots or thicker print
+  solid instead of as a 1-dot outline. 1- and 2-dot rules look the same; their
+  border parameter now equals the thickness.
+
 ## [2.2.1] - 2026-10-02
 
 ### Documentation

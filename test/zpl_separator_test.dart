@@ -134,4 +134,34 @@ void main() {
       expect(zpl, contains('100,2'));
     });
   });
+
+  group('box separator thickness', () {
+    const config = ZplConfiguration(printWidth: 812, labelLength: 1218);
+
+    test('a horizontal rule 4 dots thick prints solid', () {
+      final zpl = ZplSeparator(
+        x: 10,
+        y: 20,
+        thickness: 4,
+        length: 300,
+      ).toZpl(config);
+      expect(zpl, contains('^GB300,4,4,B,0^FS'));
+    });
+
+    test('a vertical rule 6 dots thick prints solid', () {
+      final zpl = ZplSeparator(
+        x: 10,
+        y: 20,
+        thickness: 6,
+        length: 200,
+        orientation: ZplOrientation.rotated90,
+      ).toZpl(config);
+      expect(zpl, contains('^GB6,200,6,B,0^FS'));
+    });
+
+    test('a 1-dot rule is unchanged', () {
+      final zpl = ZplSeparator(x: 10, y: 20, length: 300).toZpl(config);
+      expect(zpl, contains('^GB300,1,1,B,0^FS'));
+    });
+  });
 }

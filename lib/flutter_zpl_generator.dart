@@ -26,6 +26,7 @@ export 'src/zpl_separator.dart';
 export 'src/zpl_grid_col.dart';
 export 'src/zpl_grid_row.dart';
 export 'src/zpl_table.dart';
+export 'src/zpl_field_data_escaper.dart';
 export 'src/zpl_font_upload.dart';
 export 'src/zpl_asset_service.dart';
 export 'src/zpl_rfid_setup.dart';

@@ -1,5 +1,6 @@
 import 'zpl_command_base.dart';
 import 'zpl_configuration.dart';
+import 'zpl_field_data_escaper.dart';
 import 'zpl_font_upload.dart';
 import 'enums.dart';
 import 'zpl_serial_config.dart';
@@ -163,12 +164,16 @@ class ZplText extends ZplCommand {
     }
   }
 
-  /// Writes data payload via ^FD or auto-incrementing ^SN
   /// Writes `^FD`/`^SN`. Printers ignore raw line breaks in field data;
   /// inside a `^FB` block the escape `\&` produces a line break, outside a
   /// block the lines simply run together, so the emitter mirrors that.
+  /// Data holding `^` or `~` goes out behind `^FH` with those characters
+  /// hex-escaped (see [ZplFieldDataEscaper]).
   void _writeDataCommand(StringBuffer sb, {required bool inFieldBlock}) {
-    final data = fieldData(text, inFieldBlock: inFieldBlock);
+    final plain = fieldData(text, inFieldBlock: inFieldBlock);
+    final hex = ZplFieldDataEscaper.needsHex(plain);
+    final data = hex ? ZplFieldDataEscaper.hexEscape(plain) : plain;
+    if (hex) sb.writeln('^FH');
     if (serialization != null) {
       final leading = serialization!.leadingZeros ? 'Y' : 'N';
       sb.writeln('^SN$data,${serialization!.increment},$leading^FS');
@@ -177,11 +182,14 @@ class ZplText extends ZplCommand {
     }
   }
 
-  /// Converts Dart line breaks to what the printer will actually render.
+  /// Converts Dart text to what the printer will actually render. Inside a
+  /// `^FB` block a backslash is written `\\` (the block's own escape) and a
+  /// line break `\&`; outside a block line breaks are dropped and a
+  /// backslash is literal.
   static String fieldData(String text, {required bool inFieldBlock}) {
     final normalised = text.replaceAll('\r\n', '\n').replaceAll('\r', '\n');
     return inFieldBlock
-        ? normalised.replaceAll('\n', r'\&')
+        ? normalised.replaceAll(r'\', r'\\').replaceAll('\n', r'\&')
         : normalised.replaceAll('\n', '');
   }
 

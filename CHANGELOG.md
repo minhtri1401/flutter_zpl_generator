@@ -18,6 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   thickness equal to the rule thickness), so rules 3 dots or thicker print
   solid instead of as a 1-dot outline. 1- and 2-dot rules look the same; their
   border parameter now equals the thickness.
+- `ZplText` field data: inside a `^FB` block a backslash is now written `\\`,
+  so a literal `\&` no longer prints as a line break. Text holding `^` or `~`
+  is now written behind `^FH` with `_5E`/`_7E` (and `_5F` for `_`) escapes,
+  so the printer no longer reads them as commands. Text without these
+  characters is byte-identical to before.
+- `ZplFieldDataEscaper` (`needsHex`, `hexEscape`) is exported so hosts that
+  fill `{{placeholders}}` into finished ZPL can escape values in `^FH` fields
+  the same way; `{{name}}` placeholders are left unescaped.
 
 ## [2.2.1] - 2026-10-02
 

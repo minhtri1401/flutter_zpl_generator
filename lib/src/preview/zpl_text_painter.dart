@@ -57,64 +57,89 @@ double _capTopOffset(TextPainter tp) {
   return metrics.first.baseline - _fontCapHeight * size;
 }
 
+/// The painter's layout of a [ZplText]: font height, horizontal scale and the
+/// wrap width of its `^FB` block, when it has one.
+class _TextSetup {
+  _TextSetup(this.text, this.config, {required bool unlimitedLines}) {
+    fh = (text.fontHeight ?? 20).toDouble();
+    // Zebra font 0 defaults the width to the height (measured: ^A0N,40 and
+    // ^A0N,40,40 render identically).
+    final fw = (text.fontWidth ?? text.fontHeight ?? 20).toDouble();
+    hScale = previewHorizontalScale(fw, fh);
+    final fontSize = previewFontSize(fh);
+    // ^FB line spacing is added between lines in dots; express as a
+    // multiplier of the font size.
+    final lineHeight = text.maxLines > 1
+        ? (fh + text.lineSpacing) / fontSize
+        : null;
+
+    final foreground = Paint()
+      ..color = text.reversePrint ? Colors.white : Colors.black
+      ..blendMode = text.reversePrint
+          ? BlendMode.difference
+          : BlendMode.srcOver;
+
+    tp = TextPainter(
+      text: TextSpan(
+        // Line breaks only survive inside a ^FB block (see
+        // ZplText.fieldData).
+        text: text.renderedText,
+        style: previewTextStyle(
+          fh,
+          foreground: foreground,
+          lineHeight: lineHeight,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+      maxLines: unlimitedLines ? null : (text.maxLines > 1 ? text.maxLines : 1),
+      // ZplText.toZpl only justifies the ^FB block when the text is in a
+      // container (maxWidth) or starts at x == 0; otherwise it emits `L`.
+      textAlign: text.maxWidth == null && text.x != 0
+          ? TextAlign.left
+          : switch (text.alignment) {
+              ZplAlignment.center => TextAlign.center,
+              ZplAlignment.right => TextAlign.right,
+              _ => TextAlign.left,
+            },
+    );
+
+    // Mirror ZplText.toZpl: a ^FB block is emitted when aligned or wrapping.
+    final labelWidth = (text.maxWidth ?? config.printWidth ?? 406).toDouble();
+    final aligned =
+        text.alignment != null && text.alignment != ZplAlignment.left;
+    originX = text.x.toDouble();
+    if (aligned && text.maxWidth != null) {
+      blockWidth = labelWidth - text.paddingLeft - text.paddingRight;
+    } else if (aligned && text.x == 0) {
+      blockWidth = labelWidth - text.paddingLeft - text.paddingRight;
+      originX = 0;
+    } else if (text.maxLines > 1) {
+      // Mirrors ZplText._wrapWidth: a container slot (maxWidth) already
+      // starts at x, so only the label width is measured from the origin.
+      blockWidth = text.maxWidth != null
+          ? (text.maxWidth! - text.paddingRight).toDouble()
+          : labelWidth - text.x - text.paddingRight;
+    }
+  }
+
+  final ZplText text;
+  final ZplConfiguration config;
+  late final double fh;
+  late final double hScale;
+  late final TextPainter tp;
+  late double originX;
+
+  /// Width of the `^FB` block the painter wraps to, in dots; null when the
+  /// text is drawn as one unbounded line.
+  double? blockWidth;
+}
+
 /// Draws a [ZplText] the way `^A0`/`^FB` lay it out.
 void drawZplText(Canvas canvas, ZplText text, ZplConfiguration config) {
-  final fh = (text.fontHeight ?? 20).toDouble();
-  // Zebra font 0 defaults the width to the height (measured: ^A0N,40 and
-  // ^A0N,40,40 render identically).
-  final fw = (text.fontWidth ?? text.fontHeight ?? 20).toDouble();
-  final hScale = previewHorizontalScale(fw, fh);
-  final fontSize = previewFontSize(fh);
-  // ^FB line spacing is added between lines in dots; express as a
-  // multiplier of the font size.
-  final lineHeight = text.maxLines > 1
-      ? (fh + text.lineSpacing) / fontSize
-      : null;
-
-  final foreground = Paint()
-    ..color = text.reversePrint ? Colors.white : Colors.black
-    ..blendMode = text.reversePrint ? BlendMode.difference : BlendMode.srcOver;
-
-  final tp = TextPainter(
-    text: TextSpan(
-      // Line breaks only survive inside a ^FB block (see ZplText.fieldData).
-      text: text.renderedText,
-      style: previewTextStyle(
-        fh,
-        foreground: foreground,
-        lineHeight: lineHeight,
-      ),
-    ),
-    textDirection: TextDirection.ltr,
-    maxLines: text.maxLines > 1 ? text.maxLines : 1,
-    // ZplText.toZpl only justifies the ^FB block when the text is in a
-    // container (maxWidth) or starts at x == 0; otherwise it emits `L`.
-    textAlign: text.maxWidth == null && text.x != 0
-        ? TextAlign.left
-        : switch (text.alignment) {
-            ZplAlignment.center => TextAlign.center,
-            ZplAlignment.right => TextAlign.right,
-            _ => TextAlign.left,
-          },
-  );
-
-  // Mirror ZplText.toZpl: a ^FB block is emitted when aligned or wrapping.
-  final labelWidth = (text.maxWidth ?? config.printWidth ?? 406).toDouble();
-  final aligned = text.alignment != null && text.alignment != ZplAlignment.left;
-  double originX = text.x.toDouble();
-  double? blockWidth;
-  if (aligned && text.maxWidth != null) {
-    blockWidth = labelWidth - text.paddingLeft - text.paddingRight;
-  } else if (aligned && text.x == 0) {
-    blockWidth = labelWidth - text.paddingLeft - text.paddingRight;
-    originX = 0;
-  } else if (text.maxLines > 1) {
-    // Mirrors ZplText._wrapWidth: a container slot (maxWidth) already
-    // starts at x, so only the label width is measured from the origin.
-    blockWidth = text.maxWidth != null
-        ? (text.maxWidth! - text.paddingRight).toDouble()
-        : labelWidth - text.x - text.paddingRight;
-  }
+  final setup = _TextSetup(text, config, unlimitedLines: false);
+  final tp = setup.tp;
+  final hScale = setup.hScale;
+  final blockWidth = setup.blockWidth;
 
   if (blockWidth != null) {
     final w = blockWidth / hScale;
@@ -129,15 +154,81 @@ void drawZplText(Canvas canvas, ZplText text, ZplConfiguration config) {
   applyFieldOrientation(
     canvas,
     text.orientation,
-    originX,
+    setup.originX,
     text.y.toDouble(),
     tp.width * hScale,
-    fh,
+    setup.fh,
   );
   canvas.translate(0, -_capTopOffset(tp));
   canvas.scale(hScale, 1.0);
   tp.paint(canvas, Offset.zero);
   canvas.restore();
+}
+
+/// How much room a [ZplText] needs against the `^FB` block it sits in, as the
+/// preview painter measures it. See [measureZplText].
+class ZplTextFit {
+  const ZplTextFit({
+    required this.lineCount,
+    required this.longestLine,
+    required this.maxLines,
+    required this.wrapWidth,
+  });
+
+  /// Lines the text needs at [wrapWidth], with no line limit.
+  final int lineCount;
+
+  /// Width of the widest of those lines in dots.
+  final double longestLine;
+
+  /// The `^FB` line limit ([ZplText.maxLines]).
+  final int maxLines;
+
+  /// The `^FB` block width in dots; null when the text has no block.
+  final double? wrapWidth;
+
+  /// Whether the text does not fit its block: it needs more than [maxLines]
+  /// lines, or a line is wider than the block (a word that cannot break).
+  /// The printer overprints such text where the preview truncates it or lets
+  /// it run on. Always false without a block.
+  bool get overflows {
+    final width = wrapWidth;
+    if (width == null) return false;
+    return lineCount > maxLines || longestLine > width + 0.5;
+  }
+}
+
+/// Measures [text] with the same font, scale and wrap width as
+/// [drawZplText], but with no line limit, so a text that needs more lines
+/// than `^FB` allows can be told apart. A text with a `maxWidth` is measured
+/// against that block even when it is one left-aligned line, which the
+/// painter draws unwrapped. Needs the Flutter bindings, like
+/// [ZplRasterizer.render].
+ZplTextFit measureZplText(ZplText text, ZplConfiguration config) {
+  final setup = _TextSetup(text, config, unlimitedLines: true);
+  final wrap =
+      setup.blockWidth ??
+      (text.maxWidth == null
+          ? null
+          : (text.maxWidth! - text.paddingRight).toDouble());
+  final tp = setup.tp;
+  if (wrap == null) {
+    tp.layout();
+  } else {
+    tp.layout(maxWidth: wrap / setup.hScale);
+  }
+  final lines = tp.computeLineMetrics();
+  final fit = ZplTextFit(
+    lineCount: lines.isEmpty ? 1 : lines.length,
+    longestLine: lines.isEmpty
+        ? 0
+        : lines.map((l) => l.width).reduce((a, b) => a > b ? a : b) *
+              setup.hScale,
+    maxLines: text.maxLines,
+    wrapWidth: wrap,
+  );
+  tp.dispose();
+  return fit;
 }
 
 /// Positions the canvas so that a field of [width] x [height] dots drawn at

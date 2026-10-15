@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `measureZplText` and `ZplTextFit` measure a `ZplText` against its `^FB`
+  block with the preview painter's font, scale and wrap width and no line
+  limit. `ZplTextFit.overflows` is true when the text needs more lines than
+  `maxLines` or a line is wider than the block, which the preview truncates or
+  draws unwrapped and the printer overprints. `drawZplText` is unchanged.
 - `ZplRasterizer.render` draws a `ZplGenerator` offscreen into a `ZplRaster`
   (PNG at one pixel per dot, width, height and `inkRatio`), with the same
   painter as `ZplNativePreview` and no widget tree or network. It needs the

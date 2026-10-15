@@ -46,3 +46,4 @@ export 'src/zpl_hardware.dart';
 export 'widgets/zpl_preview.dart';
 export 'src/preview/zpl_native_preview.dart';
 export 'src/preview/zpl_rasterizer.dart';
+export 'src/preview/zpl_text_painter.dart' show ZplTextFit, measureZplText;

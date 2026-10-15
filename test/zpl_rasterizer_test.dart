@@ -118,6 +118,55 @@ void main() {
       expect(_isInk(decoded.getPixel(120, 80)), isFalse);
     });
 
+    test('a box thinner than its border is widened to the border', () async {
+      // ^GB10,100,30 and ^GB100,10,30: the printer (and Labelary) take the
+      // border as the least width and height of the box.
+      for (final (w, h, expectedW, expectedH) in [
+        (10, 100, 30, 100),
+        (100, 10, 100, 30),
+        (10, 10, 30, 30),
+      ]) {
+        final raster = await rasterizer.render(
+          ZplGenerator(
+            config: const ZplConfiguration(printWidth: 200, labelLength: 200),
+            commands: [
+              ZplBox(x: 20, y: 40, width: w, height: h, borderThickness: 30),
+            ],
+          ),
+        );
+
+        final decoded = _decode(raster);
+        var ink = 0;
+        for (final p in decoded) {
+          if (_isInk(p)) ink++;
+        }
+        expect(ink, expectedW * expectedH, reason: '^GB$w,$h,30');
+        expect(_isInk(decoded.getPixel(20, 40)), isTrue);
+        expect(
+          _isInk(decoded.getPixel(20 + expectedW - 1, 40 + expectedH - 1)),
+          isTrue,
+          reason: '^GB$w,$h,30 reaches its widened corner',
+        );
+        expect(_isInk(decoded.getPixel(20 + expectedW, 40)), isFalse);
+        expect(_isInk(decoded.getPixel(20, 40 + expectedH)), isFalse);
+      }
+    });
+
+    test('a box wider than its border keeps its size', () async {
+      final raster = await rasterizer.render(
+        ZplGenerator(
+          config: const ZplConfiguration(printWidth: 200, labelLength: 200),
+          commands: [
+            ZplBox(x: 20, y: 40, width: 60, height: 40, borderThickness: 20),
+          ],
+        ),
+      );
+
+      // 60 x 40 outline with a 20-dot border: the border covers half of the
+      // short side, so the box is solid.
+      expect(raster.inkRatio, 2400 / (200 * 200));
+    });
+
     test('an inline image comes back with the same pixels', () async {
       final image = ZplImageInline(x: 7, y: 5, image: _stripes16());
       final expected = image.getMonochromePixels()!;

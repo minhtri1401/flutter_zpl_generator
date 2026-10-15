@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 import 'zpl_barcode_painter.dart';
@@ -87,6 +89,10 @@ class ZplCanvasPainter extends CustomPainter {
   }
 
   void _drawBox(Canvas canvas, ZplBox box) {
+    // The printer takes the border thickness as the least width and height of
+    // the box: ^GB10,100,30 prints 30 wide.
+    final width = math.max(box.width, box.borderThickness).toDouble();
+    final height = math.max(box.height, box.borderThickness).toDouble();
     final paint = Paint()
       ..color = box.reversePrint ? Colors.white : Colors.black
       ..blendMode = box.reversePrint ? BlendMode.difference : BlendMode.srcOver
@@ -94,8 +100,7 @@ class ZplCanvasPainter extends CustomPainter {
       // box is solid. Stroking it would collapse the inset rectangle to a
       // line along the short axis and crop a wide bar to its inset length.
       ..style =
-          box.borderThickness >= box.width / 2 ||
-              box.borderThickness >= box.height / 2
+          box.borderThickness >= width / 2 || box.borderThickness >= height / 2
           ? PaintingStyle.fill
           : PaintingStyle.stroke
       ..strokeWidth = box.borderThickness.toDouble();
@@ -106,14 +111,13 @@ class ZplCanvasPainter extends CustomPainter {
     final rect = Rect.fromLTWH(
       box.x.toDouble() + inset,
       box.y.toDouble() + inset,
-      (box.width.toDouble() - (inset * 2)).clamp(0, double.infinity),
-      (box.height.toDouble() - (inset * 2)).clamp(0, double.infinity),
+      (width - (inset * 2)).clamp(0, double.infinity),
+      (height - (inset * 2)).clamp(0, double.infinity),
     );
 
     if (box.cornerRounding > 0) {
       final radius = Radius.circular(
-        (box.cornerRounding / 8) *
-            (box.width > box.height ? box.height / 2 : box.width / 2),
+        (box.cornerRounding / 8) * (width > height ? height / 2 : width / 2),
       );
       canvas.drawRRect(RRect.fromRectAndRadius(rect, radius), paint);
     } else {

@@ -39,6 +39,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   text) cropped to its inset length, with white margins at both ends. The bar
   now stays solid across its full width, and the reverse-print text is knocked
   out white, as on Labelary and the printer.
+- `ZplNativePreview` and `ZplRasterizer` drew a `^GB` whose width or height is
+  below its border thickness (such as `^GB10,100,30`) at the size it was
+  given. The printer and Labelary take the border thickness as the least width
+  and height, so the box is now widened to it.
 - `ZplRasterizer.render` disposed its `Picture` only after `toImage` had
   succeeded, so a render that threw (an empty size) leaked the native
   picture. The picture is now disposed on every path.

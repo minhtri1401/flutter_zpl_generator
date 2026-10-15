@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.0] - 2026-10-16
+
 ### Removed
 
 - Unused `barcode_widget` dependency. Apps that use `BarcodeWidget` must now

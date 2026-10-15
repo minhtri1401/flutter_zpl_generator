@@ -25,7 +25,10 @@ void main() {
     expect(encoder.compressRow('${'F' * 19}0'), 'YF,');
     expect(encoder.compressRow('${'F' * 20}0'), 'gF,');
     expect(encoder.compressRow('${'F' * 21}0'), 'gFF,');
-    expect(encoder.compressRow('${'F' * 22}0'), 'gFHF,'); // two runs, both valid
+    expect(
+      encoder.compressRow('${'F' * 22}0'),
+      'gFHF,',
+    ); // two runs, both valid
   });
 
   test('a single nibble is emitted without a repeat letter', () {

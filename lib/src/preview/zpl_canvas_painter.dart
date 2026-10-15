@@ -146,8 +146,9 @@ class ZplCanvasPainter extends CustomPainter {
   }
 
   void _drawEllipse(Canvas canvas, ZplGraphicEllipse ellipse) {
+    // No hole is left once the border covers half of either side.
     final isFilled =
-        ellipse.borderThickness >= ellipse.width / 2 &&
+        ellipse.borderThickness >= ellipse.width / 2 ||
         ellipse.borderThickness >= ellipse.height / 2;
     final paint = Paint()
       ..color = Colors.black

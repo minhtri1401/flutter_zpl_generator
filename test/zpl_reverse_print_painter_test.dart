@@ -108,4 +108,57 @@ void main() {
       expect(_isInk(image.getPixel(5, 50)), isFalse);
     });
   });
+
+  group('thick ellipses', () {
+    test('a wide ellipse whose border covers its height fills', () async {
+      final raster = await const ZplRasterizer().render(
+        ZplGenerator(
+          config: const ZplConfiguration(printWidth: 400, labelLength: 100),
+          commands: [
+            ZplGraphicEllipse(
+              x: 0,
+              y: 0,
+              width: 400,
+              height: 100,
+              borderThickness: 60,
+            ),
+          ],
+        ),
+      );
+      // A filled 400 x 100 ellipse covers pi/4 of its bounding box.
+      expect(raster.inkRatio, closeTo(3.14159265 / 4, 0.01));
+
+      final image = await render([
+        ZplGraphicEllipse(
+          x: 0,
+          y: 0,
+          width: 400,
+          height: 100,
+          borderThickness: 60,
+        ),
+      ]);
+
+      expect(_isInk(image.getPixel(200, 50)), isTrue);
+      expect(_isInk(image.getPixel(200, 95)), isTrue);
+      expect(_isInk(image.getPixel(120, 50)), isTrue);
+      expect(_isInk(image.getPixel(10, 50)), isTrue);
+      expect(_isInk(image.getPixel(390, 50)), isTrue);
+      expect(_isInk(image.getPixel(5, 5)), isFalse);
+    });
+
+    test('a thin ellipse border stays hollow', () async {
+      final image = await render([
+        ZplGraphicEllipse(
+          x: 0,
+          y: 0,
+          width: 400,
+          height: 100,
+          borderThickness: 4,
+        ),
+      ]);
+
+      expect(_isInk(image.getPixel(200, 50)), isFalse);
+      expect(_isInk(image.getPixel(200, 1)), isTrue);
+    });
+  });
 }

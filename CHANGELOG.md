@@ -31,6 +31,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `ZplNativePreview` and `ZplRasterizer` drew a wide `^GE` ellipse whose
+  border covers half of its height as a thin outline with a hole. It is now
+  filled, as on the printer.
 - `ZplNativePreview` and `ZplRasterizer` drew a wide `^GB` bar whose border
   covers its short side (such as a full-width bar behind `^FR` reverse-print
   text) cropped to its inset length, with white margins at both ends. The bar

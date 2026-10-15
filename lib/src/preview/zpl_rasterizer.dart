@@ -63,8 +63,11 @@ class ZplRasterizer {
     );
     ZplCanvasPainter(generator: generator).paint(canvas, size);
     final picture = recorder.endRecording();
-    final image = await picture.toImage(width, height);
+    // Both are native handles: dispose them whatever fails, including
+    // `toImage` itself (an empty size throws "Invalid image dimensions").
+    ui.Image? image;
     try {
+      image = await picture.toImage(width, height);
       final pngData = await image.toByteData(format: ui.ImageByteFormat.png);
       final rawData = await image.toByteData(
         format: ui.ImageByteFormat.rawRgba,
@@ -79,7 +82,7 @@ class ZplRasterizer {
         inkRatio: _inkRatio(rawData!, width * height),
       );
     } finally {
-      image.dispose();
+      image?.dispose();
       picture.dispose();
     }
   }

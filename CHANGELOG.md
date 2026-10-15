@@ -39,6 +39,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   text) cropped to its inset length, with white margins at both ends. The bar
   now stays solid across its full width, and the reverse-print text is knocked
   out white, as on Labelary and the printer.
+- `ZplRasterizer.render` disposed its `Picture` only after `toImage` had
+  succeeded, so a render that threw (an empty size) leaked the native
+  picture. The picture is now disposed on every path.
 - `ZplSeparator` with `ZplSeparatorType.box` now emits `^GB…,t,t` (border
   thickness equal to the rule thickness), so rules 3 dots or thicker print
   solid instead of as a 1-dot outline. 1- and 2-dot rules look the same; their

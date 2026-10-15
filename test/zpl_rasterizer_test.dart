@@ -31,6 +31,22 @@ void main() {
   const rasterizer = ZplRasterizer();
 
   group('ZplRasterizer', () {
+    test('an empty size throws and leaves the rasterizer usable', () async {
+      final generator = ZplGenerator(
+        config: const ZplConfiguration(printWidth: 20, labelLength: 20),
+        commands: const [],
+      );
+
+      for (final size in [0, -5]) {
+        await expectLater(
+          rasterizer.render(generator, widthDots: size, heightDots: size),
+          throwsException,
+        );
+      }
+      final ok = await rasterizer.render(generator);
+      expect((ok.width, ok.height), (20, 20));
+    });
+
     test('uses explicit dimensions, one pixel per dot', () async {
       final raster = await rasterizer.render(
         ZplGenerator(

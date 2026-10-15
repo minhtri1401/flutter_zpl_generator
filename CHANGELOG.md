@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `ZplRasterizer.render` draws a `ZplGenerator` offscreen into a `ZplRaster`
+  (PNG at one pixel per dot, width, height and `inkRatio`), with the same
+  painter as `ZplNativePreview` and no widget tree or network. It needs the
+  Flutter binding, so tests call `TestWidgetsFlutterBinding.ensureInitialized()`.
+  Width and height default to the configuration's `printWidth` and
+  `labelLength`, else 406 x 609.
 - `ZplFieldDataEscaper` (`needsHex`, `hexEscape`) is exported so hosts that
   fill `{{placeholders}}` into finished ZPL can escape values in `^FH` fields
   the same way; `{{name}}` placeholders are left unescaped.

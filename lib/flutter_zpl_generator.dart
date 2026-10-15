@@ -45,3 +45,4 @@ export 'src/zpl_text_block.dart';
 export 'src/zpl_hardware.dart';
 export 'widgets/zpl_preview.dart';
 export 'src/preview/zpl_native_preview.dart';
+export 'src/preview/zpl_rasterizer.dart';

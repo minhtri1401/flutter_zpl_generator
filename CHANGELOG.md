@@ -31,6 +31,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `ZplNativePreview` and `ZplRasterizer` drew a wide `^GB` bar whose border
+  covers its short side (such as a full-width bar behind `^FR` reverse-print
+  text) cropped to its inset length, with white margins at both ends. The bar
+  now stays solid across its full width, and the reverse-print text is knocked
+  out white, as on Labelary and the printer.
 - `ZplSeparator` with `ZplSeparatorType.box` now emits `^GB…,t,t` (border
   thickness equal to the rule thickness), so rules 3 dots or thicker print
   solid instead of as a 1-dot outline. 1- and 2-dot rules look the same; their

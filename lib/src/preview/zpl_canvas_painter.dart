@@ -90,8 +90,11 @@ class ZplCanvasPainter extends CustomPainter {
     final paint = Paint()
       ..color = box.reversePrint ? Colors.white : Colors.black
       ..blendMode = box.reversePrint ? BlendMode.difference : BlendMode.srcOver
+      // A border thicker than half the shorter side leaves no hole, so the
+      // box is solid. Stroking it would collapse the inset rectangle to a
+      // line along the short axis and crop a wide bar to its inset length.
       ..style =
-          box.borderThickness >= box.width / 2 &&
+          box.borderThickness >= box.width / 2 ||
               box.borderThickness >= box.height / 2
           ? PaintingStyle.fill
           : PaintingStyle.stroke

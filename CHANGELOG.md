@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-10-20
+
+### Added
+
+- `ZplRasterizer.render(scale:)` draws the label at `scale` pixels per dot
+  (default 1.0, the old output). `width` and `height` are then pixel sizes,
+  the dot size times `scale` rounded, at least one pixel.
+- `ZplRaster.scale` reports the pixels per dot the raster was drawn at.
+
 ## [2.3.0] - 2026-10-16
 
 ### Removed

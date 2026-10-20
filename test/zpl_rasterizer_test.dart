@@ -243,5 +243,64 @@ void main() {
       expect(raster.inkRatio, 120000 / (1200 * 1800));
       expect(_decode(raster).width, 1200);
     });
+
+    test('default scale is unchanged', () async {
+      final raster = await rasterizer.render(
+        ZplGenerator(
+          config: const ZplConfiguration(printWidth: 64, labelLength: 48),
+          commands: const [],
+        ),
+      );
+
+      expect(raster.scale, 1);
+      expect((raster.width, raster.height), (64, 48));
+      expect(_decode(raster).width, 64);
+    });
+
+    test('render at scale 3 is three times the size', () async {
+      final raster = await rasterizer.render(
+        ZplGenerator(
+          config: const ZplConfiguration(printWidth: 100, labelLength: 50),
+          commands: [
+            ZplBox(x: 0, y: 0, width: 100, height: 50, borderThickness: 50),
+          ],
+        ),
+        scale: 3,
+      );
+
+      expect(raster.width, 300);
+      expect(raster.height, 150);
+      expect(raster.scale, 3);
+      final decoded = _decode(raster);
+      expect(decoded.width, 300);
+      expect(decoded.height, 150);
+    });
+
+    test('scaled raster keeps the same ink share', () async {
+      final generator = ZplGenerator(
+        config: const ZplConfiguration(printWidth: 100, labelLength: 50),
+        commands: [
+          ZplBox(x: 10, y: 10, width: 60, height: 30, borderThickness: 5),
+        ],
+      );
+
+      final at1 = await rasterizer.render(generator);
+      final at3 = await rasterizer.render(generator, scale: 3);
+
+      expect(at3.inkRatio, closeTo(at1.inkRatio, 0.02));
+    });
+
+    test('fractional scale rounds the pixel size', () async {
+      final raster = await rasterizer.render(
+        ZplGenerator(
+          config: const ZplConfiguration(printWidth: 406, labelLength: 609),
+          commands: const [],
+        ),
+        scale: 1.97,
+      );
+
+      expect(raster.width, 800);
+      expect(raster.height, 1200);
+    });
   });
 }

@@ -51,13 +51,21 @@ class ZplRasterizer {
 
   /// Paints [generator] white-first at [widthDots] x [heightDots], drawn at
   /// [scale] pixels per dot. These default to the configuration's
-  /// `printWidth` and `labelLength`, else 406 x 609.
+  /// `printWidth` and `labelLength`, else 406 x 609. Throws an
+  /// [ArgumentError] when [scale] is not finite or not greater than 0.
   Future<ZplRaster> render(
     ZplGenerator generator, {
     int? widthDots,
     int? heightDots,
     double scale = 1.0,
   }) async {
+    if (!scale.isFinite || scale <= 0) {
+      throw ArgumentError.value(
+        scale,
+        'scale',
+        'must be finite and greater than 0',
+      );
+    }
     final widthDotsValue = widthDots ?? generator.config.printWidth ?? 406;
     final heightDotsValue = heightDots ?? generator.config.labelLength ?? 609;
     final size = ui.Size(widthDotsValue.toDouble(), heightDotsValue.toDouble());

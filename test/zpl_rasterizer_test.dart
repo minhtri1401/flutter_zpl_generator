@@ -257,6 +257,20 @@ void main() {
       expect(_decode(raster).width, 64);
     });
 
+    test('a scale that is zero, negative or not finite is rejected', () async {
+      final generator = ZplGenerator(
+        config: const ZplConfiguration(printWidth: 64, labelLength: 48),
+        commands: const [],
+      );
+      for (final bad in [0.0, -1.0, double.nan, double.infinity]) {
+        await expectLater(
+          rasterizer.render(generator, scale: bad),
+          throwsArgumentError,
+          reason: 'scale $bad',
+        );
+      }
+    });
+
     test('render at scale 3 is three times the size', () async {
       final raster = await rasterizer.render(
         ZplGenerator(

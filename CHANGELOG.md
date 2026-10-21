@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.1] - 2026-10-22
+
+### Fixed
+
+- The native preview now draws all 13 digits of an EAN-13 interpretation line: the leading digit sits left of the start guard, as Zebra prints it ("5 901234 123457"). The bars still start at the field origin. UPC-A and EAN-8 are unchanged.
+
 ## [2.4.0] - 2026-10-20
 
 ### Added

@@ -146,49 +146,7 @@ void _draw1D(
   }
 
   if (!drawText || textBars.isEmpty) return;
-  final srcLeft = textBars.first.left;
-  final srcSpan = textBars.last.left + textBars.last.width - srcLeft;
-  final scale = srcSpan > 0 ? m.width / srcSpan : 1.0;
-  final texts = textPass.whereType<BarcodeText>().toList();
-
-  // EAN/UPC print digit groups under their bar groups; every other
-  // symbology prints the data as one centred word (package:barcode spreads
-  // Code 39 / I2of5 characters across the width, Zebra does not).
-  final retail = switch (b.type) {
-    ZplBarcodeType.ean13 ||
-    ZplBarcodeType.ean8 ||
-    ZplBarcodeType.upcA ||
-    ZplBarcodeType.upcE => true,
-    _ => false,
-  };
-  final placements = retail
-      ? [
-          // Zebra omits EAN-13's leading digit (Labelary: ink starts at ^FO
-          // x) but prints UPC-A/UPC-E system and check digits outside the
-          // bars (ink starts ~20 dots left of x).
-          for (final el in texts)
-            if (b.type != ZplBarcodeType.ean13 || el.left >= srcLeft)
-              (
-                text: el.text,
-                left: (el.left - srcLeft) * scale,
-                width: el.width * scale,
-                top: el.top,
-                height: el.height,
-              ),
-        ]
-      : [
-          (
-            // package:barcode strips the "(AI)" parentheses from GS1-128
-            // text; Zebra prints the data as typed.
-            text: b.type == ZplBarcodeType.gs1_128
-                ? b.data
-                : texts.map((e) => e.text).join(),
-            left: 0.0,
-            width: m.width,
-            top: texts.first.top,
-            height: texts.first.height,
-          ),
-        ];
+  final placements = _textPlacements(b, m, textPass);
 
   for (final el in placements) {
     final tp = TextPainter(
@@ -204,6 +162,85 @@ void _draw1D(
         : barsTop + el.top + (el.height - tp.height) / 2;
     tp.paint(canvas, Offset(x + el.left, top));
   }
+}
+
+/// One piece of interpretation-line text, in dots relative to the field
+/// origin (`^FO` x). A negative [left] sits left of the bars.
+typedef BarcodeTextPlacement = ({
+  String text,
+  double left,
+  double width,
+  double top,
+  double height,
+});
+
+/// The interpretation-line text of [b] as the preview paints it.
+@visibleForTesting
+List<BarcodeTextPlacement> debugBarcodeTextPlacements(ZplBarcode b) {
+  final m = measureBarcodeSymbol(b)!;
+  final textH = interpretationLineHeight(b);
+  final pass = previewBarcodeFor(b)
+      .make(
+        b.data,
+        width: m.width,
+        height: m.height + textH,
+        drawText: true,
+        fontHeight: textH,
+        textPadding: 0,
+      )
+      .toList();
+  return _textPlacements(b, m, pass);
+}
+
+List<BarcodeTextPlacement> _textPlacements(
+  ZplBarcode b,
+  ZplBarcodeSymbolMetrics m,
+  List<BarcodeElement> textPass,
+) {
+  final textBars = textPass.whereType<BarcodeBar>().toList();
+  final srcLeft = textBars.first.left;
+  final srcSpan = textBars.last.left + textBars.last.width - srcLeft;
+  final scale = srcSpan > 0 ? m.width / srcSpan : 1.0;
+  final texts = textPass.whereType<BarcodeText>().toList();
+
+  // EAN/UPC print digit groups under their bar groups; every other
+  // symbology prints the data as one centred word (package:barcode spreads
+  // Code 39 / I2of5 characters across the width, Zebra does not).
+  final retail = switch (b.type) {
+    ZplBarcodeType.ean13 ||
+    ZplBarcodeType.ean8 ||
+    ZplBarcodeType.upcA ||
+    ZplBarcodeType.upcE => true,
+    _ => false,
+  };
+  return retail
+      ? [
+          // Zebra prints EAN-13's leading digit and UPC-A/UPC-E system and
+          // check digits outside the bars (ink starts ~20 dots left of ^FO
+          // x, the bars themselves still start at x), so the digits whose
+          // left edge is before the first bar keep a negative offset.
+          for (final el in texts)
+            (
+              text: el.text,
+              left: (el.left - srcLeft) * scale,
+              width: el.width * scale,
+              top: el.top,
+              height: el.height,
+            ),
+        ]
+      : [
+          (
+            // package:barcode strips the "(AI)" parentheses from GS1-128
+            // text; Zebra prints the data as typed.
+            text: b.type == ZplBarcodeType.gs1_128
+                ? b.data
+                : texts.map((e) => e.text).join(),
+            left: 0.0,
+            width: m.width,
+            top: texts.first.top,
+            height: texts.first.height,
+          ),
+        ];
 }
 
 /// Height in dots of the human-readable line Zebra prints under 1D codes.

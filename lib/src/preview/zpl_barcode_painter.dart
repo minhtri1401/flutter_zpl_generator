@@ -11,6 +11,17 @@ import 'zpl_barcode_symbol_metrics.dart';
 import 'zpl_code128_zebra_encoder.dart';
 import 'zpl_text_painter.dart';
 
+/// True when the data [b] encodes is one whole unfilled `{{token}}`. In
+/// Code 128 mode none a leading start invocation (`>9`, `>:`, `>;`) is not
+/// data, so `>9{{token}}` counts.
+bool isBarcodeDataPlaceholder(ZplBarcode b) {
+  final data =
+      b.type == ZplBarcodeType.code128 && b.code128Mode == ZplCode128Mode.none
+      ? code128ModeNPayload(b.data)
+      : b.data;
+  return gs1IsPlaceholder(data);
+}
+
 /// Draws a [ZplBarcode] on [canvas] at printer-dot scale, sized from the
 /// real encoded module count so it matches what Zebra firmware prints:
 /// no quiet zones, bars at the full `^BY` width and height, interpretation
@@ -19,7 +30,7 @@ void drawZplBarcode(Canvas canvas, ZplBarcode b, ZplConfiguration config) {
   final x = b.getAlignedX(config).toDouble();
   final y = b.y.toDouble();
   // An unfilled {{token}} is not data: never encode it into a real symbol.
-  final m = gs1IsPlaceholder(b.data) ? null : measureBarcodeSymbol(b);
+  final m = isBarcodeDataPlaceholder(b) ? null : measureBarcodeSymbol(b);
   if (m == null) {
     _drawUnencodable(canvas, b, x, y);
     return;
@@ -280,7 +291,7 @@ Size _declaredBounds(ZplBarcode b) {
 /// are clipped to the declared bounds so nothing hangs outside the field.
 void _drawUnencodable(Canvas canvas, ZplBarcode b, double x, double y) {
   final size = _declaredBounds(b);
-  final placeholder = gs1IsPlaceholder(b.data);
+  final placeholder = isBarcodeDataPlaceholder(b);
   canvas.save();
   applyFieldOrientation(canvas, b.orientation, x, y, size.width, size.height);
   final box = Offset.zero & size;

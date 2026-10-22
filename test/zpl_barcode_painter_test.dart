@@ -126,4 +126,28 @@ void main() {
       expect(box[3], lessThan(b.height));
     });
   });
+
+  testWidgets('a token behind a start invocation paints the placeholder', (
+    tester,
+  ) async {
+    final b = ZplBarcode(
+      data: '>9{{fnsku}}',
+      type: ZplBarcodeType.code128,
+      height: 50,
+      code128Mode: ZplCode128Mode.none,
+    );
+    await tester.runAsync(() async {
+      // Must not throw and must paint something (the placeholder pattern).
+      final image = await _rasterise(b, 300);
+      final rgba = (await image.toByteData(
+        format: ui.ImageByteFormat.rawRgba,
+      ))!;
+      var inked = 0;
+      for (var i = 3; i < rgba.lengthInBytes; i += 4) {
+        if (rgba.getUint8(i) != 0) inked++;
+      }
+      expect(inked, greaterThan(0));
+    });
+    expect(isBarcodeDataPlaceholder(b), isTrue);
+  });
 }

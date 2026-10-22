@@ -2,6 +2,7 @@ import 'package:barcode/barcode.dart';
 import 'package:flutter/material.dart';
 
 import '../enums.dart';
+import '../gs1/gs1_application_identifier.dart' show gs1IsPlaceholder;
 import '../zpl_barcode.dart';
 import '../zpl_barcode_enums.dart';
 import '../zpl_configuration.dart';
@@ -17,9 +18,10 @@ import 'zpl_text_painter.dart';
 void drawZplBarcode(Canvas canvas, ZplBarcode b, ZplConfiguration config) {
   final x = b.getAlignedX(config).toDouble();
   final y = b.y.toDouble();
-  final m = measureBarcodeSymbol(b);
+  // An unfilled {{token}} is not data: never encode it into a real symbol.
+  final m = gs1IsPlaceholder(b.data) ? null : measureBarcodeSymbol(b);
   if (m == null) {
-    _drawError(canvas, x, y, 'Unencodable ${b.type.name}: ${b.data}');
+    _drawUnencodable(canvas, b, x, y);
     return;
   }
 
@@ -264,17 +266,75 @@ double interpretationLineHeight(ZplBarcode b) => 7.0 * (b.moduleWidth ?? 2) + 6;
 double symbolTopOffset(ZplBarcode b) =>
     b.type == ZplBarcodeType.qrCode ? 10.0 : 0.0;
 
-void _drawError(Canvas canvas, double x, double y, String message) {
-  canvas.drawRect(
-    Rect.fromLTWH(x, y, 100, 50),
-    Paint()..color = const Color(0x809E9E9E),
-  );
+/// Declared field box in dots: the estimated width by the bar height
+/// (2D symbols, other than PDF417, are square).
+Size _declaredBounds(ZplBarcode b) {
+  final w = b.width.toDouble();
+  final h = b.height.toDouble();
+  final square = isTwoDimensional(b.type) && b.type != ZplBarcodeType.pdf417;
+  return Size(w < 1 ? 100 : w, square ? (w < 1 ? 100 : w) : (h < 1 ? 50 : h));
+}
+
+/// Paints what stands in for a barcode the engine cannot encode: a neutral
+/// placeholder for an unfilled `{{token}}`, an error box otherwise. Both
+/// are clipped to the declared bounds so nothing hangs outside the field.
+void _drawUnencodable(Canvas canvas, ZplBarcode b, double x, double y) {
+  final size = _declaredBounds(b);
+  final placeholder = gs1IsPlaceholder(b.data);
+  canvas.save();
+  applyFieldOrientation(canvas, b.orientation, x, y, size.width, size.height);
+  final box = Offset.zero & size;
+  canvas.clipRect(box);
+  if (placeholder) {
+    _paintPlaceholderPattern(canvas, box, isTwoDimensional(b.type));
+    _paintCaption(canvas, box, b.data, const Color(0xFF424242));
+  } else {
+    canvas.drawRect(box, Paint()..color = const Color(0x809E9E9E));
+    _paintCaption(
+      canvas,
+      box,
+      'Unencodable ${b.type.name}: ${b.data}',
+      Colors.black,
+    );
+  }
+  canvas.restore();
+}
+
+void _paintPlaceholderPattern(Canvas canvas, Rect box, bool grid) {
+  final paint = Paint()
+    ..color = const Color(0xFFBDBDBD)
+    ..isAntiAlias = false;
+  if (grid) {
+    final cell = (box.shortestSide / 12).clamp(2.0, double.infinity);
+    for (int r = 0; r * cell < box.height; r++) {
+      for (int c = 0; c * cell < box.width; c++) {
+        if ((r + c).isEven) {
+          canvas.drawRect(
+            Rect.fromLTWH(box.left + c * cell, box.top + r * cell, cell, cell),
+            paint,
+          );
+        }
+      }
+    }
+    return;
+  }
+  final step = (box.width / 24).clamp(2.0, double.infinity);
+  for (double bx = box.left; bx < box.right; bx += step * 2) {
+    canvas.drawRect(Rect.fromLTWH(bx, box.top, step, box.height), paint);
+  }
+}
+
+void _paintCaption(Canvas canvas, Rect box, String text, Color color) {
   final tp = TextPainter(
     text: TextSpan(
-      text: message,
-      style: const TextStyle(color: Colors.black, fontSize: 12),
+      text: text,
+      style: TextStyle(color: color, fontSize: 12),
     ),
     textDirection: TextDirection.ltr,
-  )..layout();
-  tp.paint(canvas, Offset(x, y));
+    maxLines: 1,
+    ellipsis: '…',
+  )..layout(maxWidth: box.width);
+  final bg = Rect.fromLTWH(box.left, box.top, tp.width, tp.height);
+  canvas.drawRect(bg, Paint()..color = const Color(0xFFFFFFFF));
+  tp.paint(canvas, box.topLeft);
 }

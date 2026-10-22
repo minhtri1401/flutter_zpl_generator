@@ -15,6 +15,17 @@ void main() {
     magnification: 3,
   );
 
+  test('gs1_128 interpretation line is the data without >8', () {
+    final p = debugBarcodeTextPlacements(
+      bc('(10)ABC>8(21)123', ZplBarcodeType.gs1_128),
+    );
+    expect(p.map((e) => e.text).join(), '(10)ABC(21)123');
+    final plain = debugBarcodeTextPlacements(
+      bc('0109501101530003', ZplBarcodeType.gs1_128),
+    );
+    expect(plain.map((e) => e.text).join(), '0109501101530003');
+  });
+
   test('ean13 interpretation line has 13 digits with the first left of the '
       'guard', () {
     final p = debugBarcodeTextPlacements(

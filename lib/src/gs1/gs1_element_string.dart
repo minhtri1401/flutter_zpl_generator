@@ -103,6 +103,24 @@ class Gs1ElementString {
   static String parenthesisedToFnc1(String text, {String escape = '~'}) =>
       toFnc1(parse(text), escape: escape);
 
+  /// The `^FD` content for a GS1-128 (`^BC…,D`) field: [data] with `>8`
+  /// (FNC1) inserted before every AI that follows a variable-length value,
+  /// because the printer inserts no separator on its own. [data] that
+  /// already holds `>8`, or is not a parenthesised element string, comes
+  /// back unchanged. Placeholders are fine: only the AI table decides.
+  static String modeDFieldData(String data) {
+    if (data.contains('>8')) return data;
+    final elements = tryParse(data);
+    if (elements == null) return data;
+    final b = StringBuffer();
+    for (var i = 0; i < elements.length; i++) {
+      final e = elements[i];
+      b.write(e);
+      if (e.ai.variableLength && i < elements.length - 1) b.write('>8');
+    }
+    return b.toString();
+  }
+
   /// Converts concrete FNC1 data back to elements, using the AI table to split
   /// fixed-length values. A whole `{{placeholder}}` is kept as one value.
   /// Throws [FormatException] on a missing prefix, unknown AI, or bad length.

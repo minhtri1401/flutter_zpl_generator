@@ -142,4 +142,42 @@ void main() {
     );
     expect(Gs1ElementString.tryFromFnc1('~110A~d02910B'), isNull);
   });
+
+  group('modeDFieldData', () {
+    test('separates a variable-length value from the next AI', () {
+      expect(
+        Gs1ElementString.modeDFieldData('(10){{lot}}(21){{sn}}'),
+        '(10){{lot}}>8(21){{sn}}',
+      );
+      expect(
+        Gs1ElementString.modeDFieldData('(10)ABC(21)123'),
+        '(10)ABC>8(21)123',
+      );
+      expect(
+        Gs1ElementString.modeDFieldData('(10)ABC(17)261231'),
+        '(10)ABC>8(17)261231',
+      );
+    });
+
+    test('leaves a trailing variable-length value alone', () {
+      expect(Gs1ElementString.modeDFieldData(full), full);
+      expect(
+        Gs1ElementString.modeDFieldData('(01)09501101530003'),
+        '(01)09501101530003',
+      );
+    });
+
+    test('leaves plain digits, existing separators and bad data alone', () {
+      expect(
+        Gs1ElementString.modeDFieldData('0109501101530003'),
+        '0109501101530003',
+      );
+      expect(
+        Gs1ElementString.modeDFieldData('(10)ABC>8(21)123'),
+        '(10)ABC>8(21)123',
+      );
+      expect(Gs1ElementString.modeDFieldData('(99)x(10)y'), '(99)x(10)y');
+      expect(Gs1ElementString.modeDFieldData(''), '');
+    });
+  });
 }

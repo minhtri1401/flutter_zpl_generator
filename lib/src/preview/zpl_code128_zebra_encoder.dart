@@ -359,3 +359,113 @@ List<double> code128UnitsOf(List<int> symbols) {
       for (final ch in _patterns[v].codeUnits) (ch - 0x30).toDouble(),
   ];
 }
+
+/// The interpretation-line text of GS1-128 (mode D) [data]: the data as
+/// typed, without the `>8` separators the generator inserts between chained
+/// application identifiers.
+String gs1_128LineText(String data) => data.replaceAll('>8', '');
+
+/// Symbol values (without check digit and stop) for the `^FD` content of a
+/// ZPL mode D (GS1-128, `^BC…,D`) field.
+///
+/// The printer drops parentheses and spaces, treats each `>8` as FNC1 and
+/// ignores everything from any other `>` on (so those are unencodable here:
+/// [ArgumentError]). The symbol starts in set C when the data begins with
+/// two digits, otherwise in B, and FNC1 follows the start symbol. Inside a
+/// segment the usual automatic rules apply: in C, pair while two adjacent
+/// digits remain, else CODE B. In B, a run of four or more digits switches
+/// to C at once when its count is even; an odd run emits one digit in B,
+/// then any FNC1 that directly follows, then CODE C (FNC1 is transparent
+/// when counting the run). An FNC1 reached in B after a letter, with two or
+/// more digits following, is preceded by CODE C; after a digit it stays in B
+/// and the digits that follow are judged afresh.
+List<int> zebraGs1_128Symbols(String fieldData) {
+  // Tokens: a character code, or -1 for FNC1.
+  final tokens = <int>[];
+  final cs = fieldData.codeUnits;
+  for (int i = 0; i < cs.length; i++) {
+    final c = cs[i];
+    if (c == 0x28 || c == 0x29 || c == 0x20) continue;
+    if (c == 0x3E) {
+      if (i + 1 < cs.length && cs[i + 1] == 0x38) {
+        tokens.add(-1);
+        i++;
+        continue;
+      }
+      throw ArgumentError.value(
+        fieldData,
+        'data',
+        'Only >8 is supported in GS1-128 data',
+      );
+    }
+    if (c < 0x20 || c > 0x7F) {
+      throw ArgumentError.value(fieldData, 'data', 'Not in subset B');
+    }
+    tokens.add(c);
+  }
+  if (tokens.isEmpty || tokens.first == -1) {
+    throw ArgumentError.value(fieldData, 'data', 'No GS1-128 data');
+  }
+
+  bool digitAt(int i) => i < tokens.length && _isDigit(tokens[i]);
+  // Digits from [i] on, counting FNC1 as transparent.
+  int run(int i) {
+    int n = 0;
+    for (; i < tokens.length; i++) {
+      if (tokens[i] == -1) continue;
+      if (!_isDigit(tokens[i])) break;
+      n++;
+    }
+    return n;
+  }
+
+  final startC = digitAt(0) && digitAt(1);
+  final out = <int>[startC ? _startC : _startB, 102];
+  bool inC = startC;
+  int i = 0;
+  while (i < tokens.length) {
+    final t = tokens[i];
+    if (inC) {
+      if (t == -1) {
+        out.add(102);
+        i++;
+      } else if (digitAt(i) && digitAt(i + 1)) {
+        out.add((t - 0x30) * 10 + (tokens[i + 1] - 0x30));
+        i += 2;
+      } else {
+        out.add(_codeB);
+        inC = false;
+      }
+      continue;
+    }
+    if (t == -1) {
+      final afterLetter = i > 0 && !_isDigit(tokens[i - 1]);
+      if (afterLetter && digitAt(i + 1) && digitAt(i + 2)) {
+        out.add(_codeC);
+        inC = true;
+      }
+      out.add(102);
+      i++;
+      continue;
+    }
+    if (_isDigit(t)) {
+      final n = run(i);
+      if (n >= 4) {
+        if (n.isOdd) {
+          out.add(t - 0x20);
+          i++;
+          if (i < tokens.length && tokens[i] == -1) {
+            out.add(102);
+            i++;
+          }
+        }
+        out.add(_codeC);
+        inC = true;
+        continue;
+      }
+    }
+    out.add(t - 0x20);
+    i++;
+  }
+  return out;
+}

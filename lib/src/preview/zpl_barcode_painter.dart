@@ -197,6 +197,8 @@ typedef BarcodeTextPlacement = ({
 String _textData(ZplBarcode b) =>
     b.type == ZplBarcodeType.code128 && b.code128Mode == ZplCode128Mode.none
     ? code128ModeNText(b.data)
+    : b.type == ZplBarcodeType.gs1_128
+    ? gs1_128LineText(b.data)
     : b.data;
 
 /// The interpretation-line text of [b] as the preview paints it.
@@ -260,7 +262,7 @@ List<BarcodeTextPlacement> _textPlacements(
             // package:barcode strips the "(AI)" parentheses from GS1-128
             // text; Zebra prints the data as typed.
             text: b.type == ZplBarcodeType.gs1_128
-                ? b.data
+                ? _textData(b)
                 : texts.map((e) => e.text).join(),
             left: 0.0,
             width: m.width,

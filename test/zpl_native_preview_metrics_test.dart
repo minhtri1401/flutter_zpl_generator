@@ -22,6 +22,25 @@ void main() {
   );
 
   group('measureBarcodeSymbol', () {
+    test('GS1-128 measures the printer symbol (178 modules, not 277)', () {
+      final m = measureBarcodeSymbol(
+        bc('(01)09501101530003(10)A1', ZplBarcodeType.gs1_128, mw: 2),
+      )!;
+      expect(m.modulesWide, 178);
+      expect(m.width, 356);
+    });
+
+    test('GS1-128 data typed without parentheses still measures', () {
+      final m = measureBarcodeSymbol(
+        bc('0109501101530003', ZplBarcodeType.gs1_128, mw: 2),
+      )!;
+      expect(m.modulesWide, isNotNull);
+      expect(
+        measureBarcodeSymbol(bc('(10)A>0B', ZplBarcodeType.gs1_128, mw: 2)),
+        isNull,
+      );
+    });
+
     test('Code 128 uses Zebra subset switching (ABC-12345 → 123 modules)', () {
       final m = measureBarcodeSymbol(
         bc('ABC-12345', ZplBarcodeType.code128, mw: 2),

@@ -14,6 +14,7 @@ List<double> _packageUnits(Barcode bc, String data) {
 
 void main() {
   modeNTests();
+  modeDTests();
   test(
     'code set B symbols match the reference encoder (values 0–94, 104, 106)',
     () {
@@ -240,6 +241,179 @@ void modeNTests() {
     test('automatic default is unchanged', () {
       expect(zebraCode128Symbols('12345'), [105, 12, 34, 100, 21]);
       expect(zebraCode128Symbols('>:AB'), [104, 30, 26, 33, 34]);
+    });
+  });
+}
+
+void modeDTests() {
+  group('zebraGs1_128Symbols (mode D)', () {
+    final vectors = <String, List<int>>{
+      '(01)09501101530003(10)A1': [
+        105,
+        102,
+        1,
+        9,
+        50,
+        11,
+        1,
+        53,
+        0,
+        3,
+        10,
+        100,
+        33,
+        17,
+      ],
+      '(10)ABC(21)123': [105, 102, 10, 100, 33, 34, 35, 18, 99, 11, 23],
+      '(01)0950110153000': [105, 102, 1, 9, 50, 11, 1, 53, 0, 100, 16],
+      '(01)09501101530003(17)261231(10)A1': [
+        105,
+        102,
+        1,
+        9,
+        50,
+        11,
+        1,
+        53,
+        0,
+        3,
+        17,
+        26,
+        12,
+        31,
+        10,
+        100,
+        33,
+        17,
+      ],
+      '(10)12345': [105, 102, 10, 12, 34, 100, 21],
+      '0109501101530003': [105, 102, 1, 9, 50, 11, 1, 53, 0, 3],
+      '(01) 09501101530003': [105, 102, 1, 9, 50, 11, 1, 53, 0, 3],
+      '(10)ab12': [105, 102, 10, 100, 65, 66, 17, 18],
+      '(21)1234567(10)AB': [105, 102, 21, 12, 34, 56, 71, 100, 16, 33, 34],
+      '(90)AB': [105, 102, 90, 100, 33, 34],
+      '(240)AB': [105, 102, 24, 100, 16, 33, 34],
+      '(90)12AB': [105, 102, 90, 12, 100, 33, 34],
+      'AB': [104, 102, 33, 34],
+      '(10)ABC>8(21)123': [
+        105,
+        102,
+        10,
+        100,
+        33,
+        34,
+        35,
+        99,
+        102,
+        21,
+        12,
+        100,
+        19,
+      ],
+      '(10)ABC>8(21)A': [105, 102, 10, 100, 33, 34, 35, 99, 102, 21, 100, 33],
+      '(10)ABC>8(240)A': [
+        105,
+        102,
+        10,
+        100,
+        33,
+        34,
+        35,
+        99,
+        102,
+        24,
+        100,
+        16,
+        33,
+      ],
+      '(10)ABC>8(21)12': [105, 102, 10, 100, 33, 34, 35, 99, 102, 21, 12],
+      '(10)ABC>8(21)1234': [105, 102, 10, 100, 33, 34, 35, 99, 102, 21, 12, 34],
+      '(10)1234>8(21)56': [105, 102, 10, 12, 34, 102, 21, 56],
+      '(10)123>8(21)56': [105, 102, 10, 12, 100, 19, 102, 99, 21, 56],
+      '(10)AB3>8(21)12': [105, 102, 10, 100, 33, 34, 19, 102, 99, 21, 12],
+      '(10)1234>8(21)AB': [105, 102, 10, 12, 34, 102, 21, 100, 33, 34],
+      '(10)12345>8(21)12': [105, 102, 10, 12, 34, 100, 21, 102, 99, 21, 12],
+      '(10)123>8(21)A': [105, 102, 10, 12, 100, 19, 102, 18, 17, 33],
+      '(10)AB34>8(21)12': [105, 102, 10, 100, 33, 34, 99, 34, 102, 21, 12],
+      '(10)AB>8(240)1': [105, 102, 10, 100, 33, 34, 99, 102, 24, 1],
+    };
+    var n = 0;
+    for (final e in vectors.entries) {
+      n++;
+      test('D$n ${e.key}', () {
+        expect(zebraGs1_128Symbols(e.key), e.value);
+      });
+    }
+
+    test('178 modules for the 01 + 10 case', () {
+      final units = code128UnitsOf(
+        zebraGs1_128Symbols('(01)09501101530003(10)A1'),
+      );
+      expect(units.fold<double>(0, (a, b) => a + b), 178);
+    });
+
+    test('an FNC1 after a letter with no digits following stays in B', () {
+      expect(zebraGs1_128Symbols('(10)AB>8CD'), [
+        105,
+        102,
+        10,
+        100,
+        33,
+        34,
+        102,
+        35,
+        36,
+      ]);
+    });
+
+    test('odd digit run followed by FNC1: digit, FNC1 in B, then CODE C', () {
+      expect(zebraGs1_128Symbols('A1>82345'), [
+        104,
+        102,
+        33,
+        17,
+        102,
+        99,
+        23,
+        45,
+      ]);
+    });
+
+    test('odd run: the single digit, then CODE C, with FNC1 later in C', () {
+      expect(zebraGs1_128Symbols('A123>845'), [
+        104,
+        102,
+        33,
+        17,
+        99,
+        23,
+        102,
+        45,
+      ]);
+    });
+
+    test('a trailing separator is an FNC1', () {
+      expect(zebraGs1_128Symbols('AB>8'), [104, 102, 33, 34, 102]);
+    });
+
+    test('any other > is unencodable', () {
+      expect(() => zebraGs1_128Symbols('(10)A>0B'), throwsArgumentError);
+      expect(() => zebraGs1_128Symbols('(10)A>:B'), throwsArgumentError);
+      expect(() => zebraGs1_128Symbols('(10)A>'), throwsArgumentError);
+    });
+
+    test('empty and non-ASCII data are unencodable', () {
+      expect(() => zebraGs1_128Symbols(''), throwsArgumentError);
+      expect(() => zebraGs1_128Symbols('( )'), throwsArgumentError);
+      expect(() => zebraGs1_128Symbols('(10)é'), throwsArgumentError);
+      expect(() => zebraGs1_128Symbols('(10)\n'), throwsArgumentError);
+    });
+  });
+
+  group('gs1_128LineText', () {
+    test('drops the separators and keeps the rest as typed', () {
+      expect(gs1_128LineText('(10)ABC>8(21)123'), '(10)ABC(21)123');
+      expect(gs1_128LineText('(01)09501101530003'), '(01)09501101530003');
     });
   });
 }

@@ -4,6 +4,7 @@ import 'package:barcode/barcode.dart';
 import 'package:qr/qr.dart';
 
 import '../enums.dart';
+import '../gs1/gs1_element_string.dart';
 import '../zpl_barcode.dart';
 import '../zpl_barcode_enums.dart';
 import 'zpl_barcode_preview_mapping.dart';
@@ -119,6 +120,7 @@ ZplBarcodeSymbolMetrics? _measure(ZplBarcode b) {
   try {
     if (b.type == ZplBarcodeType.qrCode) return _measureQr(b);
     if (b.type == ZplBarcodeType.code128) return _measureCode128(b);
+    if (b.type == ZplBarcodeType.gs1_128) return _measureGs1_128(b);
     final bars = makePreviewElements(
       b,
       width: _probe,
@@ -133,11 +135,22 @@ ZplBarcodeSymbolMetrics? _measure(ZplBarcode b) {
   }
 }
 
-ZplBarcodeSymbolMetrics _measureCode128(ZplBarcode b) {
-  final units = zebraCode128Units(
+ZplBarcodeSymbolMetrics _measureCode128(ZplBarcode b) => _measureUnits(
+  b,
+  zebraCode128Units(
     b.data,
     automatic: b.code128Mode == ZplCode128Mode.automatic,
-  );
+  ),
+);
+
+/// GS1-128 (`^BC…,D`) measures the symbols the printer builds from the
+/// emitted field data, not `package:barcode`'s GS1 encoding.
+ZplBarcodeSymbolMetrics _measureGs1_128(ZplBarcode b) => _measureUnits(
+  b,
+  code128UnitsOf(zebraGs1_128Symbols(Gs1ElementString.modeDFieldData(b.data))),
+);
+
+ZplBarcodeSymbolMetrics _measureUnits(ZplBarcode b, List<double> units) {
   return ZplBarcodeSymbolMetrics(
     barUnits: units,
     modulesWide: units.fold(0, (s, u) => s + u),

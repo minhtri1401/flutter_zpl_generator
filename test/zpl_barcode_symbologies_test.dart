@@ -22,6 +22,17 @@ void main() {
       expect(out, contains('^FD(01)09501101530003^FS'));
     });
 
+    test('GS1-128 separates a variable-length AI from the next with >8', () {
+      final out = zpl(
+        ZplBarcode(
+          data: '(10)ABC(21)123',
+          type: ZplBarcodeType.gs1_128,
+          height: 80,
+        ),
+      );
+      expect(out, contains('^FD(10)ABC>8(21)123^FS'));
+    });
+
     test('Code 93 emits ^BA', () {
       final out = zpl(
         ZplBarcode(data: 'CODE93', type: ZplBarcodeType.code93, height: 60),

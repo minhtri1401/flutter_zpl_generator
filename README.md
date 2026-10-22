@@ -202,7 +202,7 @@ Thirteen symbologies via `type:`; the offline `ZplNativePreview` renders all of 
 
 | 1D | 2D |
 | :--- | :--- |
-| `code128` (^BC), `gs1_128` (^BC mode D, `(AI)` data), `code39` (^B3), `code93` (^BA), `interleaved2of5` (^B2), `ean13` (^BE), `ean8` (^B8), `upcA` (^BU), `upcE` (^B9) | `qrCode` (^BQ), `dataMatrix` (^BX), `pdf417` (^B7), `aztec` (^BO) |
+| `code128` (^BC), `gs1_128` (^BC mode D, `(AI)` data; chained AIs get `>8` after a variable-length value), `code39` (^B3), `code93` (^BA), `interleaved2of5` (^B2), `ean13` (^BE), `ean8` (^B8), `upcA` (^BU), `upcE` (^B9) | `qrCode` (^BQ), `dataMatrix` (^BX), `pdf417` (^B7), `aztec` (^BO) |
 
 ```dart
 ZplBarcode(

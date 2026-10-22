@@ -24,9 +24,11 @@ String emitBarcodeSymbology(ZplBarcode b) {
       sb.writeln('^FD${b.data}^FS');
 
     case ZplBarcodeType.gs1_128:
-      // Mode D: printer inserts FNC1 and strips the "(AI)" parentheses.
+      // Mode D: the printer starts with FNC1 and strips the "(AI)"
+      // parentheses, but adds no separator after a variable-length AI, so
+      // chained AIs get an explicit >8 (FNC1).
       sb.writeln('^BC$o,$h,$f,$g,N,D');
-      sb.writeln('^FD${b.data}^FS');
+      sb.writeln('^FD${Gs1ElementString.modeDFieldData(b.data)}^FS');
 
     case ZplBarcodeType.code39:
       // ^B3o,e,h,f,g — e: Mod-43 check digit

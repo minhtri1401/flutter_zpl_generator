@@ -61,6 +61,13 @@ class ZplBarcode extends ZplCommand {
   /// PDF417 data columns 1–30. `null` lets the printer choose.
   final int? pdf417Columns;
 
+  /// Emit a GS1 Data Matrix: [data] holds GS1 element strings in the
+  /// parenthesised form, for example `(01)09501101530003(10)A1`, and the
+  /// printer receives FNC1 plus group separators. Honoured only for
+  /// [ZplBarcodeType.dataMatrix]; ignored for every other type. Data that is
+  /// not a valid element string is emitted as plain Data Matrix.
+  final bool gs1;
+
   ZplBarcode({
     this.x = 0,
     this.y = 0,
@@ -78,6 +85,7 @@ class ZplBarcode extends ZplCommand {
     this.qrErrorCorrection = ZplQrErrorCorrection.medium,
     this.pdf417SecurityLevel = 0,
     this.pdf417Columns,
+    this.gs1 = false,
   }) : assert(magnification >= 1 && magnification <= 10),
        assert(pdf417SecurityLevel >= 0 && pdf417SecurityLevel <= 8),
        assert(

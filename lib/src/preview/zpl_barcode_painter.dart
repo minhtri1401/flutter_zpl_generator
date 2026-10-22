@@ -71,10 +71,11 @@ void _draw2D(
   double x,
   double y,
 ) {
-  final bars = previewBarcodeFor(b)
-      .make(b.data, width: m.width, height: m.height)
-      .whereType<BarcodeBar>()
-      .toList();
+  final bars = makePreviewElements(
+    b,
+    width: m.width,
+    height: m.height,
+  ).whereType<BarcodeBar>().toList();
   if (bars.isEmpty) return;
   // package:barcode may pick a different row/column split than the ^B7
   // parameters (and centre the result); stretch its output to the printed

@@ -1,6 +1,7 @@
 import 'package:barcode/barcode.dart';
 
 import '../enums.dart';
+import '../gs1/gs1_element_string.dart';
 import '../zpl_barcode.dart';
 import '../zpl_barcode_enums.dart';
 
@@ -40,3 +41,31 @@ bool isTwoDimensional(ZplBarcodeType type) => switch (type) {
   ZplBarcodeType.aztec => true,
   _ => false,
 };
+
+/// Draws [b] with the preview encoder. A GS1 Data Matrix is encoded with FNC1
+/// first and a GS (codeword 30) after each variable-length value that another
+/// AI follows, as the printer does; other symbols (and GS1 data that is not an
+/// element string) use [previewBarcodeFor] on `b.data`.
+Iterable<BarcodeElement> makePreviewElements(
+  ZplBarcode b, {
+  required double width,
+  required double height,
+}) {
+  final elements = b.gs1 && b.type == ZplBarcodeType.dataMatrix
+      ? Gs1ElementString.tryParse(b.data)
+      : null;
+  if (elements == null) {
+    return previewBarcodeFor(b).make(b.data, width: width, height: height);
+  }
+  final encoder = DataMatrixEncoder()..fnc1();
+  for (var i = 0; i < elements.length; i++) {
+    final e = elements[i];
+    encoder.ascii('${e.ai.code}${e.value}');
+    if (e.ai.variableLength && i < elements.length - 1) encoder.ascii('\x1d');
+  }
+  return Barcode.dataMatrix().makeBytes(
+    encoder.toBytes(),
+    width: width,
+    height: height,
+  );
+}

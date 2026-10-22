@@ -119,10 +119,11 @@ ZplBarcodeSymbolMetrics? _measure(ZplBarcode b) {
   try {
     if (b.type == ZplBarcodeType.qrCode) return _measureQr(b);
     if (b.type == ZplBarcodeType.code128) return _measureCode128(b);
-    final bars = previewBarcodeFor(b)
-        .make(b.data, width: _probe, height: _probe)
-        .whereType<BarcodeBar>()
-        .toList();
+    final bars = makePreviewElements(
+      b,
+      width: _probe,
+      height: _probe,
+    ).whereType<BarcodeBar>().toList();
     if (bars.isEmpty) return null;
     return isTwoDimensional(b.type) ? _measure2D(b, bars) : _measure1D(b, bars);
   } on Exception {

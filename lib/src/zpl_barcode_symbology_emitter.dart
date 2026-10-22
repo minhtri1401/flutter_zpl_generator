@@ -1,4 +1,5 @@
 import 'enums.dart';
+import 'gs1/gs1_element_string.dart';
 import 'zpl_barcode.dart';
 
 /// Emits the symbology command (`^BC`, `^BQ`, …) plus the `^FD…^FS` field
@@ -49,8 +50,16 @@ String emitBarcodeSymbology(ZplBarcode b) {
 
     case ZplBarcodeType.dataMatrix:
       // ^BXo,h,q — h: module height, q: quality (200 = ECC 200)
-      sb.writeln('^BX$o,$h,200');
-      sb.writeln('^FD${b.data}^FS');
+      // GS1 adds g (escape character, set explicitly because the default
+      // differs by firmware) and sends FNC1 as "~1" and GS as "~d029".
+      final fnc1 = b.gs1 ? _gs1DataMatrixData(b.data) : null;
+      if (fnc1 == null) {
+        sb.writeln('^BX$o,$h,200');
+        sb.writeln('^FD${b.data}^FS');
+      } else {
+        sb.writeln('^BX$o,$h,200,,,,~');
+        sb.writeln('^FD$fnc1^FS');
+      }
 
     case ZplBarcodeType.pdf417:
       // ^B7o,h,s,c,r,t — h: row height, s: security 0-8, c: columns 1-30,
@@ -95,3 +104,13 @@ String orientationCode(ZplOrientation orientation) => switch (orientation) {
   ZplOrientation.inverted180 => 'I',
   ZplOrientation.readFromBottomUp270 => 'B',
 };
+
+/// The FNC1 form of GS1 [text], or null when [text] is not a parenthesised
+/// element string or a value holds the escape character.
+String? _gs1DataMatrixData(String text) {
+  try {
+    return Gs1ElementString.parenthesisedToFnc1(text);
+  } on FormatException {
+    return null;
+  }
+}

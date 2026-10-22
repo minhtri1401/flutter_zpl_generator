@@ -1,5 +1,7 @@
+import 'package:barcode/barcode.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
+import 'package:flutter_zpl_generator/src/preview/zpl_barcode_preview_mapping.dart';
 
 void main() {
   const cfg = ZplConfiguration(printWidth: 812);
@@ -184,6 +186,100 @@ void main() {
       expect(
         () => ZplBarcode(data: 'x', height: 1, pdf417Columns: 0),
         throwsAssertionError,
+      );
+    });
+  });
+
+  group('GS1 Data Matrix', () {
+    const text = '(01)09501101530003(10){{lot}}(21){{sn}}';
+
+    test('emits the escape parameter, FNC1 and group separators', () {
+      final out = zpl(
+        ZplBarcode(
+          data: text,
+          type: ZplBarcodeType.dataMatrix,
+          height: 6,
+          gs1: true,
+        ),
+      );
+      expect(
+        out,
+        contains(
+          '^BXN,6,200,,,,~\n^FD~10109501101530003'
+          '10{{lot}}~d02921{{sn}}^FS',
+        ),
+      );
+    });
+
+    test('plain Data Matrix is emitted exactly as before', () {
+      final out = zpl(
+        ZplBarcode(data: text, type: ZplBarcodeType.dataMatrix, height: 6),
+      );
+      expect(out, contains('^BXN,6,200\n^FD$text^FS'));
+    });
+
+    test('gs1 on other symbologies is ignored', () {
+      final a = zpl(ZplBarcode(data: '1234', height: 100));
+      final b = zpl(ZplBarcode(data: '1234', height: 100, gs1: true));
+      expect(b, a);
+    });
+
+    test('data that is not an element string falls back to plain', () {
+      final out = zpl(
+        ZplBarcode(
+          data: 'not gs1',
+          type: ZplBarcodeType.dataMatrix,
+          height: 6,
+          gs1: true,
+        ),
+      );
+      expect(out, contains('^BXN,6,200\n^FDnot gs1^FS'));
+      final inj = zpl(
+        ZplBarcode(
+          data: '(10)A~d029B',
+          type: ZplBarcodeType.dataMatrix,
+          height: 6,
+          gs1: true,
+        ),
+      );
+      expect(inj, contains('^BXN,6,200\n'));
+    });
+
+    test('the preview starts the symbol with FNC1 and uses GS', () {
+      const concrete = '(01)09501101530003(10)A1(21)5';
+      ZplBarcode make({required bool gs1, String data = concrete}) =>
+          ZplBarcode(
+            data: data,
+            type: ZplBarcodeType.dataMatrix,
+            height: 6,
+            gs1: gs1,
+          );
+      List<(double, double, double)> key(Iterable<BarcodeElement> els) => els
+          .whereType<BarcodeBar>()
+          .map((e) => (e.left, e.top, e.width))
+          .toList();
+      List<(double, double, double)> bars(ZplBarcode b) =>
+          key(makePreviewElements(b, width: 200, height: 200));
+
+      final expected = key(
+        Barcode.dataMatrix().makeBytes(
+          (DataMatrixEncoder()
+                ..fnc1()
+                ..ascii('0109501101530003')
+                ..ascii('10A1')
+                ..ascii('\x1d')
+                ..ascii('215'))
+              .toBytes(),
+          width: 200,
+          height: 200,
+        ),
+      );
+      expect(bars(make(gs1: true)), expected);
+      expect(bars(make(gs1: true)), isNot(bars(make(gs1: false))));
+      // Not an element string: drawn as plain data.
+      expect(
+        bars(make(gs1: true, data: 'zz')),
+        bars(make(gs1: false, data: 'zz')),
       );
     });
   });

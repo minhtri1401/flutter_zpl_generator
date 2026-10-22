@@ -34,7 +34,8 @@ void main() {
       final m = measureBarcodeSymbol(
         bc('0109501101530003', ZplBarcodeType.gs1_128, mw: 2),
       )!;
-      expect(m.modulesWide, isNotNull);
+      expect(m.modulesWide, 134);
+      expect(m.width, 268);
       expect(
         measureBarcodeSymbol(bc('(10)A>0B', ZplBarcodeType.gs1_128, mw: 2)),
         isNull,

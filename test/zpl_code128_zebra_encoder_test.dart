@@ -402,6 +402,13 @@ void modeDTests() {
       expect(() => zebraGs1_128Symbols('(10)A>'), throwsArgumentError);
     });
 
+    test('leading separators are dropped (Labelary: same bars)', () {
+      final plain = zebraGs1_128Symbols('(10)ABC');
+      expect(zebraGs1_128Symbols('>8(10)ABC'), plain);
+      expect(zebraGs1_128Symbols('>8>8(10)ABC'), plain);
+      expect(() => zebraGs1_128Symbols('>8'), throwsArgumentError);
+    });
+
     test('empty and non-ASCII data are unencodable', () {
       expect(() => zebraGs1_128Symbols(''), throwsArgumentError);
       expect(() => zebraGs1_128Symbols('( )'), throwsArgumentError);

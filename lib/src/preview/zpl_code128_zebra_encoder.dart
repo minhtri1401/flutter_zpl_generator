@@ -403,7 +403,12 @@ List<int> zebraGs1_128Symbols(String fieldData) {
     }
     tokens.add(c);
   }
-  if (tokens.isEmpty || tokens.first == -1) {
+  // Leading separators print nothing (Labelary draws `>8(10)ABC` with the
+  // same bars as `(10)ABC`).
+  while (tokens.isNotEmpty && tokens.first == -1) {
+    tokens.removeAt(0);
+  }
+  if (tokens.isEmpty) {
     throw ArgumentError.value(fieldData, 'data', 'No GS1-128 data');
   }
 

@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- GS1 helpers: an application identifier registry (AIs 01, 10, 11, 13, 15, 17, 21, 37, 3103) with per-value validation, the GS1 mod-10 check digit, and parsing, formatting and FNC1 conversion of element strings such as `(01)09501101530003(17)261231(10)A1`.
+
 ## [2.4.1] - 2026-10-22
 
 ### Fixed

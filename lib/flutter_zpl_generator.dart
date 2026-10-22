@@ -12,6 +12,8 @@ export 'src/enums.dart';
 export 'src/zpl_command_base.dart';
 export 'src/zpl_configuration.dart';
 export 'src/zpl_text.dart';
+export 'src/gs1/gs1_application_identifier.dart';
+export 'src/gs1/gs1_element_string.dart';
 export 'src/zpl_barcode.dart';
 export 'src/zpl_barcode_enums.dart';
 export 'src/zpl_image_download.dart';

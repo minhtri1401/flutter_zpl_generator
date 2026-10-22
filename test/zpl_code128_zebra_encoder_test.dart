@@ -106,11 +106,20 @@ void modeNTests() {
     });
 
     test('check digit is mod 103', () {
+      // Start A (103), A (33), B (34): (103 + 33×1 + 34×2) mod 103 = 101.
       final s = zebraCode128Symbols('>9AB', automatic: false);
+      expect(s, [103, 33, 34]);
       final check = (103 + s[1] * 1 + s[2] * 2) % 103;
+      expect(check, 101);
       final u = zebraCode128Units('>9AB', automatic: false);
       expect(u, hasLength((s.length + 2) * 6 + 1));
-      expect(check, isA<int>());
+      expect(
+        u,
+        _packageUnits(
+          Barcode.code128(useCode128B: false, useCode128C: false),
+          'AB',
+        ),
+      );
     });
 
     test('no invocation stays in subset B and is wider than automatic', () {

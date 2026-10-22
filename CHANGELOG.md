@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Code 128 mode N (`ZplCode128Mode.none`) now follows the printer. The 2.5.0 claim that `>9` "encodes the following text in subset A" was wrong: after `>9`, `>;`, `>5` or `>7` the printer reads **digit pairs** (`00`-`99`, one symbol each) and skips every other character, so `>9X001ABCDE1` prints a single data symbol (46 modules), not 11. Subset B still reads ASCII. The other invocations have fixed values (`><` 62, `>0` 30, `>=` 94, `>1` 95, `>2` 96, `>3` 97, `>8` 102; `>5`, `>6`, `>7` switch to C, B, A); a later `>9`, `>:` or `>;`, an unknown `>x` and a trailing `>` are dropped; `>4` (SHIFT) and pair 98 in subset A are unencodable in the preview. The interpretation line is the decoded text of the data symbols (for example `>93334353637` prints `ABCDE`), not the typed data.
+
 ## [2.5.0] - 2026-10-22
 
 ### Added

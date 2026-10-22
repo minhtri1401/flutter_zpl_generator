@@ -150,4 +150,38 @@ void main() {
     });
     expect(isBarcodeDataPlaceholder(b), isTrue);
   });
+
+  testWidgets('mode N reads digit pairs after >9, so the symbol is short', (
+    tester,
+  ) async {
+    final b = ZplBarcode(
+      data: '>9X001ABCDE1',
+      type: ZplBarcodeType.code128,
+      height: 50,
+      moduleWidth: 2,
+      code128Mode: ZplCode128Mode.none,
+    );
+    // Start A, one data symbol (00), check digit, stop: 46 modules.
+    expect(measureBarcodeSymbol(b)!.width, 92);
+    await tester.runAsync(() async {
+      expect((await inkBox(await _rasterise(b, 300)))[2], greaterThan(0));
+    });
+  });
+
+  testWidgets('mode N with no decodable text paints bars and no line', (
+    tester,
+  ) async {
+    final b = ZplBarcode(
+      data: '>9AB',
+      type: ZplBarcodeType.code128,
+      height: 50,
+      moduleWidth: 2,
+      code128Mode: ZplCode128Mode.none,
+    );
+    expect(measureBarcodeSymbol(b), isNotNull);
+    expect(debugBarcodeTextPlacements(b), isEmpty);
+    await tester.runAsync(() async {
+      expect((await inkBox(await _rasterise(b, 300)))[2], greaterThan(0));
+    });
+  });
 }

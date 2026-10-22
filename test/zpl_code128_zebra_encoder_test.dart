@@ -93,39 +93,84 @@ void main() {
 
 void modeNTests() {
   group('mode N', () {
-    test('>9 starts subset A and never switches', () {
-      final s = zebraCode128Symbols('>9X001ABCDE1', automatic: false);
-      expect(s, [103, ...'X001ABCDE1'.codeUnits.map((c) => c - 0x20)]);
-      expect(s, hasLength(11));
+    List<int> n(String d) => zebraCode128Symbols(d, automatic: false);
+
+    test('symbol vectors follow the printer (Labelary-verified)', () {
+      const vectors = <String, List<int>>{
+        'X001ABCDE1': [104, 56, 16, 16, 17, 33, 34, 35, 36, 37, 17],
+        '>:X001ABCDE1': [104, 56, 16, 16, 17, 33, 34, 35, 36, 37, 17],
+        '>9X001ABCDE1': [103, 0],
+        '>9X0102': [103, 1, 2],
+        '>9X0011': [103, 0, 11],
+        '>956161617333435363717': [
+          103, 56, 16, 16, 17, 33, 34, 35, 36, 37, 17, //
+        ],
+        '>;123456': [105, 12, 34, 56],
+        '>;12345': [105, 12, 34],
+        '>;12AB34': [105, 12, 34],
+        '>:AB>70102': [104, 33, 34, 101, 1, 2],
+        '>:AB>51234': [104, 33, 34, 99, 12, 34],
+        '>90102>6AB': [103, 1, 2, 100, 33, 34],
+        '>;1234>6AB': [105, 12, 34, 100, 33, 34],
+        '>;1234>70102': [105, 12, 34, 101, 1, 2],
+        '>:A><B>0C>=D': [104, 33, 62, 34, 30, 35, 94, 36],
+        '>:A>1B': [104, 33, 95, 34],
+        '>:>8AB': [104, 102, 33, 34],
+        '>:A>6B': [104, 33, 100, 34],
+        '>:AB>90102': [104, 33, 34, 16, 17, 16, 18],
+        '>:AB>;1234': [104, 33, 34, 17, 18, 19, 20],
+        '>:A>>B': [104, 33, 34],
+        '>:A>AB': [104, 33, 34],
+        '>:AB>': [104, 33, 34],
+        '>8AB': [104, 102, 33, 34],
+        '>70102': [104, 101, 1, 2],
+        '>9>00102': [103, 30, 1, 2],
+        '>:AB>82112': [104, 33, 34, 102, 18, 17, 17, 18],
+        '>:A B': [104, 33, 0, 34],
+      };
+      vectors.forEach((input, expected) {
+        expect(n(input), expected, reason: input);
+      });
     });
 
-    test('FNSKU symbol is 145 modules', () {
-      final u = zebraCode128Units('>9X001ABCDE1', automatic: false);
-      expect(u.fold<double>(0, (a, b) => a + b), 145);
-      expect(145 * 2, 290);
+    test('FNSKU module totals: digit-pair reading is 46, subset B is 145', () {
+      double total(String d) => zebraCode128Units(
+        d,
+        automatic: false,
+      ).fold<double>(0, (a, b) => a + b);
+      expect(total('>9X001ABCDE1'), 46);
+      expect(total('>:X001ABCDE1'), 145);
     });
 
     test('check digit is mod 103', () {
-      // Start A (103), A (33), B (34): (103 + 33×1 + 34×2) mod 103 = 101.
-      final s = zebraCode128Symbols('>9AB', automatic: false);
-      expect(s, [103, 33, 34]);
-      final check = (103 + s[1] * 1 + s[2] * 2) % 103;
-      expect(check, 101);
-      final u = zebraCode128Units('>9AB', automatic: false);
+      // Start B (104), A (33), B (34): (104 + 33×1 + 34×2) mod 103 = 102.
+      final s = n('>:AB');
+      expect(s, [104, 33, 34]);
+      final check = (104 + s[1] * 1 + s[2] * 2) % 103;
+      expect(check, 102);
+      final u = zebraCode128Units('>:AB', automatic: false);
       expect(u, hasLength((s.length + 2) * 6 + 1));
       expect(
         u,
         _packageUnits(
-          Barcode.code128(useCode128B: false, useCode128C: false),
+          Barcode.code128(useCode128A: false, useCode128C: false),
           'AB',
         ),
       );
     });
 
+    test('code128UnitsOf matches zebraCode128Units', () {
+      final s = n('>;123456');
+      expect(
+        code128UnitsOf(s),
+        zebraCode128Units('>;123456', automatic: false),
+      );
+    });
+
     test('no invocation stays in subset B and is wider than automatic', () {
-      final n = zebraCode128Symbols('1234567890', automatic: false);
-      expect(n.first, 104);
-      expect(n, hasLength(11));
+      final s = n('1234567890');
+      expect(s.first, 104);
+      expect(s, hasLength(11));
       final nw = zebraCode128Units(
         '1234567890',
         automatic: false,
@@ -136,45 +181,46 @@ void modeNTests() {
       expect(nw, greaterThan(aw));
     });
 
-    test('>: and >; pick B and C, other invocations are literal', () {
-      expect(zebraCode128Symbols('>:ab', automatic: false), [104, 65, 66]);
-      expect(zebraCode128Symbols('>;1234', automatic: false), [105, 12, 34]);
-      expect(zebraCode128Symbols('>5A', automatic: false), [
-        104,
-        0x3E - 0x20,
-        0x35 - 0x20,
-        0x41 - 0x20,
-      ]);
+    test('start helpers', () {
       expect(code128StartInvocation('>'), isNull);
+      expect(code128StartInvocation('>9X'), 103);
+      expect(code128StartInvocation('>:X'), 104);
+      expect(code128StartInvocation('>;X'), 105);
+      expect(code128StartInvocation('>5X'), isNull);
       expect(code128ModeNPayload('>9X'), 'X');
       expect(code128ModeNPayload('X'), 'X');
     });
 
-    test('control characters encode in subset A', () {
-      expect(zebraCode128Symbols('>9\n', automatic: false), [103, 0x4A]);
+    test('an empty field is just the start symbol', () {
+      expect(n(''), [104]);
+      expect(n('>9'), [103]);
     });
 
-    test('characters outside the subset throw', () {
-      expect(
-        () => zebraCode128Symbols('>9ab', automatic: false),
-        throwsArgumentError,
-      );
-      expect(
-        () => zebraCode128Symbols('a\n', automatic: false),
-        throwsArgumentError,
-      );
-      expect(
-        () => zebraCode128Symbols('>;123', automatic: false),
-        throwsArgumentError,
-      );
-      expect(
-        () => zebraCode128Symbols('>;12a4', automatic: false),
-        throwsArgumentError,
-      );
-      expect(
-        () => zebraCode128Symbols('é', automatic: false),
-        throwsArgumentError,
-      );
+    test('shift, pair 98 in set A and out-of-range characters throw', () {
+      for (final d in ['>:A>4B', '>9019899', '>9>4', 'é', 'a\n', '>:\u0080']) {
+        expect(() => n(d), throwsArgumentError, reason: d);
+      }
+    });
+
+    test('pair 99 in set A is CODE C and switches the set', () {
+      expect(n('>9990102'), [103, 99, 1, 2]);
+    });
+
+    test('DEL (0x7F) is a valid set B character', () {
+      expect(n('>:\u007f'), [104, 95]);
+    });
+
+    test('interpretation text is the decoded data', () {
+      expect(code128ModeNText('>93334353637'), 'ABCDE');
+      expect(code128ModeNText('>:AB>51234'), 'AB1234');
+      expect(code128ModeNText('>;123456'), '123456');
+      expect(code128ModeNText('>9X001ABCDE1'), ' ');
+      expect(code128ModeNText('X001ABCDE1'), 'X001ABCDE1');
+      expect(code128ModeNText('>:A><B>1C'), 'ABC');
+      expect(code128ModeNText('>9X'), '');
+      // Set A values 64+ are control codes: no text.
+      expect(code128ModeNText('>95364'), 'U');
+      expect(code128ModeNText('>96470'), '');
     });
 
     test('automatic subset switching keeps working', () {
@@ -185,6 +231,7 @@ void modeNTests() {
 
     test('automatic default is unchanged', () {
       expect(zebraCode128Symbols('12345'), [105, 12, 34, 100, 21]);
+      expect(zebraCode128Symbols('>:AB'), [104, 30, 26, 33, 34]);
     });
   });
 }

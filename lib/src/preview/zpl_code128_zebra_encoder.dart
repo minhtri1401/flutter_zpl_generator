@@ -4,6 +4,9 @@
 /// the pairs run out. `package:barcode` never switches sets, so it prints
 /// `ABC-12345` 11 modules wider than the printer does.
 ///
+/// Mode N (`^BC…,N`) follows the printer's invocation rules instead: see
+/// [zebraCode128Symbols].
+///
 /// Output is the bar/space widths in modules (first element is a bar).
 library;
 
@@ -141,50 +144,118 @@ int? code128StartInvocation(String data) {
 String code128ModeNPayload(String data) =>
     code128StartInvocation(data) == null ? data : data.substring(2);
 
-/// Symbols for ZPL mode N: no automatic switching. The start code comes from
-/// a leading invocation, else subset B (ZPL II default). Other `>x`
-/// sequences are plain characters. Throws [ArgumentError] when a character
-/// does not exist in the chosen subset.
-List<int> _modeNSymbols(String data) {
-  final start = code128StartInvocation(data) ?? _startB;
-  final cs = code128ModeNPayload(data).codeUnits;
-  final bad = cs.indexWhere((c) => c > 0x7F);
-  if (bad >= 0) {
-    throw ArgumentError.value(
-      data,
-      'data',
-      'Code 128 preview supports ASCII only',
-    );
+/// Invocation values for `>x` sequences that emit one symbol and keep the
+/// current set. `>5`, `>6` and `>7` also switch the set and are handled
+/// separately.
+const Map<String, int> _invocationValues = {
+  '<': 62,
+  '0': 30,
+  '=': 94,
+  '1': 95,
+  '2': 96,
+  '3': 97,
+  '8': 102,
+};
+
+/// One walk over mode-N data: the symbol values (without check digit and
+/// stop) and the text the interpretation line shows.
+///
+/// These are the rules the printer follows, verified against Labelary:
+///
+/// * A leading `>9` (Start A), `>:` (Start B) or `>;` (Start C) picks the
+///   start symbol. Without one the symbol starts in B and nothing is
+///   consumed.
+/// * Input form depends on the current set. Sets A and C read digit pairs
+///   (`00`-`99`, each pair is one symbol value): a non-digit, a digit whose
+///   next character is not a digit and a trailing lone digit are skipped.
+///   Set B reads ASCII (value = character - 0x20).
+/// * `>` always starts an invocation, even while reading pairs. `><`, `>0`,
+///   `>=`, `>1`, `>2`, `>3` and `>8` emit fixed values; `>5` emits CODE C,
+///   `>6` CODE B and `>7` CODE A and switch the set. A later `>9`, `>:` or
+///   `>;`, an unknown `>x` and a trailing `>` are dropped.
+/// * `>4` (SHIFT), pair 98 in set A and a set-B character outside
+///   0x20-0x7F cannot be encoded: [ArgumentError].
+/// * Pair 99 in set A is CODE C: it is emitted and the set becomes C.
+({List<int> symbols, String text}) _modeNWalk(String data) {
+  final start = code128StartInvocation(data);
+  final cs = data.codeUnits;
+  final out = <int>[start ?? _startB];
+  final text = StringBuffer();
+  // 'A', 'B' or 'C'.
+  String set = switch (start) {
+    _startA => 'A',
+    _startC => 'C',
+    _ => 'B',
+  };
+  int i = start == null ? 0 : 2;
+  while (i < cs.length) {
+    final c = cs[i];
+    if (c == 0x3E) {
+      if (i + 1 >= cs.length) break; // trailing '>' is dropped
+      final x = data[i + 1];
+      i += 2;
+      final fixed = _invocationValues[x];
+      if (fixed != null) {
+        out.add(fixed);
+      } else if (x == '5') {
+        out.add(_codeC);
+        set = 'C';
+      } else if (x == '6') {
+        out.add(_codeB);
+        set = 'B';
+      } else if (x == '7') {
+        out.add(_codeA);
+        set = 'A';
+      } else if (x == '4') {
+        throw ArgumentError.value(data, 'data', 'SHIFT (>4) is not supported');
+      }
+      // '>9', '>:', '>;' after the start and unknown '>x' are dropped.
+      continue;
+    }
+    if (set == 'B') {
+      if (c < 0x20 || c > 0x7F) {
+        throw ArgumentError.value(data, 'data', 'Not in subset B');
+      }
+      out.add(c - 0x20);
+      text.writeCharCode(c);
+      i++;
+      continue;
+    }
+    // Sets A and C read digit pairs.
+    if (!_isDigit(c) || i + 1 >= cs.length || !_isDigit(cs[i + 1])) {
+      i++;
+      continue;
+    }
+    final v = (c - 0x30) * 10 + (cs[i + 1] - 0x30);
+    i += 2;
+    out.add(v);
+    if (set == 'C') {
+      text.write(data.substring(i - 2, i));
+    } else if (v == 98) {
+      throw ArgumentError.value(data, 'data', 'Pair 98 is SHIFT in subset A');
+    } else if (v == 99) {
+      set = 'C';
+    } else if (v < 64) {
+      text.writeCharCode(v + 0x20);
+    }
   }
-  final out = <int>[start];
-  switch (start) {
-    case _startC:
-      if (cs.length.isOdd || cs.any((c) => !_isDigit(c))) {
-        throw ArgumentError.value(data, 'data', 'Subset C needs digit pairs');
-      }
-      for (int i = 0; i < cs.length; i += 2) {
-        out.add((cs[i] - 0x30) * 10 + (cs[i + 1] - 0x30));
-      }
-    case _startA:
-      for (final c in cs) {
-        if (c >= 0x60) {
-          throw ArgumentError.value(data, 'data', 'Not in subset A');
-        }
-        out.add(c < 0x20 ? c + 0x40 : c - 0x20);
-      }
-    default:
-      for (final c in cs) {
-        if (c < 0x20) {
-          throw ArgumentError.value(data, 'data', 'Not in subset B');
-        }
-        out.add(c - 0x20);
-      }
-  }
-  return out;
+  return (symbols: out, text: text.toString());
 }
 
+/// Symbols for ZPL mode N (see [_modeNWalk] for the rules).
+List<int> _modeNSymbols(String data) => _modeNWalk(data).symbols;
+
+/// The interpretation-line text of mode-N [data]: the decoded text of the
+/// data symbols. Set B values are characters, set A values 0-63 are the
+/// characters 0x20-0x5F (control values print nothing), set C values are
+/// two digits, and function values print nothing. For `>93334353637` this
+/// is `ABCDE`. Throws [ArgumentError] for data the printer cannot encode.
+String code128ModeNText(String data) => _modeNWalk(data).text;
+
 /// Symbol values (without check digit and stop) for [data]. With
-/// [automatic] false this follows ZPL mode N (see [_modeNSymbols]).
+/// [automatic] false this follows ZPL mode N: `>9`, `>;`, `>5` and `>7`
+/// switch to a set that reads digit pairs (not ASCII), the other
+/// invocations have fixed values (see `_modeNWalk`).
 List<int> zebraCode128Symbols(String data, {bool automatic = true}) {
   if (!automatic) return _modeNSymbols(data);
   final cs = data.codeUnits;
@@ -259,8 +330,12 @@ List<int> zebraCode128Symbols(String data, {bool automatic = true}) {
 
 /// Bar/space widths in modules for [data], including check digit and stop.
 /// Elements alternate bar, space, bar, … and end with the stop's final bar.
-List<double> zebraCode128Units(String data, {bool automatic = true}) {
-  final symbols = zebraCode128Symbols(data, automatic: automatic);
+List<double> zebraCode128Units(String data, {bool automatic = true}) =>
+    code128UnitsOf(zebraCode128Symbols(data, automatic: automatic));
+
+/// Bar/space widths in modules for [symbols] (values without check digit
+/// and stop): the symbols, the mod-103 check digit and the stop pattern.
+List<double> code128UnitsOf(List<int> symbols) {
   int check = symbols.first;
   for (int i = 1; i < symbols.length; i++) {
     check += symbols[i] * i;

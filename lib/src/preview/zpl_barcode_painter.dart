@@ -135,7 +135,7 @@ void _draw1D(
   // A second pass with text gives per-bar heights (EAN/UPC guard bars
   // extend into the text line) and the digit positions. Its bars carry
   // package margins, so map them onto the exact module grid by index.
-  final textPass = drawText
+  final textPass = drawText && _textData(b).isNotEmpty
       ? previewBarcodeFor(b)
             .make(
               _textData(b),
@@ -190,11 +190,12 @@ typedef BarcodeTextPlacement = ({
   double height,
 });
 
-/// The data the interpretation line is drawn from: mode-N Code 128 hides
-/// its leading start invocation (`>9`, `>:`, `>;`), as the printer does.
+/// The data the interpretation line is drawn from: mode-N Code 128 prints
+/// the decoded text of its symbols, as the printer does (after `>9` the
+/// printer reads digit pairs, so the line is not the typed data).
 String _textData(ZplBarcode b) =>
     b.type == ZplBarcodeType.code128 && b.code128Mode == ZplCode128Mode.none
-    ? code128ModeNPayload(b.data)
+    ? code128ModeNText(b.data)
     : b.data;
 
 /// The interpretation-line text of [b] as the preview paints it.
@@ -202,6 +203,7 @@ String _textData(ZplBarcode b) =>
 List<BarcodeTextPlacement> debugBarcodeTextPlacements(ZplBarcode b) {
   final m = measureBarcodeSymbol(b)!;
   final textH = interpretationLineHeight(b);
+  if (_textData(b).isEmpty) return const [];
   final pass = previewBarcodeFor(b)
       .make(
         _textData(b),

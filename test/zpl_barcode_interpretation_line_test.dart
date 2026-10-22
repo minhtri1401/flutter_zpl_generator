@@ -57,9 +57,23 @@ void main() {
 }
 
 void main2() {
-  test('mode N hides the start invocation in the interpretation line', () {
+  test('mode N prints the decoded text, not the typed data', () {
     final b = ZplBarcode(
       data: '>9X001ABCDE1',
+      height: 100,
+      moduleWidth: 2,
+      code128Mode: ZplCode128Mode.none,
+    );
+    final p = debugBarcodeTextPlacements(b);
+    // After >9 the printer reads digit pairs: 00 is the one symbol (a space),
+    // so nothing visible is printed (not the typed X001ABCDE1).
+    expect(p.map((e) => e.text).join().trim(), isEmpty);
+    expect(measureBarcodeSymbol(b)!.width, 92);
+  });
+
+  test('mode N subset B prints the data without the start invocation', () {
+    final b = ZplBarcode(
+      data: '>:X001ABCDE1',
       height: 100,
       moduleWidth: 2,
       code128Mode: ZplCode128Mode.none,
@@ -69,9 +83,20 @@ void main2() {
     expect(measureBarcodeSymbol(b)!.width, 290);
   });
 
+  test('mode N with a pair-read set prints the decoded digits', () {
+    final b = ZplBarcode(
+      data: '>:AB>51234',
+      height: 100,
+      moduleWidth: 2,
+      code128Mode: ZplCode128Mode.none,
+    );
+    final p = debugBarcodeTextPlacements(b);
+    expect(p.map((e) => e.text).join(), 'AB1234');
+  });
+
   test('mode N with unencodable data has no metrics', () {
     final b = ZplBarcode(
-      data: '>9abc',
+      data: '>:A>4B',
       height: 100,
       code128Mode: ZplCode128Mode.none,
     );

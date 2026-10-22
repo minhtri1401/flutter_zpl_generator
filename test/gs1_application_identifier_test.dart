@@ -69,6 +69,9 @@ void main() {
     expect(v('10', 'a b'), Gs1ValueError.badCharacter);
     expect(v('21', 'a#b'), Gs1ValueError.badCharacter);
     expect(v('10', 'café'), Gs1ValueError.badCharacter);
+    // Brackets frame an element string, so parse could not read them back.
+    expect(v('10', 'A(1)'), Gs1ValueError.badCharacter);
+    expect(v('10', 'A)B'), Gs1ValueError.badCharacter);
   });
 
   test('bad check digit', () {

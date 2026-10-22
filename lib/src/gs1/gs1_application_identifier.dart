@@ -173,6 +173,11 @@ class Gs1ApplicationIdentifier {
     if (value.contains('~') || value.contains('^')) {
       return Gs1ValueError.badCharacter;
     }
+    // `(` and `)` frame an AI in an element string; [Gs1ElementString.parse]
+    // rejects them in a value, so a value holding one could not round-trip.
+    if (value.contains('(') || value.contains(')')) {
+      return Gs1ValueError.badCharacter;
+    }
     if (gs1IsPlaceholder(value)) return null;
     if (value.isEmpty || value.length > length) {
       return Gs1ValueError.wrongLength;

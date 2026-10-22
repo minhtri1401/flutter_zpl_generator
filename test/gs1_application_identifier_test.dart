@@ -18,8 +18,17 @@ void main() {
   });
 
   test('registry holds the nine AIs and lookup works', () {
-    expect(Gs1ApplicationIdentifier.registry.map((a) => a.code),
-        ['01', '10', '11', '13', '15', '17', '21', '37', '3103']);
+    expect(Gs1ApplicationIdentifier.registry.map((a) => a.code), [
+      '01',
+      '10',
+      '11',
+      '13',
+      '15',
+      '17',
+      '21',
+      '37',
+      '3103',
+    ]);
     expect(Gs1ApplicationIdentifier.lookup('99'), isNull);
     final lot = Gs1ApplicationIdentifier.lookup('10')!;
     expect(lot.variableLength, isTrue);
@@ -72,5 +81,23 @@ void main() {
     expect(v('17', '261300'), Gs1ValueError.badDate);
     expect(v('15', '260031'), Gs1ValueError.badDate);
     expect(v('13', '260132'), Gs1ValueError.badDate);
+  });
+
+  test('month length and leap years are checked, day 00 stays allowed', () {
+    expect(v('17', '260231'), Gs1ValueError.badDate);
+    expect(v('17', '260431'), Gs1ValueError.badDate);
+    expect(v('17', '260228'), isNull);
+    expect(v('17', '260229'), Gs1ValueError.badDate);
+    expect(v('17', '280229'), isNull);
+    expect(v('17', '000229'), isNull);
+    expect(v('17', '260200'), isNull);
+    expect(v('17', '261231'), isNull);
+  });
+
+  test('escape characters are rejected, placeholders included', () {
+    expect(v('10', 'A~1B'), Gs1ValueError.badCharacter);
+    expect(v('10', '{{lot~d029}}'), Gs1ValueError.badCharacter);
+    expect(v('10', 'A^FSB'), Gs1ValueError.badCharacter);
+    expect(v('10', '{{lot}}'), isNull);
   });
 }

@@ -28,8 +28,11 @@ void main() {
       '(10)(17)261231',
       '(10)a)b',
     ]) {
-      expect(() => Gs1ElementString.parse(bad), throwsFormatException,
-          reason: bad);
+      expect(
+        () => Gs1ElementString.parse(bad),
+        throwsFormatException,
+        reason: bad,
+      );
       expect(Gs1ElementString.tryParse(bad), isNull);
     }
     expect(Gs1ElementString.tryParse(full), isNotNull);
@@ -45,18 +48,31 @@ void main() {
   });
 
   test('FNC1 form puts a separator only after variable-length AIs', () {
-    final els = Gs1ElementString.parse('(01)09501101530003(17)261231(10)A1(21)S9');
-    expect(Gs1ElementString.toFnc1(els),
-        '~1010950110153000317261231' '10A1~d02921S9');
-    expect(Gs1ElementString.parenthesisedToFnc1(full),
-        '~101095011015300031726123110A1');
-    expect(Gs1ElementString.toFnc1(els, escape: '_'),
-        '_1010950110153000317261231' '10A1_d02921S9');
+    final els = Gs1ElementString.parse(
+      '(01)09501101530003(17)261231(10)A1(21)S9',
+    );
+    expect(
+      Gs1ElementString.toFnc1(els),
+      '~1010950110153000317261231'
+      '10A1~d02921S9',
+    );
+    expect(
+      Gs1ElementString.parenthesisedToFnc1(full),
+      '~101095011015300031726123110A1',
+    );
+    expect(
+      Gs1ElementString.toFnc1(els, escape: '_'),
+      '_1010950110153000317261231'
+      '10A1_d02921S9',
+    );
   });
 
   test('placeholders convert without lengths', () {
-    expect(Gs1ElementString.parenthesisedToFnc1('(10){{lot}}(17){{e}}'),
-        '~110{{lot}}~d0291' '7{{e}}');
+    expect(
+      Gs1ElementString.parenthesisedToFnc1('(10){{lot}}(17){{e}}'),
+      '~110{{lot}}~d0291'
+      '7{{e}}',
+    );
   });
 
   test('back-conversion returns the same pairs', () {
@@ -68,14 +84,20 @@ void main() {
       '(10){{lot}}(17){{e}}',
     ]) {
       final els = Gs1ElementString.parse(text);
-      expect(Gs1ElementString.fromFnc1(Gs1ElementString.toFnc1(els)), els,
-          reason: text);
+      expect(
+        Gs1ElementString.fromFnc1(Gs1ElementString.toFnc1(els)),
+        els,
+        reason: text,
+      );
     }
     final alt = Gs1ElementString.parse('(10)A(21)B');
     expect(
-        Gs1ElementString.fromFnc1(Gs1ElementString.toFnc1(alt, escape: '_'),
-            escape: '_'),
-        alt);
+      Gs1ElementString.fromFnc1(
+        Gs1ElementString.toFnc1(alt, escape: '_'),
+        escape: '_',
+      ),
+      alt,
+    );
   });
 
   test('back-conversion fails on bad data', () {
@@ -89,10 +111,35 @@ void main() {
       '~110A~d029',
       '~1',
     ]) {
-      expect(() => Gs1ElementString.fromFnc1(bad), throwsFormatException,
-          reason: bad);
+      expect(
+        () => Gs1ElementString.fromFnc1(bad),
+        throwsFormatException,
+        reason: bad,
+      );
       expect(Gs1ElementString.tryFromFnc1(bad), isNull);
     }
     expect(Gs1ElementString.tryFromFnc1('~110A'), isNotNull);
+  });
+
+  test('toFnc1 rejects a value that contains the escape character', () {
+    final lot = Gs1ApplicationIdentifier.lookup('10')!;
+    expect(
+      () => Gs1ElementString.toFnc1([Gs1Element(lot, 'A~d029B')]),
+      throwsFormatException,
+    );
+    expect(
+      () => Gs1ElementString.toFnc1([Gs1Element(lot, 'A_1')], escape: '_'),
+      throwsFormatException,
+    );
+  });
+
+  test('a repeated AI is a FormatException', () {
+    expect(() => Gs1ElementString.parse('(10)A(10)B'), throwsFormatException);
+    expect(Gs1ElementString.tryParse('(10)A(10)B'), isNull);
+    expect(
+      () => Gs1ElementString.fromFnc1('~110A~d02910B'),
+      throwsFormatException,
+    );
+    expect(Gs1ElementString.tryFromFnc1('~110A~d02910B'), isNull);
   });
 }

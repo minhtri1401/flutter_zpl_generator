@@ -53,6 +53,9 @@ class Gs1ElementString {
       if (value.contains(')')) {
         throw FormatException('Stray ")" in value', text, close);
       }
+      if (out.any((e) => e.ai.code == ai.code)) {
+        throw FormatException('Repeated AI $code', text, i);
+      }
       out.add(Gs1Element(ai, value));
       i = end;
     }
@@ -73,10 +76,18 @@ class Gs1ElementString {
       elements.map((e) => '(${e.ai.code})${e.value}').join();
 
   /// Converts [elements] to the FNC1 form for [escape] (`~` by default).
+  /// Throws [FormatException] when a value contains [escape], which would
+  /// inject a FNC1 or separator.
   static String toFnc1(List<Gs1Element> elements, {String escape = '~'}) {
     final b = StringBuffer('${escape}1');
     for (var i = 0; i < elements.length; i++) {
       final e = elements[i];
+      if (e.value.contains(escape)) {
+        throw FormatException(
+          'Value of ${e.ai.code} contains the escape character',
+          e.value,
+        );
+      }
       b
         ..write(e.ai.code)
         ..write(e.value);
@@ -123,6 +134,9 @@ class Gs1ElementString {
         }
       }
       if (end == i) throw FormatException('Empty value', data, i);
+      if (out.any((e) => e.ai.code == ai.code)) {
+        throw FormatException('Repeated AI ${ai.code}', data, i);
+      }
       out.add(Gs1Element(ai, data.substring(i, end)));
       i = end;
       if (data.startsWith(sep, i)) {

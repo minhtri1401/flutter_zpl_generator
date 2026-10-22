@@ -79,7 +79,7 @@ class Gs1ApplicationIdentifier {
   /// Allowed characters.
   final Gs1CharKind charKind;
 
-  /// True for YYMMDD dates (month 01 to 12, day 00 to 31).
+  /// True for YYMMDD dates (month 01 to 12, day 00 to the length of the month).
   final bool isDate;
 
   /// True when the last digit is a GS1 mod-10 check digit.
@@ -168,6 +168,11 @@ class Gs1ApplicationIdentifier {
   /// Checks [value] against this AI's rule. Returns the first broken rule,
   /// or null when the value is valid. A whole `{{placeholder}}` is valid.
   Gs1ValueError? validate(String value) {
+    // `~` and `^` are ZPL control characters; a value must never carry one,
+    // placeholder or not, or it could inject a FNC1 or group separator.
+    if (value.contains('~') || value.contains('^')) {
+      return Gs1ValueError.badCharacter;
+    }
     if (gs1IsPlaceholder(value)) return null;
     if (value.isEmpty || value.length > length) {
       return Gs1ValueError.wrongLength;
@@ -193,9 +198,14 @@ class Gs1ApplicationIdentifier {
       v.codeUnits.every((c) => c >= 0x30 && c <= 0x39);
 
   static bool _validDate(String v) {
+    final year = 2000 + int.parse(v.substring(0, 2));
     final month = int.parse(v.substring(2, 4));
     final day = int.parse(v.substring(4, 6));
-    return month >= 1 && month <= 12 && day <= 31;
+    if (month < 1 || month > 12) return false;
+    final leap = year % 4 == 0 && (year % 100 != 0 || year % 400 == 0);
+    const days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    final max = month == 2 && leap ? 29 : days[month - 1];
+    return day <= max;
   }
 
   // GS1 set 82: ! " % & ' ( ) * + , - . / 0-9 : ; < = > ? A-Z _ a-z.

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.2] - 2026-10-22
+
 ### Added
 
 - `ZplBarcode.code128Mode` (`ZplCode128Mode.automatic`, the default, or `none`). Mode none emits `^BC…,N,N`; the preview honours a leading `>9` / `>:` / `>;` start invocation, never switches subsets, starts in B without one, and leaves the invocation out of the interpretation line. Automatic mode is unchanged.

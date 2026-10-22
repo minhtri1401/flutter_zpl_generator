@@ -65,7 +65,8 @@ class ZplBarcode extends ZplCommand {
   /// parenthesised form, for example `(01)09501101530003(10)A1`, and the
   /// printer receives FNC1 plus group separators. Honoured only for
   /// [ZplBarcodeType.dataMatrix]; ignored for every other type. Data that is
-  /// not a valid element string is emitted as plain Data Matrix.
+  /// not a valid element string, or a value that holds the escape character
+  /// `@`, is emitted as plain Data Matrix.
   final bool gs1;
 
   /// Code 128 input mode. Honoured only for [ZplBarcodeType.code128];

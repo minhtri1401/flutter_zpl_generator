@@ -204,7 +204,7 @@ Thirteen symbologies via `type:`; the offline `ZplNativePreview` renders all of 
 | :--- | :--- |
 | `code128` (^BC), `gs1_128` (^BC mode D, `(AI)` data; chained AIs get `>8` after a variable-length value), `code39` (^B3), `code93` (^BA), `interleaved2of5` (^B2), `ean13` (^BE), `ean8` (^B8), `upcA` (^BU), `upcE` (^B9) | `qrCode` (^BQ), `dataMatrix` (^BX), `pdf417` (^B7), `aztec` (^BO) |
 
-GS1 Data Matrix (`gs1: true` with `(AI)` element-string data) is emitted as `^BXo,h,200,,,,@` with FNC1 as `@1` and the group separator as `@d029`. The escape is `@` because the printer parses `~` as a ZPL control command and drops it; values containing `@` are rejected.
+GS1 Data Matrix (`gs1: true` with `(AI)` element-string data) is emitted as `^BXo,h,200,,,,@` with FNC1 as `@1` and the group separator as `@d029`. The escape is `@` because the printer parses `~` as a ZPL control command and drops it; a value containing `@` (or data that is not a valid element string) is not converted: the field falls back to a plain Data Matrix.
 
 ```dart
 ZplBarcode(

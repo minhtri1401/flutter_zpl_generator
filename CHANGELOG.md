@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The preview paints a neutral placeholder (grey bars, or a grey module grid for 2D symbols, with the token as a caption) for barcode data that is an unfilled `{{token}}`, instead of the "Unencodable" error box; real encoding errors are clipped to the element bounds and no longer hang below the label.
 - GS1 value validation rejects `~`, `^`, `(` and `)` in values (`Gs1ElementString.toFnc1` rejects its escape character), check the day against the month (leap years included), and throw on a repeated AI.
 
+### Fixed
+
+- `ZplColumn` and `ZplGridRow` now carry a barcode child's `magnification`, `qrErrorCorrection`, `pdf417SecurityLevel`, `pdf417Columns`, `gs1` and `code128Mode`; they were previously dropped.
+
 ## [2.4.1] - 2026-10-22
 
 ### Fixed

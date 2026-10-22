@@ -128,6 +128,12 @@ class ZplGridRow extends ZplCommand {
         printInterpretationLineAbove: child.printInterpretationLineAbove,
         moduleWidth: child.moduleWidth,
         wideBarToNarrowBarRatio: child.wideBarToNarrowBarRatio,
+        magnification: child.magnification,
+        qrErrorCorrection: child.qrErrorCorrection,
+        pdf417SecurityLevel: child.pdf417SecurityLevel,
+        pdf417Columns: child.pdf417Columns,
+        gs1: child.gs1,
+        code128Mode: child.code128Mode,
         alignment: child.alignment,
         maxWidth: availableWidth,
       );

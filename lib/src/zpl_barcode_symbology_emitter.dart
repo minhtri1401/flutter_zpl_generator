@@ -1,6 +1,7 @@
 import 'enums.dart';
 import 'gs1/gs1_element_string.dart';
 import 'zpl_barcode.dart';
+import 'zpl_barcode_enums.dart';
 
 /// Emits the symbology command (`^BC`, `^BQ`, …) plus the `^FD…^FS` field
 /// for a [ZplBarcode]. Kept separate from the command class so each
@@ -16,8 +17,10 @@ String emitBarcodeSymbology(ZplBarcode b) {
   final sb = StringBuffer();
   switch (b.type) {
     case ZplBarcodeType.code128:
-      // ^BCo,h,f,g,e,m — e: UCC check digit, m: mode (A = automatic subset)
-      sb.writeln('^BC$o,$h,$f,$g,N,A');
+      // ^BCo,h,f,g,e,m — e: UCC check digit, m: mode (A = automatic subset,
+      // N = no selected mode: only a leading >9 / >: / >; start code applies)
+      final m = b.code128Mode == ZplCode128Mode.none ? 'N' : 'A';
+      sb.writeln('^BC$o,$h,$f,$g,N,$m');
       sb.writeln('^FD${b.data}^FS');
 
     case ZplBarcodeType.gs1_128:

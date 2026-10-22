@@ -6,6 +6,7 @@ import 'package:flutter_zpl_generator/src/preview/zpl_barcode_symbol_metrics.dar
 /// The preview's human-readable line must read like the Zebra printout,
 /// e.g. "5 901234 123457" for the EAN-13 above.
 void main() {
+  main2();
   ZplBarcode bc(String data, ZplBarcodeType t) => ZplBarcode(
     data: data,
     type: t,
@@ -52,5 +53,28 @@ void main() {
     );
     expect(ean8.map((e) => e.text).join(), '96385074');
     expect(ean8.every((e) => e.left >= 0), isTrue);
+  });
+}
+
+void main2() {
+  test('mode N hides the start invocation in the interpretation line', () {
+    final b = ZplBarcode(
+      data: '>9X001ABCDE1',
+      height: 100,
+      moduleWidth: 2,
+      code128Mode: ZplCode128Mode.none,
+    );
+    final p = debugBarcodeTextPlacements(b);
+    expect(p.map((e) => e.text).join(), 'X001ABCDE1');
+    expect(measureBarcodeSymbol(b)!.width, 290);
+  });
+
+  test('mode N with unencodable data has no metrics', () {
+    final b = ZplBarcode(
+      data: '>9abc',
+      height: 100,
+      code128Mode: ZplCode128Mode.none,
+    );
+    expect(measureBarcodeSymbol(b), isNull);
   });
 }

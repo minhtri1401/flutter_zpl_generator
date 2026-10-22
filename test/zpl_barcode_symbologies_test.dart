@@ -4,6 +4,7 @@ import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
 import 'package:flutter_zpl_generator/src/preview/zpl_barcode_preview_mapping.dart';
 
 void main() {
+  code128ModeNEmitTests();
   const cfg = ZplConfiguration(printWidth: 812);
 
   String zpl(ZplBarcode b) => b.toZpl(cfg);
@@ -281,6 +282,32 @@ void main() {
         bars(make(gs1: true, data: 'zz')),
         bars(make(gs1: false, data: 'zz')),
       );
+    });
+  });
+}
+
+void code128ModeNEmitTests() {
+  group('code128 mode N emit', () {
+    String zpl(ZplBarcode b) => b.toZpl(ZplConfiguration());
+
+    test('none emits ^BC…,N,N with the data', () {
+      final out = zpl(
+        ZplBarcode(
+          data: '>9X001ABCDE1',
+          height: 80,
+          moduleWidth: 2,
+          printInterpretationLine: false,
+          code128Mode: ZplCode128Mode.none,
+        ),
+      );
+      expect(out, contains('^BY2'));
+      expect(out, contains('^BCN,80,N,N,N,N'));
+      expect(out, contains('^FD>9X001ABCDE1^FS'));
+    });
+
+    test('automatic stays ^BC…,N,A', () {
+      final out = zpl(ZplBarcode(data: 'ABC', height: 80));
+      expect(out, contains('^BCN,80,Y,N,N,A'));
     });
   });
 }

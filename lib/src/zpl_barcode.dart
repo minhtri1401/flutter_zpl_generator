@@ -68,6 +68,10 @@ class ZplBarcode extends ZplCommand {
   /// not a valid element string is emitted as plain Data Matrix.
   final bool gs1;
 
+  /// Code 128 input mode. Honoured only for [ZplBarcodeType.code128];
+  /// defaults to [ZplCode128Mode.automatic].
+  final ZplCode128Mode code128Mode;
+
   ZplBarcode({
     this.x = 0,
     this.y = 0,
@@ -86,6 +90,7 @@ class ZplBarcode extends ZplCommand {
     this.pdf417SecurityLevel = 0,
     this.pdf417Columns,
     this.gs1 = false,
+    this.code128Mode = ZplCode128Mode.automatic,
   }) : assert(magnification >= 1 && magnification <= 10),
        assert(pdf417SecurityLevel >= 0 && pdf417SecurityLevel <= 8),
        assert(

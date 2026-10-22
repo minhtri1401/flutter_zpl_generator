@@ -124,8 +124,69 @@ const int _startA = 103, _startB = 104, _startC = 105, _stop = 106;
 
 bool _isDigit(int c) => c >= 0x30 && c <= 0x39;
 
-/// Symbol values (without check digit and stop) for [data].
-List<int> zebraCode128Symbols(String data) {
+/// Start invocation at the head of mode-N data: `>9` (A), `>:` (B), `>;` (C).
+/// Returns the start symbol value, or null when [data] has no invocation.
+int? code128StartInvocation(String data) {
+  if (data.length < 2 || data[0] != '>') return null;
+  return switch (data[1]) {
+    '9' => _startA,
+    ':' => _startB,
+    ';' => _startC,
+    _ => null,
+  };
+}
+
+/// The data a mode-N symbol encodes: [data] without a leading start
+/// invocation. The interpretation line shows this text.
+String code128ModeNPayload(String data) =>
+    code128StartInvocation(data) == null ? data : data.substring(2);
+
+/// Symbols for ZPL mode N: no automatic switching. The start code comes from
+/// a leading invocation, else subset B (ZPL II default). Other `>x`
+/// sequences are plain characters. Throws [ArgumentError] when a character
+/// does not exist in the chosen subset.
+List<int> _modeNSymbols(String data) {
+  final start = code128StartInvocation(data) ?? _startB;
+  final cs = code128ModeNPayload(data).codeUnits;
+  final bad = cs.indexWhere((c) => c > 0x7F);
+  if (bad >= 0) {
+    throw ArgumentError.value(
+      data,
+      'data',
+      'Code 128 preview supports ASCII only',
+    );
+  }
+  final out = <int>[start];
+  switch (start) {
+    case _startC:
+      if (cs.length.isOdd || cs.any((c) => !_isDigit(c))) {
+        throw ArgumentError.value(data, 'data', 'Subset C needs digit pairs');
+      }
+      for (int i = 0; i < cs.length; i += 2) {
+        out.add((cs[i] - 0x30) * 10 + (cs[i + 1] - 0x30));
+      }
+    case _startA:
+      for (final c in cs) {
+        if (c >= 0x60) {
+          throw ArgumentError.value(data, 'data', 'Not in subset A');
+        }
+        out.add(c < 0x20 ? c + 0x40 : c - 0x20);
+      }
+    default:
+      for (final c in cs) {
+        if (c < 0x20) {
+          throw ArgumentError.value(data, 'data', 'Not in subset B');
+        }
+        out.add(c - 0x20);
+      }
+  }
+  return out;
+}
+
+/// Symbol values (without check digit and stop) for [data]. With
+/// [automatic] false this follows ZPL mode N (see [_modeNSymbols]).
+List<int> zebraCode128Symbols(String data, {bool automatic = true}) {
+  if (!automatic) return _modeNSymbols(data);
   final cs = data.codeUnits;
   final bad = cs.indexWhere((c) => c > 0x7F);
   if (bad >= 0) {
@@ -198,8 +259,8 @@ List<int> zebraCode128Symbols(String data) {
 
 /// Bar/space widths in modules for [data], including check digit and stop.
 /// Elements alternate bar, space, bar, … and end with the stop's final bar.
-List<double> zebraCode128Units(String data) {
-  final symbols = zebraCode128Symbols(data);
+List<double> zebraCode128Units(String data, {bool automatic = true}) {
+  final symbols = zebraCode128Symbols(data, automatic: automatic);
   int check = symbols.first;
   for (int i = 1; i < symbols.length; i++) {
     check += symbols[i] * i;

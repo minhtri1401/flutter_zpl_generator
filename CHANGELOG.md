@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `ZplBarcode.code128Mode` (`ZplCode128Mode.automatic`, the default, or `none`). Mode none emits `^BC…,N,N`; the preview honours a leading `>9` / `>:` / `>;` start invocation, never switches subsets, starts in B without one, and leaves the invocation out of the interpretation line. Automatic mode is unchanged.
 - GS1 helpers: an application identifier registry (AIs 01, 10, 11, 13, 15, 17, 21, 37, 3103) with per-value validation, the GS1 mod-10 check digit, and parsing, formatting and FNC1 conversion of element strings such as `(01)09501101530003(17)261231(10)A1`.
 - `ZplBarcode.gs1`: GS1 Data Matrix. With the flag set on a Data Matrix, parenthesised element-string data is sent as FNC1 plus AI codes and values, with a group separator after each variable-length value that another AI follows (`^BX` escape parameter `~`: `~1` and `~d029`). The offline preview encodes the same FNC1 symbol. Other symbologies ignore the flag; non-GS1 output is unchanged.
 - GS1 helpers reject `~` and `^` in values, check the day against the month (leap years included), and throw on a repeated AI.

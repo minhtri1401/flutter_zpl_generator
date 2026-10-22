@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 
 import '../enums.dart';
 import '../zpl_barcode.dart';
+import '../zpl_barcode_enums.dart';
 import '../zpl_configuration.dart';
 import 'zpl_barcode_preview_mapping.dart';
 import 'zpl_barcode_symbol_metrics.dart';
+import 'zpl_code128_zebra_encoder.dart';
 import 'zpl_text_painter.dart';
 
 /// Draws a [ZplBarcode] on [canvas] at printer-dot scale, sized from the
@@ -123,7 +125,7 @@ void _draw1D(
   final textPass = drawText
       ? previewBarcodeFor(b)
             .make(
-              b.data,
+              _textData(b),
               width: m.width,
               height: m.height + textH,
               drawText: true,
@@ -175,6 +177,13 @@ typedef BarcodeTextPlacement = ({
   double height,
 });
 
+/// The data the interpretation line is drawn from: mode-N Code 128 hides
+/// its leading start invocation (`>9`, `>:`, `>;`), as the printer does.
+String _textData(ZplBarcode b) =>
+    b.type == ZplBarcodeType.code128 && b.code128Mode == ZplCode128Mode.none
+    ? code128ModeNPayload(b.data)
+    : b.data;
+
 /// The interpretation-line text of [b] as the preview paints it.
 @visibleForTesting
 List<BarcodeTextPlacement> debugBarcodeTextPlacements(ZplBarcode b) {
@@ -182,7 +191,7 @@ List<BarcodeTextPlacement> debugBarcodeTextPlacements(ZplBarcode b) {
   final textH = interpretationLineHeight(b);
   final pass = previewBarcodeFor(b)
       .make(
-        b.data,
+        _textData(b),
         width: m.width,
         height: m.height + textH,
         drawText: true,

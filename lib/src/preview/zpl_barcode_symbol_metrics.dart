@@ -134,7 +134,10 @@ ZplBarcodeSymbolMetrics? _measure(ZplBarcode b) {
 }
 
 ZplBarcodeSymbolMetrics _measureCode128(ZplBarcode b) {
-  final units = zebraCode128Units(b.data);
+  final units = zebraCode128Units(
+    b.data,
+    automatic: b.code128Mode == ZplCode128Mode.automatic,
+  );
   return ZplBarcodeSymbolMetrics(
     barUnits: units,
     modulesWide: units.fold(0, (s, u) => s + u),

@@ -53,12 +53,12 @@ void main() {
     );
     expect(
       Gs1ElementString.toFnc1(els),
-      '~1010950110153000317261231'
-      '10A1~d02921S9',
+      '@1010950110153000317261231'
+      '10A1@d02921S9',
     );
     expect(
       Gs1ElementString.parenthesisedToFnc1(full),
-      '~101095011015300031726123110A1',
+      '@101095011015300031726123110A1',
     );
     expect(
       Gs1ElementString.toFnc1(els, escape: '_'),
@@ -67,10 +67,19 @@ void main() {
     );
   });
 
+  test('the default escape is @ and ~ is still available', () {
+    expect(kGs1DataMatrixEscape, '@');
+    final els = Gs1ElementString.parse('(10)A(21)B');
+    expect(Gs1ElementString.toFnc1(els), '@110A@d02921B');
+    expect(Gs1ElementString.toFnc1(els, escape: '~'), '~110A~d02921B');
+    expect(Gs1ElementString.fromFnc1('~110A~d02921B', escape: '~'), els);
+    expect(Gs1ElementString.tryFromFnc1('~110A~d02921B'), isNull);
+  });
+
   test('placeholders convert without lengths', () {
     expect(
       Gs1ElementString.parenthesisedToFnc1('(10){{lot}}(17){{e}}'),
-      '~110{{lot}}~d0291'
+      '@110{{lot}}@d0291'
       '7{{e}}',
     );
   });
@@ -103,13 +112,13 @@ void main() {
   test('back-conversion fails on bad data', () {
     for (final bad in [
       '0109501101530003',
-      '~1',
-      '~199abc',
-      '~101095011015',
-      '~110{{open',
-      '~110~d029',
-      '~110A~d029',
-      '~1',
+      '@1',
+      '@199abc',
+      '@101095011015',
+      '@110{{open',
+      '@110@d029',
+      '@110A@d029',
+      '@1',
     ]) {
       expect(
         () => Gs1ElementString.fromFnc1(bad),
@@ -118,13 +127,13 @@ void main() {
       );
       expect(Gs1ElementString.tryFromFnc1(bad), isNull);
     }
-    expect(Gs1ElementString.tryFromFnc1('~110A'), isNotNull);
+    expect(Gs1ElementString.tryFromFnc1('@110A'), isNotNull);
   });
 
   test('toFnc1 rejects a value that contains the escape character', () {
     final lot = Gs1ApplicationIdentifier.lookup('10')!;
     expect(
-      () => Gs1ElementString.toFnc1([Gs1Element(lot, 'A~d029B')]),
+      () => Gs1ElementString.toFnc1([Gs1Element(lot, 'A@d029B')]),
       throwsFormatException,
     );
     expect(
@@ -137,10 +146,10 @@ void main() {
     expect(() => Gs1ElementString.parse('(10)A(10)B'), throwsFormatException);
     expect(Gs1ElementString.tryParse('(10)A(10)B'), isNull);
     expect(
-      () => Gs1ElementString.fromFnc1('~110A~d02910B'),
+      () => Gs1ElementString.fromFnc1('@110A@d02910B'),
       throwsFormatException,
     );
-    expect(Gs1ElementString.tryFromFnc1('~110A~d02910B'), isNull);
+    expect(Gs1ElementString.tryFromFnc1('@110A@d02910B'), isNull);
   });
 
   group('modeDFieldData', () {

@@ -101,6 +101,8 @@ void main() {
     expect(v('10', 'A~1B'), Gs1ValueError.badCharacter);
     expect(v('10', '{{lot~d029}}'), Gs1ValueError.badCharacter);
     expect(v('10', 'A^FSB'), Gs1ValueError.badCharacter);
+    expect(v('10', 'A@1'), Gs1ValueError.badCharacter);
+    expect(v('10', '{{lot@d029}}'), Gs1ValueError.badCharacter);
     expect(v('10', '{{lot}}'), isNull);
   });
 }

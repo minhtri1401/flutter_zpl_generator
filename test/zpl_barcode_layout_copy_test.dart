@@ -19,15 +19,15 @@ void main() {
   test('ZplColumn keeps gs1 and code128Mode on a barcode child', () {
     final direct = gs1Dm.toZpl(config);
     final inCol = ZplColumn(children: [gs1Dm]).toZpl(config);
-    expect(inCol, contains('~1'));
-    expect(direct, contains('~1'));
+    expect(inCol, contains('@1'));
+    expect(direct, contains('@1'));
     expect(ZplColumn(children: [modeN]).toZpl(config), contains(',N,N'));
   });
 
   test('ZplGridRow keeps gs1 and code128Mode on a barcode child', () {
     ZplGridRow row(ZplBarcode b) =>
         ZplGridRow(children: [ZplGridCol(width: 12, child: b)]);
-    expect(row(gs1Dm).toZpl(config), contains('~1'));
+    expect(row(gs1Dm).toZpl(config), contains('@1'));
     expect(row(modeN).toZpl(config), contains(',N,N'));
   });
 

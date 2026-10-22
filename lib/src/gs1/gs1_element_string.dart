@@ -1,5 +1,13 @@
 import 'gs1_application_identifier.dart';
 
+/// The escape character for GS1 Data Matrix (`^BXo,h,200,,,,@`): FNC1 is
+/// `@1` and the group separator `@d029`.
+///
+/// `~` cannot be used: the printer parses it as a ZPL control prefix and
+/// drops the FNC1 and the data after it. `@` is outside GS1 character set 82,
+/// is not a ZPL prefix and is not the `^FH` indicator.
+const String kGs1DataMatrixEscape = '@';
+
 /// One application identifier with its value.
 class Gs1Element {
   const Gs1Element(this.ai, this.value);
@@ -75,10 +83,13 @@ class Gs1ElementString {
   static String format(List<Gs1Element> elements) =>
       elements.map((e) => '(${e.ai.code})${e.value}').join();
 
-  /// Converts [elements] to the FNC1 form for [escape] (`~` by default).
+  /// Converts [elements] to the FNC1 form for [escape] (`@` by default).
   /// Throws [FormatException] when a value contains [escape], which would
   /// inject a FNC1 or separator.
-  static String toFnc1(List<Gs1Element> elements, {String escape = '~'}) {
+  static String toFnc1(
+    List<Gs1Element> elements, {
+    String escape = kGs1DataMatrixEscape,
+  }) {
     final b = StringBuffer('${escape}1');
     for (var i = 0; i < elements.length; i++) {
       final e = elements[i];
@@ -100,8 +111,10 @@ class Gs1ElementString {
 
   /// Converts [elements] straight from parenthesised text to the FNC1 form.
   /// Throws [FormatException] like [parse].
-  static String parenthesisedToFnc1(String text, {String escape = '~'}) =>
-      toFnc1(parse(text), escape: escape);
+  static String parenthesisedToFnc1(
+    String text, {
+    String escape = kGs1DataMatrixEscape,
+  }) => toFnc1(parse(text), escape: escape);
 
   /// The `^FD` content for a GS1-128 (`^BC…,D`) field: [data] with `>8`
   /// (FNC1) inserted before every AI that follows a variable-length value,
@@ -124,7 +137,10 @@ class Gs1ElementString {
   /// Converts concrete FNC1 data back to elements, using the AI table to split
   /// fixed-length values. A whole `{{placeholder}}` is kept as one value.
   /// Throws [FormatException] on a missing prefix, unknown AI, or bad length.
-  static List<Gs1Element> fromFnc1(String data, {String escape = '~'}) {
+  static List<Gs1Element> fromFnc1(
+    String data, {
+    String escape = kGs1DataMatrixEscape,
+  }) {
     final prefix = '${escape}1';
     final sep = '${escape}d029';
     if (!data.startsWith(prefix)) {
@@ -168,7 +184,10 @@ class Gs1ElementString {
   }
 
   /// Like [fromFnc1] but returns null instead of throwing.
-  static List<Gs1Element>? tryFromFnc1(String data, {String escape = '~'}) {
+  static List<Gs1Element>? tryFromFnc1(
+    String data, {
+    String escape = kGs1DataMatrixEscape,
+  }) {
     try {
       return fromFnc1(data, escape: escape);
     } on FormatException {

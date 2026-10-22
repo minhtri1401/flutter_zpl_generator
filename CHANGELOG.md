@@ -5,15 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.5.1] - 2026-10-23
 
 ### Fixed
 
+- The GS1 Data Matrix escape (`ZplBarcode.gs1`) is `@`, not `~`: `^BXo,h,200,,,,@` with FNC1 as `@1` and the group separator as `@d029`. The printer parses `~1` and `~d029` as ZPL control commands and drops them, so the symbols 2.5.0 emitted lost their FNC1 and data and do not scan. `@` is outside GS1 character set 82, is not a ZPL prefix and is not the `^FH` indicator. New `kGs1DataMatrixEscape`; `Gs1ElementString.toFnc1`, `parenthesisedToFnc1`, `fromFnc1` and `tryFromFnc1` default to it (pass `escape: '~'` to read 2.5.0 data), and `Gs1ApplicationIdentifier.validate` now also rejects `@` in a value, so a value cannot inject a FNC1.
 - GS1-128 (`ZplBarcodeType.gs1_128`, `^BC…,D`) preview and width now match the printer. 2.5.0 measured it through `package:barcode` and drew 277 modules for a 178-module symbol (`(01)09501101530003(10)A1` at module width 2 is now 356 dots, not 554) while calling the preview exact. The new mode D encoder follows the printer: start C when the data begins with two digits (else B), FNC1 after the start, Zebra's automatic set switching with FNC1 transparent in digit runs, and any `>` other than `>8` unencodable. Data typed without parentheses or with spaces is encoded as the FNC1-led symbol the printer prints. The interpretation line shows the data without `>8`.
 - GS1-128 chained application identifiers get `>8` (FNC1) after every variable-length value, because the printer does not insert the separator itself: `(10)ABC(21)123` is emitted as `^FD(10)ABC>8(21)123^FS`. New `Gs1ElementString.modeDFieldData`. Data that already holds `>8` is left alone.
 - Code 128 mode N (`ZplCode128Mode.none`) now follows the printer. The 2.5.0 claim that `>9` "encodes the following text in subset A" was wrong: after `>9`, `>;`, `>5` or `>7` the printer reads **digit pairs** (`00`-`99`, one symbol each) and skips every other character, so `>9X001ABCDE1` prints a single data symbol (46 modules), not 11. Subset B still reads ASCII. The other invocations have fixed values (`><` 62, `>0` 30, `>=` 94, `>1` 95, `>2` 96, `>3` 97, `>8` 102; `>5`, `>6`, `>7` switch to C, B, A); a later `>9`, `>:` or `>;`, an unknown `>x` and a trailing `>` are dropped; `>4` (SHIFT) and pair 98 in subset A are unencodable in the preview. The interpretation line is the decoded text of the data symbols (for example `>93334353637` prints `ABCDE`), not the typed data.
 
 ## [2.5.0] - 2026-10-22
+
+Two statements below were wrong (`>9` subset A text; the `~` escape); see 2.5.1.
 
 ### Added
 

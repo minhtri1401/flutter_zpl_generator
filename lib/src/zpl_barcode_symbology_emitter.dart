@@ -56,13 +56,15 @@ String emitBarcodeSymbology(ZplBarcode b) {
     case ZplBarcodeType.dataMatrix:
       // ^BXo,h,q — h: module height, q: quality (200 = ECC 200)
       // GS1 adds g (escape character, set explicitly because the default
-      // differs by firmware) and sends FNC1 as "~1" and GS as "~d029".
+      // differs by firmware) to "@" and sends FNC1 as "@1" and GS as
+      // "@d029". "~" is not usable: the printer parses it as a ZPL control
+      // command and drops the FNC1 and the data.
       final fnc1 = b.gs1 ? _gs1DataMatrixData(b.data) : null;
       if (fnc1 == null) {
         sb.writeln('^BX$o,$h,200');
         sb.writeln('^FD${b.data}^FS');
       } else {
-        sb.writeln('^BX$o,$h,200,,,,~');
+        sb.writeln('^BX$o,$h,200,,,,$kGs1DataMatrixEscape');
         sb.writeln('^FD$fnc1^FS');
       }
 

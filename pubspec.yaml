@@ -1,6 +1,6 @@
 name: flutter_zpl_generator
 description: "Generate ZPL (Zebra Programming Language) labels in Flutter and Dart: barcodes, QR codes, images, TTF fonts, grid layouts and live preview. Print with flutter_zpl_printer."
-version: 2.5.0
+version: 2.5.1
 homepage: https://github.com/minhtri1401/flutter_zpl_generator
 repository: https://github.com/minhtri1401/flutter_zpl_generator
 issue_tracker: https://github.com/minhtri1401/flutter_zpl_generator/issues

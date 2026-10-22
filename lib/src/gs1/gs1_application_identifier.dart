@@ -168,9 +168,10 @@ class Gs1ApplicationIdentifier {
   /// Checks [value] against this AI's rule. Returns the first broken rule,
   /// or null when the value is valid. A whole `{{placeholder}}` is valid.
   Gs1ValueError? validate(String value) {
-    // `~` and `^` are ZPL control characters; a value must never carry one,
-    // placeholder or not, or it could inject a FNC1 or group separator.
-    if (value.contains('~') || value.contains('^')) {
+    // `~` and `^` are ZPL control characters and `@` is the GS1 Data Matrix
+    // escape; a value must never carry one, placeholder or not, or it could
+    // inject a FNC1 or group separator.
+    if (value.contains('~') || value.contains('^') || value.contains('@')) {
       return Gs1ValueError.badCharacter;
     }
     // `(` and `)` frame an AI in an element string; [Gs1ElementString.parse]

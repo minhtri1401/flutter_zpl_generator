@@ -217,10 +217,41 @@ void main() {
       expect(
         out,
         contains(
-          '^BXN,6,200,,,,~\n^FD~10109501101530003'
-          '10{{lot}}~d02921{{sn}}^FS',
+          '^BXN,6,200,,,,@\n^FD@10109501101530003'
+          '10{{lot}}@d02921{{sn}}^FS',
         ),
       );
+    });
+
+    test('a concrete element string uses @ and no ~ anywhere', () {
+      final out = zpl(
+        ZplBarcode(
+          data: '(01)09501101530003(17)261231(10)A1(21)XYZ',
+          type: ZplBarcodeType.dataMatrix,
+          height: 6,
+          gs1: true,
+        ),
+      );
+      expect(
+        out,
+        contains(
+          '^BXN,6,200,,,,@\n'
+          '^FD@101095011015300031726123110A1@d02921XYZ^FS',
+        ),
+      );
+      expect(out.contains('~'), isFalse);
+    });
+
+    test('a value holding @ falls back to plain', () {
+      final out = zpl(
+        ZplBarcode(
+          data: '(10)A@1B',
+          type: ZplBarcodeType.dataMatrix,
+          height: 6,
+          gs1: true,
+        ),
+      );
+      expect(out, contains('^BXN,6,200\n'));
     });
 
     test('plain Data Matrix is emitted exactly as before', () {
@@ -248,7 +279,7 @@ void main() {
       expect(out, contains('^BXN,6,200\n^FDnot gs1^FS'));
       final inj = zpl(
         ZplBarcode(
-          data: '(10)A~d029B',
+          data: '(10)A@d029B',
           type: ZplBarcodeType.dataMatrix,
           height: 6,
           gs1: true,

@@ -7,6 +7,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_zpl_generator/flutter_zpl_generator.dart';
+import 'package:flutter_zpl_generator/src/preview/zpl_barcode_symbol_metrics.dart';
 import 'package:image/image.dart' as img;
 
 void main() {
@@ -19,6 +20,53 @@ void main() {
     );
 
     group('Real API calls', () {
+      test(
+        'GS1 Data Matrix prints the full symbol with the @ escape',
+        () async {
+          final barcode = ZplBarcode(
+            data: '(01)09501101530003(17)261231(10)A1(21)XYZ',
+            type: ZplBarcodeType.dataMatrix,
+            x: 20,
+            y: 20,
+            height: 6,
+            gs1: true,
+          );
+          final generator = ZplGenerator(
+            config: const ZplConfiguration(
+              printWidth: 400,
+              labelLength: 200,
+              printDensity: ZplPrintDensity.d8,
+            ),
+            commands: [barcode],
+          );
+          final zpl = await generator.build();
+          final png = await LabelaryService.renderZplSimple(
+            zpl,
+            density: LabelaryPrintDensity.d8,
+            width: 2,
+            height: 1,
+          );
+          final image = img.decodePng(png)!;
+          var minX = image.width, minY = image.height, maxX = -1, maxY = -1;
+          for (final p in image) {
+            if (p.r < 128) {
+              if (p.x < minX) minX = p.x;
+              if (p.y < minY) minY = p.y;
+              if (p.x > maxX) maxX = p.x;
+              if (p.y > maxY) maxY = p.y;
+            }
+          }
+          final m = measureBarcodeSymbol(barcode)!;
+          expect(maxX - minX + 1, (m.modulesWide * m.moduleWidth).round());
+          expect(maxY - minY + 1, (m.modulesHigh * m.moduleHeight).round());
+          expect(
+            (m.modulesWide * m.moduleWidth).round(),
+            120,
+          ); // 20 modules x 6
+        },
+        skip: shouldSkip,
+      );
+
       test('renderZpl - Basic label with text (PNG)', () async {
         // Create ZPL using ZplGenerator
         final generator = ZplGenerator(

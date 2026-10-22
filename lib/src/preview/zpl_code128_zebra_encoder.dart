@@ -146,7 +146,8 @@ String code128ModeNPayload(String data) =>
 
 /// Invocation values for `>x` sequences that emit one symbol and keep the
 /// current set. `>5`, `>6` and `>7` also switch the set and are handled
-/// separately.
+/// separately. `><` (62), `>0` (30) and `>=` (94) are ordinary data values
+/// (in set B `^`, `>` and `~`); the others are function values.
 const Map<String, int> _invocationValues = {
   '<': 62,
   '0': 30,
@@ -156,6 +157,9 @@ const Map<String, int> _invocationValues = {
   '3': 97,
   '8': 102,
 };
+
+/// Invocations whose value is data, so the interpretation line shows it.
+const Set<String> _dataInvocations = {'<', '0', '='};
 
 /// One walk over mode-N data: the symbol values (without check digit and
 /// stop) and the text the interpretation line shows.
@@ -170,7 +174,8 @@ const Map<String, int> _invocationValues = {
 ///   next character is not a digit and a trailing lone digit are skipped.
 ///   Set B reads ASCII (value = character - 0x20).
 /// * `>` always starts an invocation, even while reading pairs. `><`, `>0`,
-///   `>=`, `>1`, `>2`, `>3` and `>8` emit fixed values; `>5` emits CODE C,
+///   `>=`, `>1`, `>2`, `>3` and `>8` emit fixed values (the first three are
+///   data values and print, the rest are function values); `>5` emits CODE C,
 ///   `>6` CODE B and `>7` CODE A and switch the set. A later `>9`, `>:` or
 ///   `>;`, an unknown `>x` and a trailing `>` are dropped.
 /// * `>4` (SHIFT), pair 98 in set A and a set-B character outside
@@ -187,6 +192,17 @@ const Map<String, int> _invocationValues = {
     _startC => 'C',
     _ => 'B',
   };
+  // The printed character of symbol value [v] in the current set, if any:
+  // set B values are characters, set A values 0-63 are 0x20-0x5F (higher
+  // values are controls), set C values are two digits.
+  void writeValue(int v) {
+    if (set == 'C') {
+      text.write(v.toString().padLeft(2, '0'));
+    } else if (set == 'B' ? v < 95 : v < 64) {
+      text.writeCharCode(v + 0x20);
+    }
+  }
+
   int i = start == null ? 0 : 2;
   while (i < cs.length) {
     final c = cs[i];
@@ -197,6 +213,7 @@ const Map<String, int> _invocationValues = {
       final fixed = _invocationValues[x];
       if (fixed != null) {
         out.add(fixed);
+        if (_dataInvocations.contains(x)) writeValue(fixed);
       } else if (x == '5') {
         out.add(_codeC);
         set = 'C';
@@ -229,15 +246,11 @@ const Map<String, int> _invocationValues = {
     final v = (c - 0x30) * 10 + (cs[i + 1] - 0x30);
     i += 2;
     out.add(v);
-    if (set == 'C') {
-      text.write(data.substring(i - 2, i));
-    } else if (v == 98) {
+    if (set == 'A' && v == 98) {
       throw ArgumentError.value(data, 'data', 'Pair 98 is SHIFT in subset A');
-    } else if (v == 99) {
-      set = 'C';
-    } else if (v < 64) {
-      text.writeCharCode(v + 0x20);
     }
+    writeValue(v);
+    if (set == 'A' && v == 99) set = 'C';
   }
   return (symbols: out, text: text.toString());
 }

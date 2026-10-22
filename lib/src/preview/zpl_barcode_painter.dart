@@ -135,10 +135,11 @@ void _draw1D(
   // A second pass with text gives per-bar heights (EAN/UPC guard bars
   // extend into the text line) and the digit positions. Its bars carry
   // package margins, so map them onto the exact module grid by index.
-  final textPass = drawText && _textData(b).isNotEmpty
+  final text = drawText ? _textData(b) : '';
+  final textPass = text.isNotEmpty
       ? previewBarcodeFor(b)
             .make(
-              _textData(b),
+              text,
               width: m.width,
               height: m.height + textH,
               drawText: true,
@@ -203,10 +204,11 @@ String _textData(ZplBarcode b) =>
 List<BarcodeTextPlacement> debugBarcodeTextPlacements(ZplBarcode b) {
   final m = measureBarcodeSymbol(b)!;
   final textH = interpretationLineHeight(b);
-  if (_textData(b).isEmpty) return const [];
+  final text = _textData(b);
+  if (text.isEmpty) return const [];
   final pass = previewBarcodeFor(b)
       .make(
-        _textData(b),
+        text,
         width: m.width,
         height: m.height + textH,
         drawText: true,

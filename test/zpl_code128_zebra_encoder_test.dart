@@ -216,7 +216,15 @@ void modeNTests() {
       expect(code128ModeNText('>;123456'), '123456');
       expect(code128ModeNText('>9X001ABCDE1'), ' ');
       expect(code128ModeNText('X001ABCDE1'), 'X001ABCDE1');
-      expect(code128ModeNText('>:A><B>1C'), 'ABC');
+      expect(code128ModeNText('>:A><B>1C'), 'A^BC');
+      // ><, >0 and >= are data values (^, > and ~ in B), Labelary-verified.
+      expect(code128ModeNText('>:A><B>0C>=D'), 'A^B>C~D');
+      expect(code128ModeNText('>9>00102'), '>!"');
+      // In set A, 94 is a control value and prints nothing; in C it is "94".
+      expect(code128ModeNText('>9A>=B'), '');
+      expect(code128ModeNText('>;>=12'), '9412');
+      // Function values stay silent.
+      expect(code128ModeNText('>:A>1B>2C>3D>8E'), 'ABCDE');
       expect(code128ModeNText('>9X'), '');
       // Set A values 64+ are control codes: no text.
       expect(code128ModeNText('>95364'), 'U');
